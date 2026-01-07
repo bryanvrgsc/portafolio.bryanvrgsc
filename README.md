@@ -1,22 +1,23 @@
 # macOS Portfolio Simulator
 
-<div align="center">
-
 ![Next.js](https://img.shields.io/badge/next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)
 ![React](https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB)
 ![TypeScript](https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white)
 ![TailwindCSS](https://img.shields.io/badge/tailwindcss-%2338B2AC.svg?style=for-the-badge&logo=tailwind-css&logoColor=white)
 ![Framer Motion](https://img.shields.io/badge/Framer-black?style=for-the-badge&logo=framer&logoColor=white)
 
-</div>
-
-A fully interactive portfolio website that simulates the macOS desktop experience in your browser. Built with **Next.js 16**, **React 19**, **Tailwind CSS**, and **Framer Motion**.
+A fully interactive portfolio website that simulates the macOS desktop
+experience in your browser. Built with **Next.js 16**, **React 19**,
+**Tailwind CSS**, and **Framer Motion**.
 
 ![Project Screenshot](public/macbook_pro.png)
 
 ## 🚀 Overview
 
-This project recreates the look and feel of macOS, offering a familiar desktop interface to showcase portfolio content. It features a window management system, functional apps, a simulated file system, and system-level controls like Spotlight and Control Center.
+This project recreates the look and feel of macOS, offering a familiar desktop
+interface to showcase portfolio content. It features a window management system,
+functional apps, a simulated file system, and system-level controls like
+Spotlight and Control Center.
 
 ## ✨ Features
 
@@ -28,8 +29,10 @@ This project recreates the look and feel of macOS, offering a familiar desktop i
   - Drag-and-select functionality for desktop icons.
 
 - **Apps & Tools:**
-  - **Finder:** Browse a simulated file system (create folders, rename, delete files).
-  - **Terminal:** Interactive shell supporting commands like `ls`, `help`, `whoami`, `date`, `uname`, `clear`.
+  - **Finder:** Browse a simulated file system (create folders, rename, delete
+    files).
+  - **Terminal:** Interactive shell supporting commands like `ls`, `help`,
+    `whoami`, `date`, `uname`, `clear`.
   - **Safari:** Simulated web browser interface.
   - **Profile:** Dedicated app to showcase personal portfolio information.
   - **Settings:** System preferences simulation.
@@ -61,12 +64,14 @@ This project recreates the look and feel of macOS, offering a familiar desktop i
 ### Installation
 
 1. Clone the repository:
+
    ```bash
    git clone https://github.com/yourusername/portafolio.bryanvrgsc.git
    cd portafolio.bryanvrgsc
    ```
 
 2. Install dependencies:
+
    ```bash
    npm install
    # or
@@ -76,6 +81,7 @@ This project recreates the look and feel of macOS, offering a familiar desktop i
    ```
 
 3. Run the development server:
+
    ```bash
    npm run dev
    ```
@@ -85,7 +91,7 @@ This project recreates the look and feel of macOS, offering a familiar desktop i
 ## ⌨️ Shortcuts
 
 | Shortcut | Action |
-|----------|--------|
+| --- | --- |
 | `Cmd + Space` | Toggle Spotlight Search |
 | `Ctrl + Space` | Toggle Spotlight Search |
 | `Cmd + W` | Close Active Window |
@@ -95,7 +101,7 @@ This project recreates the look and feel of macOS, offering a familiar desktop i
 
 ## 📂 Project Structure
 
-```
+```text
 ├── app/                  # Next.js App Router pages
 ├── components/           # UI Components (Desktop, Dock, Apps)
 │   ├── Apps/             # Individual App Components
