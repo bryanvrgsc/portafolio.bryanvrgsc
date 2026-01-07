@@ -1,5 +1,15 @@
 # macOS Portfolio Simulator
 
+<div align="center">
+
+![Next.js](https://img.shields.io/badge/next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)
+![React](https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB)
+![TypeScript](https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white)
+![TailwindCSS](https://img.shields.io/badge/tailwindcss-%2338B2AC.svg?style=for-the-badge&logo=tailwind-css&logoColor=white)
+![Framer Motion](https://img.shields.io/badge/Framer-black?style=for-the-badge&logo=framer&logoColor=white)
+
+</div>
+
 A fully interactive portfolio website that simulates the macOS desktop experience in your browser. Built with **Next.js 16**, **React 19**, **Tailwind CSS**, and **Framer Motion**.
 
 ![Project Screenshot](public/macbook_pro.png)
