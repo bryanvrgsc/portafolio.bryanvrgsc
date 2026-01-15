@@ -73,7 +73,7 @@ const DockIcon = memo(({
         height: sizeSpring,
       }}
       onClick={onClick}
-      className="relative cursor-pointer flex-shrink-0 group mx-[-4px]"
+      className="relative cursor-pointer flex-shrink-0 group mx-1"
     >
       {/* Icono */}
       <Image
