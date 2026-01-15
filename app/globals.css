@@ -22,11 +22,19 @@ body {
   }
   .backdrop-blur-xl {
     backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
   }
   .backdrop-blur-2xl {
     backdrop-filter: blur(40px);
+    -webkit-backdrop-filter: blur(40px);
   }
   .backdrop-blur-3xl {
     backdrop-filter: blur(60px);
+    -webkit-backdrop-filter: blur(60px);
+  }
+  /* Optimización de animaciones */
+  .gpu-accelerated {
+    transform: translateZ(0);
+    will-change: transform;
   }
 }

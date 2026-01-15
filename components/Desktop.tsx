@@ -29,7 +29,7 @@ export interface WindowState {
 
 import { useSystem } from '@/context/SystemContext';
 
-const Desktop = () => {
+const Desktop = React.memo(() => {
   const { fs, addFolder, deleteFile, renameFile } = useFileSystem();
   const { brightness } = useSystem();
   const [booting, setBooting] = useState(true);
@@ -75,8 +75,8 @@ const Desktop = () => {
 
   const closeWindow = useCallback((id: AppId) => {
     setWindows((prev) => ({ ...prev, [id]: { ...prev[id], isOpen: false, isMaximized: false } }));
-    if (activeApp === id) setActiveApp(null);
-  }, [activeApp]);
+    setActiveApp(prev => prev === id ? null : prev);
+  }, []);
 
   const toggleApp = useCallback((id: AppId) => {
     setWindows((prev) => {
@@ -104,7 +104,7 @@ const Desktop = () => {
 
   const [iconRects, setIconRects] = useState<Record<string, DOMRect>>({});
 
-  const handleMouseDown = (e: React.MouseEvent) => {
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
     if (e.button !== 0) return;
     const target = e.target as HTMLElement;
     if (spotlightOpen && !target.closest('.spotlight-container') && !target.closest('.search-toggle')) setSpotlightOpen(false);
@@ -133,9 +133,9 @@ const Desktop = () => {
       });
       setIconRects(rects);
     }
-  };
+  }, [spotlightOpen, isControlCenterOpen, isNotifOpen, editingId]);
 
-  const handleMouseMove = (e: React.MouseEvent) => {
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
     if (!isDragging || !selection) return;
 
     const currentX = e.clientX;
@@ -167,13 +167,35 @@ const Desktop = () => {
       }
       return newlySelected;
     });
-  };
+  }, [isDragging, selection, iconRects]);
 
-  const handleMouseUp = () => {
+  const handleMouseUp = useCallback(() => {
     setIsDragging(false);
     setSelection(null);
     setIconRects({});
-  };
+  }, []);
+
+  const contextMenuItems = React.useMemo(() => {
+    if (!contextMenu) return [];
+    if (contextMenu.targetId) {
+      const target = fs.find(f => f.id === contextMenu.targetId);
+      const items = [
+        { label: 'Obtener información', onClick: () => { } },
+      ];
+      if (target && !target.isProtected) {
+        items.push(
+          { label: 'Renombrar', onClick: () => setEditingId(target.id) },
+          { label: 'Trasladar a la papelera', onClick: () => deleteFile(contextMenu.targetId!) }
+        );
+      }
+      return items;
+    }
+    return [
+      { label: 'Nueva Carpeta', onClick: () => addFolder(null) },
+      { label: 'Obtener información', onClick: () => { } },
+      { label: 'Cambiar fondo...', onClick: () => { }, divider: true }
+    ];
+  }, [contextMenu, fs, addFolder, deleteFile]);
 
   if (isShutDown) return <div className="h-screen w-full bg-black transition-opacity duration-1000" />;
   if (booting) {
@@ -201,26 +223,7 @@ const Desktop = () => {
             x={contextMenu.x}
             y={contextMenu.y}
             onClose={() => setContextMenu(null)}
-            items={(() => {
-              if (contextMenu.targetId) {
-                const target = fs.find(f => f.id === contextMenu.targetId);
-                const items = [
-                  { label: 'Obtener información', onClick: () => { } },
-                ];
-                if (target && !target.isProtected) {
-                  items.push(
-                    { label: 'Renombrar', onClick: () => setEditingId(target.id) },
-                    { label: 'Trasladar a la papelera', onClick: () => deleteFile(contextMenu.targetId!) }
-                  );
-                }
-                return items;
-              }
-              return [
-                { label: 'Nueva Carpeta', onClick: () => addFolder(null) },
-                { label: 'Obtener información', onClick: () => { } },
-                { label: 'Cambiar fondo...', onClick: () => { }, divider: true }
-              ];
-            })()}
+            items={contextMenuItems}
           />
         )}
       </AnimatePresence>
@@ -285,6 +288,8 @@ const Desktop = () => {
       />
     </div>
   );
-};
+});
+
+Desktop.displayName = 'Desktop';
 
 export default Desktop;

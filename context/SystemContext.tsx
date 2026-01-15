@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useMemo, useCallback } from 'react';
 
 interface SystemContextType {
     brightness: number;
@@ -14,28 +14,41 @@ const SystemContext = createContext<SystemContextType | undefined>(undefined);
 export const SystemProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [brightness, setBrightnessState] = useState(100);
     const [volume, setVolumeState] = useState(50);
+    const [isInitialized, setIsInitialized] = useState(false);
 
-    // Load from localStorage on mount
+    // Load from localStorage on mount (solo una vez)
     useEffect(() => {
         const savedBrightness = localStorage.getItem('system_brightness');
         const savedVolume = localStorage.getItem('system_volume');
 
         if (savedBrightness) setBrightnessState(parseInt(savedBrightness));
         if (savedVolume) setVolumeState(parseInt(savedVolume));
+        setIsInitialized(true);
     }, []);
 
-    const setBrightness = (value: number) => {
+    const setBrightness = useCallback((value: number) => {
         setBrightnessState(value);
-        localStorage.setItem('system_brightness', value.toString());
-    };
+        if (isInitialized) {
+            localStorage.setItem('system_brightness', value.toString());
+        }
+    }, [isInitialized]);
 
-    const setVolume = (value: number) => {
+    const setVolume = useCallback((value: number) => {
         setVolumeState(value);
-        localStorage.setItem('system_volume', value.toString());
-    };
+        if (isInitialized) {
+            localStorage.setItem('system_volume', value.toString());
+        }
+    }, [isInitialized]);
+
+    const value = useMemo(() => ({
+        brightness,
+        setBrightness,
+        volume,
+        setVolume
+    }), [brightness, setBrightness, volume, setVolume]);
 
     return (
-        <SystemContext.Provider value={{ brightness, setBrightness, volume, setVolume }}>
+        <SystemContext.Provider value={value}>
             {children}
         </SystemContext.Provider>
     );

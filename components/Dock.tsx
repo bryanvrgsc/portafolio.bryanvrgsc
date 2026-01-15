@@ -62,8 +62,8 @@ const DockIcon = memo(({
     return val !== Infinity ? val - centerX.get() : Infinity;
   });
 
-  const widthSync = useTransform(distance, [-150, 0, 150], [48, 80, 48]);
-  const width = useSpring(widthSync, { mass: 0.1, stiffness: 150, damping: 12 });
+  const scaleSync = useTransform(distance, [-200, 0, 200], [1, 2.3, 1]);
+  const scale = useSpring(scaleSync, { mass: 0.1, stiffness: 180, damping: 15 });
 
   const tooltipRef = useRef<HTMLDivElement>(null);
   const [tooltipStyle, setTooltipStyle] = React.useState<React.CSSProperties>({ left: '50%', transform: 'translateX(-50%)' });
@@ -91,11 +91,11 @@ const DockIcon = memo(({
   return (
     <motion.div
       ref={ref}
-      style={{ width, willChange: 'width, transform' }}
+      style={{ scale, willChange: 'transform' }}
       onClick={onClick}
       className={cn(
-        "aspect-square rounded-[1.2rem] bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center cursor-pointer relative group transition-all overflow-hidden",
-        isMinimized ? "opacity-50 scale-90" : "opacity-100",
+        "w-12 aspect-square rounded-[1.2rem] bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center cursor-pointer relative group transition-all overflow-hidden",
+        isMinimized ? "opacity-50" : "opacity-100",
         "hover:bg-white/30"
       )}
     >
