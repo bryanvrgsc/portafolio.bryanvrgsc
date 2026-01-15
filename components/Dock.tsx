@@ -65,6 +65,18 @@ const DockIcon = memo(({
   const scaleSync = useTransform(distance, [-200, 0, 200], [1, 2.3, 1]);
   const scale = useSpring(scaleSync, { mass: 0.1, stiffness: 180, damping: 15 });
 
+  // Desplazamiento lateral para crear efecto de "empuje" entre iconos
+  const translateXSync = useTransform(distance, (dist) => {
+    if (dist === Infinity) return 0;
+    const absDist = Math.abs(dist);
+    if (absDist > 200) return 0;
+    // Los iconos se desplazan hacia afuera cuando están cerca del cursor
+    const direction = dist > 0 ? 1 : -1;
+    const pushAmount = Math.max(0, (200 - absDist) / 200) * 20; // Máximo 20px de desplazamiento
+    return direction * pushAmount;
+  });
+  const translateX = useSpring(translateXSync, { mass: 0.1, stiffness: 180, damping: 15 });
+
   const tooltipRef = useRef<HTMLDivElement>(null);
   const [tooltipStyle, setTooltipStyle] = React.useState<React.CSSProperties>({ left: '50%', transform: 'translateX(-50%)' });
 
@@ -91,7 +103,7 @@ const DockIcon = memo(({
   return (
     <motion.div
       ref={ref}
-      style={{ scale, willChange: 'transform' }}
+      style={{ scale, x: translateX, willChange: 'transform' }}
       onClick={onClick}
       className={cn(
         "w-12 aspect-square rounded-[1.2rem] bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center cursor-pointer relative group transition-all overflow-hidden",
@@ -131,6 +143,7 @@ const DOCK_APPS: { id: AppId; emoji?: string; icon?: React.ReactNode; label: str
 
 const Dock: React.FC<DockProps> = ({ onLaunch, activeApp, minimizedApps }) => {
   const mouseX = useMotionValue(Infinity);
+  const dockRef = useRef<HTMLDivElement>(null);
 
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
     mouseX.set(e.clientX);
@@ -140,12 +153,41 @@ const Dock: React.FC<DockProps> = ({ onLaunch, activeApp, minimizedApps }) => {
     mouseX.set(Infinity);
   }, [mouseX]);
 
+  // Calcular padding adicional para los extremos del Dock
+  const paddingLeft = useTransform(mouseX, (x) => {
+    if (!dockRef.current || x === Infinity) return 16;
+    const rect = dockRef.current.getBoundingClientRect();
+    const distanceFromLeft = x - rect.left;
+    if (distanceFromLeft < 0 || distanceFromLeft > 150) return 16;
+    // Añadir padding extra cuando el mouse está cerca del borde izquierdo
+    const extraPadding = Math.max(0, (150 - distanceFromLeft) / 150) * 30;
+    return 16 + extraPadding;
+  });
+
+  const paddingRight = useTransform(mouseX, (x) => {
+    if (!dockRef.current || x === Infinity) return 16;
+    const rect = dockRef.current.getBoundingClientRect();
+    const distanceFromRight = rect.right - x;
+    if (distanceFromRight < 0 || distanceFromRight > 150) return 16;
+    // Añadir padding extra cuando el mouse está cerca del borde derecho
+    const extraPadding = Math.max(0, (150 - distanceFromRight) / 150) * 30;
+    return 16 + extraPadding;
+  });
+
+  const paddingLeftSpring = useSpring(paddingLeft, { mass: 0.1, stiffness: 180, damping: 15 });
+  const paddingRightSpring = useSpring(paddingRight, { mass: 0.1, stiffness: 180, damping: 15 });
+
   return (
     <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-[2000] dock-container">
       <motion.div
+        ref={dockRef}
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
-        className="flex items-end gap-3 px-4 py-3 bg-white/10 backdrop-blur-2xl border border-white/20 rounded-[24px] shadow-2xl"
+        style={{
+          paddingLeft: paddingLeftSpring,
+          paddingRight: paddingRightSpring
+        }}
+        className="flex items-end gap-3 py-3 bg-white/10 backdrop-blur-2xl border border-white/20 rounded-[24px] shadow-2xl"
       >
         {DOCK_APPS.map((app) => (
           <DockIcon
