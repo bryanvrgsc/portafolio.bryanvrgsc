@@ -12,7 +12,8 @@ interface DockProps {
 }
 
 interface DockIconProps {
-  emoji: string;
+  emoji?: string;
+  icon?: React.ReactNode;
   label: string;
   onClick: () => void;
   mouseX: MotionValue<number>;
@@ -20,8 +21,20 @@ interface DockIconProps {
   isMinimized: boolean;
 }
 
+const TerminalIcon = () => (
+  <div className="w-full h-full bg-black/90 flex flex-col items-start p-[20%] relative overflow-hidden">
+    <div className="flex items-center gap-[4px]">
+      <span className="text-green-500 font-bold text-[1.4rem] leading-none">$</span>
+      <div className="w-[8px] h-[1.2rem] bg-green-500 animate-pulse mt-[2px]" />
+    </div>
+    {/* Reflejo sutil superior */}
+    <div className="absolute top-0 left-0 w-full h-1/2 bg-gradient-to-b from-white/10 to-transparent pointer-events-none" />
+  </div>
+);
+
 const DockIcon = memo(({
   emoji,
+  icon,
   label,
   onClick,
   mouseX,
@@ -42,7 +55,6 @@ const DockIcon = memo(({
 
     updateCenter();
     window.addEventListener('resize', updateCenter);
-    // Intersection observer can also help if the dock moves
     return () => window.removeEventListener('resize', updateCenter);
   }, [centerX]);
 
@@ -82,12 +94,18 @@ const DockIcon = memo(({
       style={{ width, willChange: 'width, transform' }}
       onClick={onClick}
       className={cn(
-        "aspect-square rounded-2xl bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center cursor-pointer relative group transition-colors",
+        "aspect-square rounded-[1.2rem] bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center cursor-pointer relative group transition-all overflow-hidden",
         isMinimized ? "opacity-50 scale-90" : "opacity-100",
         "hover:bg-white/30"
       )}
     >
-      <span className="text-3xl select-none">{emoji}</span>
+      {icon ? (
+        <div className="w-full h-full flex items-center justify-center">
+          {icon}
+        </div>
+      ) : (
+        <span className="text-3xl select-none">{emoji}</span>
+      )}
       <div
         ref={tooltipRef}
         style={tooltipStyle}
@@ -104,11 +122,11 @@ const DockIcon = memo(({
 
 DockIcon.displayName = 'DockIcon';
 
-const DOCK_APPS: { id: AppId; emoji: string; label: string }[] = [
+const DOCK_APPS: { id: AppId; emoji?: string; icon?: React.ReactNode; label: string }[] = [
   { id: 'finder', emoji: '📂', label: 'Finder' },
   { id: 'profile', emoji: '👤', label: 'Perfil' },
   { id: 'browser', emoji: '🌐', label: 'Safari' },
-  { id: 'terminal', emoji: '💻', label: 'Terminal' },
+  { id: 'terminal', icon: <TerminalIcon />, label: 'iTerm' },
 ];
 
 const Dock: React.FC<DockProps> = ({ onLaunch, activeApp, minimizedApps }) => {
@@ -133,6 +151,7 @@ const Dock: React.FC<DockProps> = ({ onLaunch, activeApp, minimizedApps }) => {
           <DockIcon
             key={app.id}
             emoji={app.emoji}
+            icon={app.icon}
             label={app.label}
             onClick={() => onLaunch(app.id)}
             mouseX={mouseX}
@@ -140,6 +159,7 @@ const Dock: React.FC<DockProps> = ({ onLaunch, activeApp, minimizedApps }) => {
             isMinimized={minimizedApps.includes(app.id)}
           />
         ))}
+
       </motion.div>
     </div>
   );
