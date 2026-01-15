@@ -270,8 +270,8 @@ const Desktop = React.memo(() => {
         {Object.entries(windows).map(([id, state]) => {
           if (!state.isOpen || state.isMinimized) return null;
           let Content; let title; let it = 100; let il = 200; let w = "800px"; let h = "500px";
-          if (id === 'profile') { Content = <ProfileApp />; title = "Perfil"; it = 80; il = 150; w = "800px"; h = "500px"; }
-          else if (id === 'browser') { Content = <BrowserApp />; title = "Safari"; it = 120; il = 250; w = "800px"; h = "500px"; }
+          if (id === 'profile') { Content = <ProfileApp />; title = "Perfil"; it = 60; il = 120; w = "1000px"; h = "650px"; }
+          else if (id === 'browser') { Content = <BrowserApp />; title = "Safari"; it = 80; il = 150; w = "1200px"; h = "700px"; }
           else if (id === 'finder') { Content = <FinderApp />; title = "Finder"; it = 60; il = 100; w = "800px"; h = "500px"; }
           else if (id === 'terminal') { Content = <TerminalApp />; title = "Terminal"; it = 150; il = 300; w = "800px"; h = "500px"; }
           else if (id === 'about') { Content = <AboutThisMac />; title = ""; it = 100; il = (typeof window !== 'undefined' ? (window.innerWidth - 412) / 2 : 400); w = "412px"; h = "628px"; }
