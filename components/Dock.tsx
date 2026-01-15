@@ -46,8 +46,8 @@ const DockIcon = memo(({
   });
 
   // Tamaño del icono basado en distancia (efecto gaussiano)
-  const baseSize = 48;
-  const maxSize = 96;
+  const baseSize = 64;
+  const maxSize = 120;
 
   const size = useTransform(distance, (dist) => {
     if (dist === Infinity) return baseSize;
@@ -73,16 +73,16 @@ const DockIcon = memo(({
         height: sizeSpring,
       }}
       onClick={onClick}
-      className="relative cursor-pointer flex-shrink-0 group"
+      className="relative cursor-pointer flex-shrink-0 group mx-[-4px]"
     >
       {/* Icono */}
       <Image
         src={iconSrc}
         alt={label}
         fill
-        className={`object-contain transition-opacity ${isMinimized ? 'opacity-50' : 'opacity-100'}`}
+        className={`object-cover transition-opacity ${isMinimized ? 'opacity-50' : 'opacity-100'}`}
         draggable={false}
-        sizes="96px"
+        sizes="120px"
       />
 
       {/* Tooltip */}
@@ -134,28 +134,42 @@ const Dock: React.FC<DockProps> = ({ onLaunch, activeApp, minimizedApps }) => {
 
   return (
     <div className="fixed bottom-3 left-1/2 -translate-x-1/2 z-[2000] dock-container">
-      <motion.div
-        ref={dockRef}
-        onMouseMove={handleMouseMove}
-        onMouseLeave={handleMouseLeave}
-        style={{
-          paddingLeft: paddingSpring,
-          paddingRight: paddingSpring
-        }}
-        className="flex items-end gap-1 py-2 bg-white/20 backdrop-blur-2xl border border-white/30 rounded-2xl shadow-2xl"
-      >
-        {DOCK_APPS.map((app) => (
-          <DockIcon
-            key={app.id}
-            iconSrc={app.iconSrc}
-            label={app.label}
-            onClick={() => onLaunch(app.id)}
-            mouseX={mouseX}
-            isActive={activeApp === app.id}
-            isMinimized={minimizedApps.includes(app.id)}
-          />
-        ))}
-      </motion.div>
+      {/* Contenedor exterior para permitir overflow de iconos */}
+      <div className="relative">
+        {/* Fondo del dock con altura FIJA */}
+        <motion.div
+          ref={dockRef}
+          onMouseMove={handleMouseMove}
+          onMouseLeave={handleMouseLeave}
+          style={{
+            paddingLeft: paddingSpring,
+            paddingRight: paddingSpring
+          }}
+          className="absolute bottom-0 left-0 right-0 h-[72px] bg-white/20 backdrop-blur-2xl border border-white/30 rounded-2xl shadow-2xl pointer-events-auto"
+        />
+        {/* Contenedor de iconos (pueden sobresalir del fondo) */}
+        <motion.div
+          onMouseMove={handleMouseMove}
+          onMouseLeave={handleMouseLeave}
+          style={{
+            paddingLeft: paddingSpring,
+            paddingRight: paddingSpring
+          }}
+          className="relative flex items-end pb-2 pt-10"
+        >
+          {DOCK_APPS.map((app) => (
+            <DockIcon
+              key={app.id}
+              iconSrc={app.iconSrc}
+              label={app.label}
+              onClick={() => onLaunch(app.id)}
+              mouseX={mouseX}
+              isActive={activeApp === app.id}
+              isMinimized={minimizedApps.includes(app.id)}
+            />
+          ))}
+        </motion.div>
+      </div>
     </div>
   );
 };
