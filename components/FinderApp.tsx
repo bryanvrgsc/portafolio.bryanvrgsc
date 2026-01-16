@@ -295,35 +295,33 @@ const FinderApp = React.memo(() => {
 
       <div className="flex flex-1 overflow-hidden">
         {/* Sidebar */}
-        <div className="w-52 bg-white/[0.03] backdrop-blur-3xl border-r border-black/20 p-3 pt-4 flex flex-col gap-6 overflow-y-auto shrink-0">
+        <div className="w-[220px] bg-white/[0.03] backdrop-blur-3xl border-r border-black/20 p-3 pt-4 flex flex-col gap-4 overflow-y-auto shrink-0 text-[13px]">
           {sidebarSections.map((section, idx) => (
-            <div key={idx} className="flex flex-col gap-0.5">
+            <div key={idx} className="flex flex-col">
               {!section.hideTitle && (
-                <div className="text-[10.5px] font-bold text-white/30 px-2.5 mb-1.5 uppercase tracking-wider">{section.title}</div>
+                <div className="text-[11px] font-semibold text-white/30 px-3 mb-1.5">{section.title}</div>
               )}
               {section.items.map(item => (
                 <button
                   key={item.id}
                   onClick={() => handleSidebarClick(item)}
                   className={cn(
-                    "flex items-center justify-between px-2.5 py-1.5 rounded-[6px] text-[12.5px] group transition-all",
+                    "flex items-center justify-between px-3 py-1 rounded-[6px] group transition-all",
                     (currentFolder.id === item.id || (item.id === 'desktop' && currentFolder.id === null))
-                      ? "bg-[#fabd2e] text-black shadow-lg shadow-black/20"
-                      : "hover:bg-white/[0.08] text-white/75"
+                      ? "bg-[#fabd2e] text-black shadow-sm font-medium"
+                      : "hover:bg-white/[0.05] text-white/80"
                   )}
                 >
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2.5">
                     <span className={cn(
                       "transition-colors",
-                      (currentFolder.id === item.id || (item.id === 'desktop' && currentFolder.id === null)) ? "text-black/80 font-bold" : "text-blue-500"
+                      (currentFolder.id === item.id || (item.id === 'desktop' && currentFolder.id === null)) ? "text-black/80" : "text-[#0096ff]"
                     )}>{item.icon}</span>
-                    <span className={cn(
-                      "font-medium",
-                      (currentFolder.id === item.id || (item.id === 'desktop' && currentFolder.id === null)) ? "opacity-100" : "opacity-90"
-                    )}>{item.name}</span>
+                    <span className="truncate">{item.name}</span>
                   </div>
+                  {/* Status/Badge */}
                   <div className="flex items-center gap-1.5">
-                    {item.cloud && <Cloud size={11} className={cn((currentFolder.id === item.id || (item.id === 'desktop' && currentFolder.id === null)) ? "text-black/40" : "text-white/20")} />}
+                    {item.cloud && <Cloud size={12} className={cn((currentFolder.id === item.id || (item.id === 'desktop' && currentFolder.id === null)) ? "text-black/40" : "text-white/20")} />}
                     {item.badge && <span className="text-[10px] opacity-40 font-bold">{item.badge}</span>}
                   </div>
                 </button>
