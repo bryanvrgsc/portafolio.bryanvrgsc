@@ -30,6 +30,8 @@ const getInitialFiles = (): VFile[] => [
   { id: 'documents', name: 'Documentos', type: 'folder', parentId: null, isProtected: true, isHiddenFromDesktop: true },
   { id: 'downloads', name: 'Descargas', type: 'folder', parentId: null, isProtected: true, isHiddenFromDesktop: true },
   { id: 'images', name: 'Imágenes', type: 'folder', parentId: null, isProtected: true, isHiddenFromDesktop: true },
+  { id: 'videos', name: 'Videos', type: 'folder', parentId: null, isProtected: true, isHiddenFromDesktop: true },
+  { id: 'music', name: 'Música', type: 'folder', parentId: null, isProtected: true, isHiddenFromDesktop: true },
   
   // Files in Root (Visible on Desktop)
   { id: 'cv', name: 'CV_Bryan_Vargas.pdf', type: 'file', parentId: null, isProtected: true },
@@ -73,7 +75,7 @@ export const FileSystemProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
-    const saved = safeLocalStorage.getItem('macos_vfs_v5');
+    const saved = safeLocalStorage.getItem('macos_vfs_v6');
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
@@ -85,13 +87,13 @@ export const FileSystemProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     } else {
       const initial = getInitialFiles();
       setTimeout(() => setFs(initial), 0);
-      safeLocalStorage.setItem('macos_vfs_v5', JSON.stringify(initial));
+      safeLocalStorage.setItem('macos_vfs_v6', JSON.stringify(initial));
     }
   }, []);
 
   const save = useCallback((newFs: VFile[]) => {
     setFs(newFs);
-    safeLocalStorage.setItem('macos_vfs_v5', JSON.stringify(newFs));
+    safeLocalStorage.setItem('macos_vfs_v6', JSON.stringify(newFs));
   }, []);
 
   const addFolder = useCallback((parentId: string | null) => {
