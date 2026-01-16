@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo } from 'react';
 import {
-  ChevronLeft, ChevronRight, LayoutGrid, List, Search,
+  Folder, ChevronLeft, ChevronRight, LayoutGrid, List, Search,
   Share, Tag, MoreHorizontal, Clock, Users, Airplay, Monitor,
   FileText, Download, Video, Music, ImageIcon, Cloud, ChevronDown, Plus
 } from 'lucide-react';
