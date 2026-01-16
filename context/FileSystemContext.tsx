@@ -10,6 +10,7 @@ export interface VFile {
   parentId: string | null; // null significa escritorio
   content?: string;
   isProtected?: boolean;
+  isHiddenFromDesktop?: boolean;
 }
 
 interface FileSystemContextType {
@@ -22,13 +23,15 @@ interface FileSystemContextType {
 const FileSystemContext = createContext<FileSystemContextType | undefined>(undefined);
 
 const getInitialFiles = (): VFile[] => [
-  // Root Folders
+  // Root Folders (Visible on Desktop)
   { id: 'projects', name: 'Proyectos', type: 'folder', parentId: null, isProtected: true },
-  { id: 'documents', name: 'Documentos', type: 'folder', parentId: null, isProtected: true },
-  { id: 'downloads', name: 'Descargas', type: 'folder', parentId: null, isProtected: true },
-  { id: 'images', name: 'Imágenes', type: 'folder', parentId: null, isProtected: true },
   
-  // Files in Root
+  // Hidden System Folders (Only in Finder)
+  { id: 'documents', name: 'Documentos', type: 'folder', parentId: null, isProtected: true, isHiddenFromDesktop: true },
+  { id: 'downloads', name: 'Descargas', type: 'folder', parentId: null, isProtected: true, isHiddenFromDesktop: true },
+  { id: 'images', name: 'Imágenes', type: 'folder', parentId: null, isProtected: true, isHiddenFromDesktop: true },
+  
+  // Files in Root (Visible on Desktop)
   { id: 'cv', name: 'CV_Bryan_Vargas.pdf', type: 'file', parentId: null, isProtected: true },
 
   // Files in Proyectos
@@ -63,7 +66,7 @@ export const FileSystemProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
-    const saved = safeLocalStorage.getItem('macos_vfs_v3');
+    const saved = safeLocalStorage.getItem('macos_vfs_v4');
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
@@ -75,13 +78,13 @@ export const FileSystemProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     } else {
       const initial = getInitialFiles();
       setTimeout(() => setFs(initial), 0);
-      safeLocalStorage.setItem('macos_vfs_v3', JSON.stringify(initial));
+      safeLocalStorage.setItem('macos_vfs_v4', JSON.stringify(initial));
     }
   }, []);
 
   const save = useCallback((newFs: VFile[]) => {
     setFs(newFs);
-    safeLocalStorage.setItem('macos_vfs_v3', JSON.stringify(newFs));
+    safeLocalStorage.setItem('macos_vfs_v4', JSON.stringify(newFs));
   }, []);
 
   const addFolder = useCallback((parentId: string | null) => {

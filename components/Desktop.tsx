@@ -235,7 +235,7 @@ const Desktop = React.memo(() => {
       <main className="relative flex-1 w-full p-6 z-[10]">
         <div className="flex flex-col gap-6 items-end flex-wrap h-full content-end">
           <button data-id="macintosh-hd" onDoubleClick={() => toggleApp('finder')} onClick={() => setSelectedIds(['macintosh-hd'])} className={cn("desktop-icon flex flex-col items-center gap-1 group w-20 p-1 rounded-md transition-colors", selectedIds.includes('macintosh-hd') ? "bg-white/20 ring-1 ring-white/30" : "hover:bg-white/10")}><div className="w-14 h-14 bg-white/10 backdrop-blur-md rounded-xl border border-white/20 flex items-center justify-center shadow-lg transition-all"><span className="text-3xl">💾</span></div><span className="text-white text-[11px] font-medium drop-shadow-md text-center">Macintosh HD</span></button>
-          {fs.filter(f => f.parentId === null).map(file => (
+          {fs.filter(f => f.parentId === null && !f.isHiddenFromDesktop).map(file => (
             <div
               key={file.id}
               data-id={file.id}
