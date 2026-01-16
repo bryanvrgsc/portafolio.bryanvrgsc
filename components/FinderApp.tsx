@@ -8,6 +8,8 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useFileSystem } from '@/context/FileSystemContext';
+import { AnimatePresence } from 'framer-motion';
+import ContextMenu from './ContextMenu';
 
 interface SidebarItem {
   id: string; // internal id or special key
@@ -25,13 +27,16 @@ interface SidebarSection {
 }
 
 const FinderApp = React.memo(() => {
-  const { fs, addFolder } = useFileSystem();
+  const { fs, addFolder, deleteFile } = useFileSystem();
   
   // Navigation State
   const [history, setHistory] = useState<Array<{ id: string | null; name: string }>>([{ id: null, name: 'Escritorio' }]);
   const [historyIndex, setHistoryIndex] = useState(0);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
+  
+  // Context Menu State
+  const [contextMenu, setContextMenu] = useState<{ x: number, y: number, targetId?: string } | null>(null);
 
   const currentFolder = history[historyIndex];
 
@@ -116,6 +121,55 @@ const FinderApp = React.memo(() => {
     addFolder(currentFolder.id);
   };
 
+  const handleContextMenu = (e: React.MouseEvent, fileId?: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setContextMenu({ x: e.clientX, y: e.clientY, targetId: fileId });
+    if (fileId) {
+      setSelectedIds([fileId]);
+    } else {
+      setSelectedIds([]);
+    }
+  };
+
+  const contextMenuItems = useMemo(() => {
+    if (!contextMenu) return [];
+    
+    const baseItems = [
+      { label: 'Nueva Carpeta', onClick: () => addFolder(currentFolder.id) },
+      { label: 'Obtener información', onClick: () => {} },
+    ];
+
+    if (contextMenu.targetId) {
+      const target = fs.find(f => f.id === contextMenu.targetId);
+      const fileItems = [
+        { label: 'Abrir', onClick: () => {
+            if (target?.type === 'folder') {
+              navigateTo(target.id, target.name);
+            }
+          } 
+        },
+        { label: 'Renombrar', onClick: () => {} }, // TODO: Implement rename trigger
+        { label: 'Mover a la papelera', onClick: () => deleteFile(contextMenu.targetId!) },
+        { label: 'Obtener información', onClick: () => {}, divider: true },
+      ];
+      
+      // If protected, remove delete/rename
+      if (target?.isProtected) {
+        return [{ label: 'Abrir', onClick: () => {
+            if (target?.type === 'folder') {
+              navigateTo(target.id, target.name);
+            }
+          } 
+        }, { label: 'Obtener información', onClick: () => {} }];
+      }
+
+      return fileItems;
+    }
+
+    return baseItems;
+  }, [contextMenu, fs, currentFolder.id, addFolder, deleteFile]);
+
   const sidebarSections: SidebarSection[] = [
     {
       title: 'Recientes',
@@ -163,7 +217,18 @@ const FinderApp = React.memo(() => {
   );
 
   return (
-    <div className="flex flex-col h-full bg-[#1c1c1e] text-white overflow-hidden select-none">
+    <div className="flex flex-col h-full bg-[#1c1c1e] text-white overflow-hidden select-none" onClick={() => setContextMenu(null)}>
+      <AnimatePresence>
+        {contextMenu && (
+          <ContextMenu
+            x={contextMenu.x}
+            y={contextMenu.y}
+            onClose={() => setContextMenu(null)}
+            items={contextMenuItems}
+          />
+        )}
+      </AnimatePresence>
+
       {/* Integrated Title Bar Area */}
       <div className="h-12 flex items-center justify-between px-4 shrink-0 [WebkitAppRegion:drag]">
         <div className="flex items-center gap-20 ml-2">
@@ -252,7 +317,11 @@ const FinderApp = React.memo(() => {
         </div>
 
         {/* Workspace */}
-        <div className="flex-1 flex flex-col bg-[#1c1c1c]/95 relative" onClick={() => setSelectedIds([])}>
+        <div 
+          className="flex-1 flex flex-col bg-[#1c1c1c]/95 relative" 
+          onClick={() => setSelectedIds([])}
+          onContextMenu={(e) => handleContextMenu(e)}
+        >
           {/* Grid Area */}
           <div className="flex-1 p-8 pt-4 overflow-auto scrollbar-hide">
             {currentFiles.length === 0 ? (
@@ -272,6 +341,7 @@ const FinderApp = React.memo(() => {
                         navigateTo(file.id, file.name);
                       }
                     }}
+                    onContextMenu={(e) => handleContextMenu(e, file.id)}
                     className={cn(
                       "flex flex-col items-center gap-2 group cursor-default p-2 rounded-md transition-all border border-transparent",
                       selectedIds.includes(file.id) ? "bg-white/10 border-white/5" : "hover:bg-white/5"
