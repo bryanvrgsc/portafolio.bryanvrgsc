@@ -13,11 +13,8 @@ export interface VFile {
 }
 
 const getInitialFiles = (): VFile[] => [
-  { id: 'about-me', name: 'Sobre Mí', type: 'folder', parentId: null, isProtected: true },
   { id: 'projects', name: 'Proyectos', type: 'folder', parentId: null, isProtected: true },
-  { id: 'experience', name: 'Experiencia', type: 'folder', parentId: null, isProtected: true },
-  { id: 'skills', name: 'Habilidades', type: 'folder', parentId: null, isProtected: true },
-  { id: 'contact', name: 'Contacto', type: 'folder', parentId: null, isProtected: true },
+  { id: 'cv', name: 'CV_Bryan_Vargas.pdf', type: 'file', parentId: null, isProtected: true },
 ];
 
 const safeLocalStorage = {
@@ -46,7 +43,7 @@ export const useFileSystem = () => {
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
-    const saved = safeLocalStorage.getItem('macos_vfs');
+    const saved = safeLocalStorage.getItem('macos_vfs_v2');
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
@@ -58,13 +55,13 @@ export const useFileSystem = () => {
     } else {
       const initial = getInitialFiles();
       setTimeout(() => setFs(initial), 0);
-      safeLocalStorage.setItem('macos_vfs', JSON.stringify(initial));
+      safeLocalStorage.setItem('macos_vfs_v2', JSON.stringify(initial));
     }
   }, []);
 
   const save = (newFs: VFile[]) => {
     setFs(newFs);
-    safeLocalStorage.setItem('macos_vfs', JSON.stringify(newFs));
+    safeLocalStorage.setItem('macos_vfs_v2', JSON.stringify(newFs));
   };
 
   const addFolder = (parentId: string | null) => {
