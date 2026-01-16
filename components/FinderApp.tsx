@@ -80,8 +80,11 @@ const FinderApp = React.memo(({ initialPath }: FinderProps) => {
         { id: 'app-terminal', name: 'Terminal', type: 'app', parentId: 'applications' },
         { id: 'app-mail', name: 'Mail', type: 'app', parentId: 'applications' },
       ] as any;
-    } else if (currentFolder.id === 'desktop' || currentFolder.id === null) {
-      // Desktop Root (null is the actual root parentId)
+    } else if (currentFolder.id === 'desktop') {
+      // Desktop Folder: STRICTLY show files inside the 'desktop' folder
+      filtered = fs.filter(f => f.parentId === 'desktop');
+    } else if (currentFolder.id === null) {
+      // User Root (bryanvargas): Show system folders (Documents, Downloads, Desktop folder itself)
       filtered = fs.filter(f => f.parentId === null);
     } else {
       // Standard Folder Navigation
