@@ -23,18 +23,17 @@ interface FileSystemContextType {
 const FileSystemContext = createContext<FileSystemContextType | undefined>(undefined);
 
 const getInitialFiles = (): VFile[] => [
-  // Root Folders (Visible on Desktop)
-  { id: 'projects', name: 'Proyectos', type: 'folder', parentId: null, isProtected: true },
-  
-  // Hidden System Folders (Only in Finder)
+  // User Home Root Folders (Hidden from Desktop view, visible in Finder)
+  { id: 'desktop', name: 'Escritorio', type: 'folder', parentId: null, isProtected: true, isHiddenFromDesktop: true },
   { id: 'documents', name: 'Documentos', type: 'folder', parentId: null, isProtected: true, isHiddenFromDesktop: true },
   { id: 'downloads', name: 'Descargas', type: 'folder', parentId: null, isProtected: true, isHiddenFromDesktop: true },
   { id: 'images', name: 'Imágenes', type: 'folder', parentId: null, isProtected: true, isHiddenFromDesktop: true },
   { id: 'videos', name: 'Videos', type: 'folder', parentId: null, isProtected: true, isHiddenFromDesktop: true },
   { id: 'music', name: 'Música', type: 'folder', parentId: null, isProtected: true, isHiddenFromDesktop: true },
   
-  // Files in Root (Visible on Desktop)
-  { id: 'cv', name: 'CV_Bryan_Vargas.pdf', type: 'file', parentId: null, isProtected: true },
+  // Files INSIDE Escritorio (These will appear on the wallpaper)
+  { id: 'projects', name: 'Proyectos', type: 'folder', parentId: 'desktop', isProtected: true },
+  { id: 'cv', name: 'CV_Bryan_Vargas.pdf', type: 'file', parentId: 'desktop', isProtected: true },
 
   // Files in Proyectos
   { id: 'p1', name: 'Portfolio.tsx', type: 'file', parentId: 'projects' },
@@ -75,7 +74,7 @@ export const FileSystemProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
-    const saved = safeLocalStorage.getItem('macos_vfs_v6');
+    const saved = safeLocalStorage.getItem('macos_vfs_v7');
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
@@ -87,13 +86,13 @@ export const FileSystemProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     } else {
       const initial = getInitialFiles();
       setTimeout(() => setFs(initial), 0);
-      safeLocalStorage.setItem('macos_vfs_v6', JSON.stringify(initial));
+      safeLocalStorage.setItem('macos_vfs_v7', JSON.stringify(initial));
     }
   }, []);
 
   const save = useCallback((newFs: VFile[]) => {
     setFs(newFs);
-    safeLocalStorage.setItem('macos_vfs_v6', JSON.stringify(newFs));
+    safeLocalStorage.setItem('macos_vfs_v7', JSON.stringify(newFs));
   }, []);
 
   const addFolder = useCallback((parentId: string | null) => {

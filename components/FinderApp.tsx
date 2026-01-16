@@ -26,15 +26,40 @@ interface SidebarSection {
   hideTitle?: boolean;
 }
 
-const FinderApp = React.memo(() => {
+interface FinderProps {
+  initialPath?: string | null;
+}
+
+const FinderApp = React.memo(({ initialPath }: FinderProps) => {
   const { fs, addFolder, deleteFile } = useFileSystem();
   
+  // Helper to resolve initial folder
+  const resolveInitialFolder = (path?: string | null) => {
+    if (!path || path === 'root') return { id: null, name: 'Escritorio' }; // Default to root
+    if (path === 'desktop') return { id: 'desktop', name: 'Escritorio' }; // Explicit desktop folder
+    
+    const folder = fs.find(f => f.id === path);
+    return folder ? { id: folder.id, name: folder.name } : { id: null, name: 'Escritorio' };
+  };
+
   // Navigation State
-  const [history, setHistory] = useState<Array<{ id: string | null; name: string }>>([{ id: null, name: 'Escritorio' }]);
+  const [history, setHistory] = useState<Array<{ id: string | null; name: string }>>([resolveInitialFolder(initialPath)]);
   const [historyIndex, setHistoryIndex] = useState(0);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   
+  // React to external navigation requests (e.g. from Desktop double-click)
+  React.useEffect(() => {
+    if (initialPath) {
+      const target = resolveInitialFolder(initialPath);
+      // Avoid duplicate navigation if already there
+      const current = history[historyIndex];
+      if (current.id !== target.id) {
+        navigateTo(target.id, target.name);
+      }
+    }
+  }, [initialPath]); // eslint-disable-line react-hooks/exhaustive-deps
+
   // Context Menu State
   const [contextMenu, setContextMenu] = useState<{ x: number, y: number, targetId?: string } | null>(null);
 
@@ -71,13 +96,15 @@ const FinderApp = React.memo(() => {
 
   // Dynamic path building
   const breadcrumbs = useMemo(() => {
-    if (currentFolder.id === null || currentFolder.id === 'desktop') return [{ id: null, name: 'Escritorio' }];
-    if (['recents', 'applications', 'airdrop'].includes(currentFolder.id || '')) return [{ id: currentFolder.id, name: currentFolder.name }];
-    
+    // Handle Virtual Folders first
+    if (['recents', 'applications', 'airdrop'].includes(currentFolder.id || '')) {
+        return [{ id: currentFolder.id, name: currentFolder.name }];
+    }
+
     const path = [];
     let currId: string | null = currentFolder.id;
     
-    // Safety break to prevent infinite loops
+    // Build path upwards
     let depth = 0;
     while (currId !== null && depth < 10) {
       // eslint-disable-next-line no-loop-func
@@ -90,7 +117,9 @@ const FinderApp = React.memo(() => {
       }
       depth++;
     }
-    return [{ id: null, name: 'Escritorio' }, ...path];
+
+    // Every path in our system starts at the user home 'bryanvargas' (which corresponds to parentId: null)
+    return [{ id: null, name: 'bryanvargas' }, ...path];
   }, [fs, currentFolder]);
 
   const navigateTo = (folderId: string | null, folderName: string) => {
@@ -387,10 +416,6 @@ const FinderApp = React.memo(() => {
             <div className="flex items-center gap-1.5 opacity-60 hover:opacity-100 transition-opacity cursor-default">
               <span className="text-[12px]">📂</span> Usuarios
             </div>
-            <span className="text-white/10 font-light">›</span>
-            <div className="flex items-center gap-1.5 opacity-60 hover:opacity-100 transition-opacity cursor-default">
-              <span className="text-[12px]">📂</span> bryanvargas
-            </div>
             
             {breadcrumbs.map((crumb, idx) => (
               <React.Fragment key={idx}>
@@ -404,8 +429,10 @@ const FinderApp = React.memo(() => {
                       : "hover:bg-white/5 text-white/50"
                   )}
                 >
-                  <span className="text-[12px] opacity-80">{crumb.id === null ? '🖥️' : '📂'}</span>
-                  <span className="truncate max-w-[100px]">{crumb.name}</span>
+                  <span className="text-[12px] opacity-80">
+                    {crumb.id === null ? '🏠' : (['recents', 'applications', 'airdrop'].includes(crumb.id || '') ? '🧭' : '📂')}
+                  </span>
+                  <span className="truncate max-w-[100px]">{crumb.name === 'Escritorio' ? 'Escritorio' : crumb.name}</span>
                 </button>
               </React.Fragment>
             ))}

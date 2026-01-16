@@ -25,6 +25,7 @@ export interface WindowState {
   isMinimized: boolean;
   isMaximized: boolean;
   zIndex: number;
+  initialPath?: string | null;
 }
 
 import { useSystem } from '@/context/SystemContext';
@@ -79,11 +80,11 @@ const Desktop = React.memo(() => {
     setActiveApp(prev => prev === id ? null : prev);
   }, []);
 
-  const toggleApp = useCallback((id: AppId) => {
+  const toggleApp = useCallback((id: AppId, path?: string) => {
     setWindows((prev) => {
       const newZIndex = maxZIndex + 1;
       setMaxZIndex(newZIndex);
-      return { ...prev, [id]: { ...prev[id], isOpen: true, isMinimized: false, zIndex: newZIndex } };
+      return { ...prev, [id]: { ...prev[id], isOpen: true, isMinimized: false, zIndex: newZIndex, initialPath: path } };
     });
     setActiveApp(id);
 
@@ -234,8 +235,8 @@ const Desktop = React.memo(() => {
       <AnimatePresence>{spotlightOpen && <div className="fixed inset-0 z-[1000000] flex items-center justify-center pointer-events-none"><motion.div initial={{ opacity: 0, scale: 0.95, y: -20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: -20 }} className="spotlight-container w-[600px] h-14 bg-[#1c1c1e]/80 backdrop-blur-3xl border border-white/20 rounded-xl shadow-2xl flex items-center px-4 gap-3 z-[1000001] pointer-events-auto" onClick={(e) => e.stopPropagation()}><Search size={24} className="text-white/40" /><input autoFocus placeholder="Spotlight Search" className="bg-transparent border-none outline-none text-xl w-full text-white font-light" /></motion.div></div>}</AnimatePresence>
       <main className="relative flex-1 w-full p-6 z-[10]">
         <div className="flex flex-col gap-6 items-end flex-wrap h-full content-end">
-          <button data-id="macintosh-hd" onDoubleClick={() => toggleApp('finder')} onClick={() => setSelectedIds(['macintosh-hd'])} className={cn("desktop-icon flex flex-col items-center gap-1 group w-20 p-1 rounded-md transition-colors", selectedIds.includes('macintosh-hd') ? "bg-white/20 ring-1 ring-white/30" : "hover:bg-white/10")}><div className="w-14 h-14 bg-white/10 backdrop-blur-md rounded-xl border border-white/20 flex items-center justify-center shadow-lg transition-all"><span className="text-3xl">💾</span></div><span className="text-white text-[11px] font-medium drop-shadow-md text-center">Macintosh HD</span></button>
-          {fs.filter(f => f.parentId === null && !f.isHiddenFromDesktop).map(file => (
+          <button data-id="macintosh-hd" onDoubleClick={() => toggleApp('finder', 'root')} onClick={() => setSelectedIds(['macintosh-hd'])} className={cn("desktop-icon flex flex-col items-center gap-1 group w-20 p-1 rounded-md transition-colors", selectedIds.includes('macintosh-hd') ? "bg-white/20 ring-1 ring-white/30" : "hover:bg-white/10")}><div className="w-14 h-14 bg-white/10 backdrop-blur-md rounded-xl border border-white/20 flex items-center justify-center shadow-lg transition-all"><span className="text-3xl">💾</span></div><span className="text-white text-[11px] font-medium drop-shadow-md text-center">Macintosh HD</span></button>
+          {fs.filter(f => f.parentId === 'desktop').map(file => (
             <div
               key={file.id}
               data-id={file.id}
@@ -248,7 +249,15 @@ const Desktop = React.memo(() => {
               }}
             >
               <div
-                onDoubleClick={() => toggleApp('finder')}
+                onDoubleClick={() => {
+                  if (file.type === 'folder') {
+                    toggleApp('finder', file.id);
+                  } else {
+                    // Open file logic (preview, etc) - for now just finder in parent? Or nothing.
+                    // Let's open finder in desktop for now if it's a file
+                    toggleApp('finder', 'desktop');
+                  }
+                }}
                 className="w-14 h-14 flex items-center justify-center text-5xl transition-colors cursor-default"
               >
                 {file.type === 'folder' ? '📂' : '📄'}
@@ -276,7 +285,7 @@ const Desktop = React.memo(() => {
           let Content; let title; let it = 60; let il = 120; let w = "800px"; let h = "500px";
           if (id === 'profile') { Content = <ProfileApp />; title = "Perfil"; it = 60 + windowPositionOffset; il = 120 + windowPositionOffset; w = "1000px"; h = "650px"; }
           else if (id === 'browser') { Content = <BrowserApp />; title = "Safari"; it = 80 + windowPositionOffset; il = 150 + windowPositionOffset; w = "1200px"; h = "700px"; }
-          else if (id === 'finder') { Content = <FinderApp />; title = "Finder"; it = 60 + windowPositionOffset; il = 100 + windowPositionOffset; w = "800px"; h = "500px"; }
+          else if (id === 'finder') { Content = <FinderApp initialPath={state.initialPath} />; title = "Finder"; it = 60 + windowPositionOffset; il = 100 + windowPositionOffset; w = "800px"; h = "500px"; }
           else if (id === 'terminal') { Content = <TerminalApp />; title = "Terminal"; it = 150 + windowPositionOffset; il = 300 + windowPositionOffset; w = "800px"; h = "500px"; }
           else if (id === 'about') { Content = <AboutThisMac />; title = ""; it = 100; il = (typeof window !== 'undefined' ? (window.innerWidth - 412) / 2 : 400); w = "412px"; h = "628px"; }
           else return null;
