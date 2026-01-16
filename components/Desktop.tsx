@@ -292,7 +292,17 @@ const Desktop = React.memo(() => {
           return <Window key={id} title={title} onClose={() => closeWindow(id as AppId)} onMinimize={() => setWindows(p => ({ ...p, [id]: { ...p[id], isMinimized: true } }))} onMaximize={() => setWindows(p => ({ ...p, [id]: { ...p[id], isMaximized: !p[id].isMaximized } }))} onFocus={() => { const nz = maxZIndex + 1; setMaxZIndex(nz); setWindows(p => ({ ...p, [id]: { ...p[id], zIndex: nz } })); setActiveApp(id as AppId); }} zIndex={state.zIndex} active={activeApp === id} isMaximized={state.isMaximized} initialTop={it} initialLeft={il} hideTitleBarStyling={id === 'about'} integratedTitleBar={id === 'browser' || id === 'finder'} isResizable={id !== 'about'} width={w} height={h}>{Content}</Window>;
         })}
       </main>
-      <Dock onLaunch={toggleApp} activeApp={activeApp} minimizedApps={minimizedAppIds} />
+      <Dock 
+        onLaunch={(id) => {
+          if (id === 'finder') {
+            toggleApp(id, 'desktop');
+          } else {
+            toggleApp(id);
+          }
+        }} 
+        activeApp={activeApp} 
+        minimizedApps={minimizedAppIds} 
+      />
 
       {/* Brightness Overlay */}
       <div
