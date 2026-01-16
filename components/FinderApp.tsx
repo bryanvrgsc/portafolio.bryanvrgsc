@@ -25,32 +25,60 @@ interface SidebarSection {
 }
 
 const FinderApp = React.memo(() => {
-  const { fs } = useFileSystem();
+  const { fs, addFolder } = useFileSystem();
   
   // Navigation State
   const [history, setHistory] = useState<Array<{ id: string | null; name: string }>>([{ id: null, name: 'Escritorio' }]);
   const [historyIndex, setHistoryIndex] = useState(0);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const currentFolder = history[historyIndex];
 
-  // Derived state: Files in current folder
+  // Derived state: Files in current folder (filtered by search)
   const currentFiles = useMemo(() => {
-    return fs.filter(f => f.parentId === currentFolder.id);
+    let filtered = fs.filter(f => f.parentId === currentFolder.id);
+    if (searchQuery) {
+      filtered = filtered.filter(f => f.name.toLowerCase().includes(searchQuery.toLowerCase()));
+    }
+    return filtered;
+  }, [fs, currentFolder, searchQuery]);
+
+  // Dynamic path building
+  const breadcrumbs = useMemo(() => {
+    if (currentFolder.id === null) return [{ id: null, name: 'Escritorio' }];
+    
+    const path = [];
+    let currId: string | null = currentFolder.id;
+    
+    while (currId !== null) {
+      // eslint-disable-next-line no-loop-func
+      const folder = fs.find(f => f.id === currId);
+      if (folder) {
+        path.unshift({ id: folder.id, name: folder.name });
+        currId = folder.parentId;
+      } else {
+        break;
+      }
+    }
+    return [{ id: null, name: 'Escritorio' }, ...path];
   }, [fs, currentFolder]);
 
   const navigateTo = (folderId: string | null, folderName: string) => {
+    if (currentFolder.id === folderId) return;
     const newHistory = history.slice(0, historyIndex + 1);
     newHistory.push({ id: folderId, name: folderName });
     setHistory(newHistory);
     setHistoryIndex(newHistory.length - 1);
     setSelectedIds([]);
+    setSearchQuery('');
   };
 
   const goBack = () => {
     if (historyIndex > 0) {
       setHistoryIndex(historyIndex - 1);
       setSelectedIds([]);
+      setSearchQuery('');
     }
   };
 
@@ -58,34 +86,27 @@ const FinderApp = React.memo(() => {
     if (historyIndex < history.length - 1) {
       setHistoryIndex(historyIndex + 1);
       setSelectedIds([]);
+      setSearchQuery('');
     }
   };
 
   const handleSidebarClick = (item: SidebarItem) => {
-    // For now, map everything to Desktop (null) or specific folders if they existed.
-    // In our simple FS, we only have one real root (null).
-    // We can simulate "Documentos", "Descargas" by creating them if missing, or just navigate to them if they exist.
-    // For this demo, let's just navigate to Root (Escritorio) for most, or filter differently?
-    // Let's stick to simple navigation:
-    // "Escritorio" -> parentId: null
-    // "Documentos" -> find folder named "Documentos" in root, else create it? Or just show empty.
-    
     if (item.name === 'Escritorio') {
       navigateTo(null, 'Escritorio');
-    } else if (item.name === 'Recientes') {
-      // Show all files flattened? Or just root. Let's just go Root for now.
-      navigateTo(null, 'Recientes');
     } else {
-      // Try to find a folder with this name in root
-      const target = fs.find(f => f.name === item.name && f.type === 'folder' && f.parentId === null);
+      const target = fs.find(f => f.name === item.name && f.type === 'folder');
       if (target) {
         navigateTo(target.id, target.name);
       } else {
-        // Fallback to desktop but maybe show empty state or "Not implemented" toast?
-        // Let's just go to Desktop to be safe.
-        navigateTo(null, 'Escritorio');
+        // Simple mock behavior: if it doesn't exist, we stay but show name
+        navigateTo(null, item.name);
       }
     }
+  };
+
+  const handleCreateFolder = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    addFolder(currentFolder.id);
   };
 
   const sidebarSections: SidebarSection[] = [
@@ -158,7 +179,16 @@ const FinderApp = React.memo(() => {
           <button className="p-2 hover:bg-white/[0.08] rounded text-white/70"><Share size={18} /></button>
           <button className="p-2 hover:bg-white/[0.08] rounded text-white/70"><Tag size={18} /></button>
           <button className="p-2 hover:bg-white/[0.08] rounded text-white/70"><MoreHorizontal size={18} /></button>
-          <button className="p-2 hover:bg-white/[0.08] rounded text-white/70 ml-1"><Search size={18} /></button>
+          <div className="relative ml-1 group/search">
+            <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-white/30 group-focus-within/search:text-white/60 transition-colors" />
+            <input 
+              type="text"
+              placeholder="Buscar"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="bg-white/[0.05] border border-white/5 rounded-md py-1 pl-8 pr-2 text-[12px] outline-none focus:bg-white/[0.1] transition-all w-32 focus:w-48"
+            />
+          </div>
         </div>
       </div>
 
@@ -166,7 +196,10 @@ const FinderApp = React.memo(() => {
       <div className="h-10 px-4 flex items-center shrink-0">
         <div className="flex-1 bg-black/30 rounded-lg border border-white/[0.08] h-7 flex items-center justify-center relative group">
           <span className="text-[11px] font-medium text-white/70">{currentFolder.name}</span>
-          <button className="absolute right-1 w-5 h-5 flex items-center justify-center rounded-md hover:bg-white/10 text-white/40 transition-colors">
+          <button 
+            onClick={handleCreateFolder}
+            className="absolute right-1 w-5 h-5 flex items-center justify-center rounded-md hover:bg-white/10 text-white/40 transition-colors"
+          >
             <Plus size={14} />
           </button>
         </div>
@@ -215,59 +248,67 @@ const FinderApp = React.memo(() => {
         <div className="flex-1 flex flex-col bg-[#1c1c1c]/95 relative" onClick={() => setSelectedIds([])}>
           {/* Grid Area */}
           <div className="flex-1 p-8 pt-4 overflow-auto scrollbar-hide">
-            <div className="grid grid-cols-[repeat(auto-fill,minmax(110px,1fr))] gap-x-6 gap-y-10 content-start">
-              {currentFiles.map((file) => (
-                <div
-                  key={file.id}
-                  onClick={(e) => { e.stopPropagation(); setSelectedIds([file.id]); }}
-                  onDoubleClick={(e) => {
-                    e.stopPropagation();
-                    if (file.type === 'folder') {
-                      navigateTo(file.id, file.name);
-                    }
-                  }}
-                  className={cn(
-                    "flex flex-col items-center gap-2 group cursor-default p-2 rounded-md transition-all border border-transparent",
-                    selectedIds.includes(file.id) ? "bg-white/10 border-white/5" : "hover:bg-white/5"
-                  )}
-                >
-                  <div className="mb-1 transform scale-105">
-                    {file.type === 'folder' ? <FolderIcon /> : <FileIcon />}
+            {currentFiles.length === 0 ? (
+              <div className="h-full flex flex-col items-center justify-center text-white/20 gap-4">
+                <Folder size={64} strokeWidth={1} />
+                <span className="text-sm font-medium">Esta carpeta está vacía</span>
+              </div>
+            ) : (
+              <div className="grid grid-cols-[repeat(auto-fill,minmax(110px,1fr))] gap-x-6 gap-y-10 content-start">
+                {currentFiles.map((file) => (
+                  <div
+                    key={file.id}
+                    onClick={(e) => { e.stopPropagation(); setSelectedIds([file.id]); }}
+                    onDoubleClick={(e) => {
+                      e.stopPropagation();
+                      if (file.type === 'folder') {
+                        navigateTo(file.id, file.name);
+                      }
+                    }}
+                    className={cn(
+                      "flex flex-col items-center gap-2 group cursor-default p-2 rounded-md transition-all border border-transparent",
+                      selectedIds.includes(file.id) ? "bg-white/10 border-white/5" : "hover:bg-white/5"
+                    )}
+                  >
+                    <div className="mb-1 transform scale-105">
+                      {file.type === 'folder' ? <FolderIcon /> : <FileIcon />}
+                    </div>
+                    <div className="flex items-center gap-1 max-w-[100px] mt-0.5">
+                      <span className={cn(
+                        "text-[11.5px] text-center leading-[1.2] line-clamp-2 drop-shadow-sm font-medium tracking-tight px-1.5 py-0.5 rounded",
+                        selectedIds.includes(file.id) ? "bg-blue-600 text-white" : "text-white/95"
+                      )}>
+                        {file.name}
+                      </span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-1 max-w-[100px] mt-0.5">
-                    <span className={cn(
-                      "text-[11.5px] text-center leading-[1.2] line-clamp-2 drop-shadow-sm font-medium tracking-tight px-1.5 py-0.5 rounded",
-                      selectedIds.includes(file.id) ? "bg-blue-600 text-white" : "text-white/95"
-                    )}>
-                      {file.name}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
 
-          {/* Bottom Breadcrumbs (Simplified) */}
+          {/* Bottom Breadcrumbs */}
           <div className="h-7 border-t border-white/[0.08] flex items-center px-4 gap-2 text-[10.5px] text-white/50 bg-[#252528] shrink-0 font-medium overflow-hidden">
              <div className="flex items-center bg-black/20 px-2 py-0.5 rounded border border-white/5 hover:bg-black/40 cursor-default transition-colors gap-1.5">
               <span className="text-[12px] opacity-80">💾</span> Macintosh HD
             </div>
-            <span className="text-white/20 font-light">›</span>
-            {currentFolder.id === null ? (
-               <div className="flex items-center bg-[#fabd2e]/10 px-2 py-0.5 rounded border border-[#fabd2e]/20 text-[#fabd2e] cursor-default gap-1.5">
-               <span className="text-[12px]">📂</span> Escritorio
-             </div>
-            ) : (
-              <>
-                <div className="flex items-center bg-black/20 px-2 py-0.5 rounded border border-white/5 hover:bg-black/40 cursor-default transition-colors gap-1.5">
-                  <span className="text-[12px] opacity-80">📂</span> ...
-                </div>
+            {breadcrumbs.map((crumb, idx) => (
+              <React.Fragment key={idx}>
                 <span className="text-white/20 font-light">›</span>
-                <div className="flex items-center bg-[#fabd2e]/10 px-2 py-0.5 rounded border border-[#fabd2e]/20 text-[#fabd2e] cursor-default gap-1.5">
-                  <span className="text-[12px]">📂</span> {currentFolder.name}
+                <div 
+                  onClick={() => navigateTo(crumb.id, crumb.name)}
+                  className={cn(
+                    "flex items-center px-2 py-0.5 rounded border cursor-default transition-colors gap-1.5",
+                    idx === breadcrumbs.length - 1 
+                      ? "bg-[#fabd2e]/10 border-[#fabd2e]/20 text-[#fabd2e]"
+                      : "bg-black/20 border-white/5 hover:bg-black/40 text-white/50"
+                  )}
+                >
+                  <span className="text-[12px]">{crumb.id === null ? '🖥️' : '📂'}</span>
+                  {crumb.name}
                 </div>
-              </>
-            )}
+              </React.Fragment>
+            ))}
           </div>
 
           {/* Status Bar */}
