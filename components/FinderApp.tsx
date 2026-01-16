@@ -125,9 +125,24 @@ const FinderApp = React.memo(({ initialPath }: FinderProps) => {
         path.unshift({ id: folder.id, name: folder.name });
         currId = folder.parentId;
       } else {
+        // Stop if we hit a virtual root or missing parent
         break;
       }
       depth++;
+    }
+    
+    // Explicitly handle the case where we are at 'desktop' but the recursive loop might have missed adding it 
+    // if parentId was null (which it is for desktop in fs).
+    // Actually, 'desktop' has parentId: null. So the loop finds 'desktop', adds it, then sets currId = null and breaks.
+    // So path should be [{id: 'desktop', name: 'Escritorio'}].
+    // Then we prepend [{id: null, name: 'bryanvargas'}].
+    // Result: bryanvargas > Escritorio.
+    // If it's missing, maybe fs.find failed?
+    
+    // Fallback: If path is empty but we are at a known ID that is NOT root/null, verify we added it.
+    if (path.length === 0 && currentFolder.id && currentFolder.id !== 'recents') {
+         // It implies currentFolder is a direct child of root (like 'desktop' or 'documents')
+         path.push({ id: currentFolder.id, name: currentFolder.name });
     }
 
     // Base path always starts at User Home
