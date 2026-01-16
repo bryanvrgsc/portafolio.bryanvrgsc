@@ -96,13 +96,22 @@ const FinderApp = React.memo(({ initialPath }: FinderProps) => {
 
   // Dynamic path building
   const breadcrumbs = useMemo(() => {
-    // Handle Virtual Folders first
+    // Handle Virtual Folders first (Recents, Apps, AirDrop don't have a path)
     if (['recents', 'applications', 'airdrop'].includes(currentFolder.id || '')) {
         return [{ id: currentFolder.id, name: currentFolder.name }];
     }
 
     const path = [];
+    
+    // If we are explicitly at the 'desktop' folder (ID 'desktop'), add it to the path.
+    // If we are at root (ID null), we treat it as Desktop in this specific view logic if desired,
+    // BUT our new file system has a real 'desktop' folder ID.
+    // So 'null' is technically the User Home ('bryanvargas').
+    
     let currId: string | null = currentFolder.id;
+    
+    // If current is NULL, we are at User Home.
+    // If current is 'desktop', we are at Desktop.
     
     // Build path upwards
     let depth = 0;
@@ -118,7 +127,7 @@ const FinderApp = React.memo(({ initialPath }: FinderProps) => {
       depth++;
     }
 
-    // Every path in our system starts at the user home 'bryanvargas' (which corresponds to parentId: null)
+    // Base path always starts at User Home
     return [{ id: null, name: 'bryanvargas' }, ...path];
   }, [fs, currentFolder]);
 
