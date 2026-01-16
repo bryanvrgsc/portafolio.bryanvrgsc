@@ -123,6 +123,31 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
+## 🚀 Deployment
+
+### Vercel (Recommended)
+
+1. Push your code to GitHub
+2. Import the project on [Vercel](https://vercel.com)
+3. Deploy with one click
+
+### Docker
+
+```bash
+# Build the image
+docker build -t portfolio-macos .
+
+# Run the container
+docker run -p 3000:3000 portfolio-macos
+```
+
+### Static Export
+
+```bash
+npm run build
+npm run start
+```
+
 ## 📄 License
 
 This project is open source and available under the [MIT License](LICENSE).

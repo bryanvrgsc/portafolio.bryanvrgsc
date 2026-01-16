@@ -91,4 +91,6 @@ const FinderApp = React.memo(() => {
   );
 });
 
+FinderApp.displayName = 'FinderApp';
+
 export default FinderApp;

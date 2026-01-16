@@ -12,6 +12,7 @@ export const metadata: Metadata = {
 };
 
 import { SystemProvider } from "@/context/SystemContext";
+import ErrorBoundary from "@/components/ErrorBoundary";
 
 export default function RootLayout({
   children,
@@ -21,9 +22,11 @@ export default function RootLayout({
   return (
     <html lang="es" suppressHydrationWarning>
       <body className="antialiased">
-        <SystemProvider>
-          {children}
-        </SystemProvider>
+        <ErrorBoundary>
+          <SystemProvider>
+            {children}
+          </SystemProvider>
+        </ErrorBoundary>
       </body>
     </html>
   );

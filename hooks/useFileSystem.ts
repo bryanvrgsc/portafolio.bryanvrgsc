@@ -12,32 +12,59 @@ export interface VFile {
   isProtected?: boolean;
 }
 
+const getInitialFiles = (): VFile[] => [
+  { id: 'about-me', name: 'Sobre Mí', type: 'folder', parentId: null, isProtected: true },
+  { id: 'projects', name: 'Proyectos', type: 'folder', parentId: null, isProtected: true },
+  { id: 'experience', name: 'Experiencia', type: 'folder', parentId: null, isProtected: true },
+  { id: 'skills', name: 'Habilidades', type: 'folder', parentId: null, isProtected: true },
+  { id: 'contact', name: 'Contacto', type: 'folder', parentId: null, isProtected: true },
+];
+
+const safeLocalStorage = {
+  getItem: (key: string): string | null => {
+    try {
+      return localStorage.getItem(key);
+    } catch (error) {
+      console.warn('localStorage.getItem failed:', error);
+      return null;
+    }
+  },
+  setItem: (key: string, value: string): boolean => {
+    try {
+      localStorage.setItem(key, value);
+      return true;
+    } catch (error) {
+      console.warn('localStorage.setItem failed:', error);
+      return false;
+    }
+  }
+};
+
 export const useFileSystem = () => {
   const [fs, setFs] = useState<VFile[]>([]);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
-    const saved = localStorage.getItem('macos_vfs');
+    const saved = safeLocalStorage.getItem('macos_vfs');
     if (saved) {
-      // Usar un pequeño timeout para evitar el error de renderizado en cascada sincrónico
-      setTimeout(() => setFs(JSON.parse(saved)), 0);
+      try {
+        const parsed = JSON.parse(saved);
+        setTimeout(() => setFs(parsed), 0);
+      } catch (error) {
+        console.warn('Failed to parse VFS from localStorage:', error);
+        setTimeout(() => setFs(getInitialFiles()), 0);
+      }
     } else {
-      const initial: VFile[] = [
-        { id: 'about-me', name: 'Sobre Mí', type: 'folder', parentId: null, isProtected: true },
-        { id: 'projects', name: 'Proyectos', type: 'folder', parentId: null, isProtected: true },
-        { id: 'experience', name: 'Experiencia', type: 'folder', parentId: null, isProtected: true },
-        { id: 'skills', name: 'Habilidades', type: 'folder', parentId: null, isProtected: true },
-        { id: 'contact', name: 'Contacto', type: 'folder', parentId: null, isProtected: true },
-      ];
+      const initial = getInitialFiles();
       setTimeout(() => setFs(initial), 0);
-      localStorage.setItem('macos_vfs', JSON.stringify(initial));
+      safeLocalStorage.setItem('macos_vfs', JSON.stringify(initial));
     }
   }, []);
 
   const save = (newFs: VFile[]) => {
     setFs(newFs);
-    localStorage.setItem('macos_vfs', JSON.stringify(newFs));
+    safeLocalStorage.setItem('macos_vfs', JSON.stringify(newFs));
   };
 
   const addFolder = (parentId: string | null) => {

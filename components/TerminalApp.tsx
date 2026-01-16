@@ -69,4 +69,6 @@ const TerminalApp = React.memo(() => {
   );
 });
 
+TerminalApp.displayName = 'TerminalApp';
+
 export default TerminalApp;

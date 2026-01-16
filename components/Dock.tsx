@@ -18,6 +18,8 @@ interface DockIconProps {
   mouseX: MotionValue<number>;
   isActive: boolean;
   isMinimized: boolean;
+  baseSize: number;
+  maxSize: number;
 }
 
 const DOCK_APPS: { id: AppId; iconSrc: string; label: string }[] = [
@@ -33,7 +35,9 @@ const DockIcon = memo(({
   onClick,
   mouseX,
   isActive,
-  isMinimized
+  isMinimized,
+  baseSize,
+  maxSize
 }: DockIconProps) => {
   const ref = useRef<HTMLDivElement>(null);
 
@@ -44,10 +48,6 @@ const DockIcon = memo(({
     const centerX = bounds.left + bounds.width / 2;
     return val - centerX;
   });
-
-  // Tamaño del icono basado en distancia (efecto gaussiano)
-  const baseSize = 64;
-  const maxSize = 120;
 
   const size = useTransform(distance, (dist) => {
     if (dist === Infinity) return baseSize;
@@ -73,6 +73,7 @@ const DockIcon = memo(({
         height: sizeSpring,
       }}
       onClick={onClick}
+      title={label}
       className="relative cursor-pointer flex-shrink-0 group mx-1"
     >
       {/* Icono */}
@@ -82,7 +83,7 @@ const DockIcon = memo(({
         fill
         className={`object-cover transition-opacity ${isMinimized ? 'opacity-50' : 'opacity-100'}`}
         draggable={false}
-        sizes="120px"
+        sizes={`${maxSize}px`}
       />
 
       {/* Tooltip */}
@@ -103,6 +104,23 @@ DockIcon.displayName = 'DockIcon';
 const Dock: React.FC<DockProps> = ({ onLaunch, activeApp, minimizedApps }) => {
   const mouseX = useMotionValue(Infinity);
   const dockRef = useRef<HTMLDivElement>(null);
+  const [iconSize, setIconSize] = React.useState({ base: 64, max: 120 });
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 640) {
+        setIconSize({ base: 48, max: 80 });
+      } else {
+        setIconSize({ base: 64, max: 120 });
+      }
+    };
+
+    // Initial check
+    handleResize();
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
     mouseX.set(e.clientX);
@@ -143,9 +161,10 @@ const Dock: React.FC<DockProps> = ({ onLaunch, activeApp, minimizedApps }) => {
           onMouseLeave={handleMouseLeave}
           style={{
             paddingLeft: paddingSpring,
-            paddingRight: paddingSpring
+            paddingRight: paddingSpring,
+            height: iconSize.base + 8
           }}
-          className="absolute bottom-0 left-0 right-0 h-[72px] bg-white/20 backdrop-blur-2xl border border-white/30 rounded-2xl shadow-2xl pointer-events-auto"
+          className="absolute bottom-0 left-0 right-0 bg-white/20 backdrop-blur-2xl border border-white/30 rounded-2xl shadow-2xl pointer-events-auto transition-all duration-300"
         />
         {/* Contenedor de iconos (pueden sobresalir del fondo) */}
         <motion.div
@@ -166,6 +185,8 @@ const Dock: React.FC<DockProps> = ({ onLaunch, activeApp, minimizedApps }) => {
               mouseX={mouseX}
               isActive={activeApp === app.id}
               isMinimized={minimizedApps.includes(app.id)}
+              baseSize={iconSize.base}
+              maxSize={iconSize.max}
             />
           ))}
         </motion.div>

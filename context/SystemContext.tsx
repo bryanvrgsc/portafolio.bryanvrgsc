@@ -21,7 +21,9 @@ export const SystemProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         const savedBrightness = localStorage.getItem('system_brightness');
         const savedVolume = localStorage.getItem('system_volume');
 
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         if (savedBrightness) setBrightnessState(parseInt(savedBrightness));
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         if (savedVolume) setVolumeState(parseInt(savedVolume));
         setIsInitialized(true);
     }, []);

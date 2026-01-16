@@ -61,6 +61,7 @@ const Desktop = React.memo(() => {
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [activeApp, setActiveApp] = useState<AppId | null>(null);
   const [maxZIndex, setMaxZIndex] = useState(100);
+  const [windowPositionOffset, setWindowPositionOffset] = useState(0);
 
   useEffect(() => {
     const timer = setTimeout(() => setBooting(false), 2000);
@@ -85,6 +86,9 @@ const Desktop = React.memo(() => {
       return { ...prev, [id]: { ...prev[id], isOpen: true, isMinimized: false, zIndex: newZIndex } };
     });
     setActiveApp(id);
+
+    // Cascade window positioning
+    setWindowPositionOffset(offset => (offset + 30) % 150);
   }, [maxZIndex]);
 
   const handleSystemAction = useCallback((action: string) => {
@@ -269,14 +273,14 @@ const Desktop = React.memo(() => {
         </div>
         {Object.entries(windows).map(([id, state]) => {
           if (!state.isOpen || state.isMinimized) return null;
-          let Content; let title; let it = 100; let il = 200; let w = "800px"; let h = "500px";
-          if (id === 'profile') { Content = <ProfileApp />; title = "Perfil"; it = 60; il = 120; w = "1000px"; h = "650px"; }
-          else if (id === 'browser') { Content = <BrowserApp />; title = "Safari"; it = 80; il = 150; w = "1200px"; h = "700px"; }
-          else if (id === 'finder') { Content = <FinderApp />; title = "Finder"; it = 60; il = 100; w = "800px"; h = "500px"; }
-          else if (id === 'terminal') { Content = <TerminalApp />; title = "Terminal"; it = 150; il = 300; w = "800px"; h = "500px"; }
+          let Content; let title; let it = 60; let il = 120; let w = "800px"; let h = "500px";
+          if (id === 'profile') { Content = <ProfileApp />; title = "Perfil"; it = 60 + windowPositionOffset; il = 120 + windowPositionOffset; w = "1000px"; h = "650px"; }
+          else if (id === 'browser') { Content = <BrowserApp />; title = "Safari"; it = 80 + windowPositionOffset; il = 150 + windowPositionOffset; w = "1200px"; h = "700px"; }
+          else if (id === 'finder') { Content = <FinderApp />; title = "Finder"; it = 60 + windowPositionOffset; il = 100 + windowPositionOffset; w = "800px"; h = "500px"; }
+          else if (id === 'terminal') { Content = <TerminalApp />; title = "Terminal"; it = 150 + windowPositionOffset; il = 300 + windowPositionOffset; w = "800px"; h = "500px"; }
           else if (id === 'about') { Content = <AboutThisMac />; title = ""; it = 100; il = (typeof window !== 'undefined' ? (window.innerWidth - 412) / 2 : 400); w = "412px"; h = "628px"; }
           else return null;
-          return <Window key={id} title={title} onClose={() => closeWindow(id as AppId)} onMinimize={() => setWindows(p => ({ ...p, [id]: { ...p[id], isMinimized: true } }))} onMaximize={() => setWindows(p => ({ ...p, [id]: { ...p[id], isMaximized: !p[id].isMaximized } }))} onFocus={() => { const nz = maxZIndex + 1; setMaxZIndex(nz); setWindows(p => ({ ...p, [id]: { ...p[id], zIndex: nz } })); setActiveApp(id as AppId); }} zIndex={state.zIndex} active={activeApp === id} isMaximized={state.isMaximized} initialTop={it} initialLeft={il} hideTitleBarStyling={id === 'about'} isResizable={id !== 'about'} width={w} height={h}>{Content}</Window>;
+          return <Window key={id} title={title} onClose={() => closeWindow(id as AppId)} onMinimize={() => setWindows(p => ({ ...p, [id]: { ...p[id], isMinimized: true } }))} onMaximize={() => setWindows(p => ({ ...p, [id]: { ...p[id], isMaximized: !p[id].isMaximized } }))} onFocus={() => { const nz = maxZIndex + 1; setMaxZIndex(nz); setWindows(p => ({ ...p, [id]: { ...p[id], zIndex: nz } })); setActiveApp(id as AppId); }} zIndex={state.zIndex} active={activeApp === id} isMaximized={state.isMaximized} initialTop={it} initialLeft={il} hideTitleBarStyling={id === 'about'} integratedTitleBar={id === 'browser'} isResizable={id !== 'about'} width={w} height={h}>{Content}</Window>;
         })}
       </main>
       <Dock onLaunch={toggleApp} activeApp={activeApp} minimizedApps={minimizedAppIds} />

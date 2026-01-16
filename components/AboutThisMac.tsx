@@ -62,4 +62,6 @@ const AboutThisMac = React.memo(() => {
   );
 });
 
+AboutThisMac.displayName = 'AboutThisMac';
+
 export default AboutThisMac;

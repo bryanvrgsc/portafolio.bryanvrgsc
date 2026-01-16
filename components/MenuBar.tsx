@@ -32,8 +32,10 @@ const MenuItem = ({ id, label, children, isApple = false, align = 'left', isOpen
       const padding = 8;
 
       if (align === 'left' && rect.right > window.innerWidth - padding) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setAdjustedAlign('right');
       } else if (align === 'right' && rect.left < padding) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setAdjustedAlign('left');
       }
     }

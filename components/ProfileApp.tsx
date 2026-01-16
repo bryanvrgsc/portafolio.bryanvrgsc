@@ -355,4 +355,6 @@ const ProfileApp = React.memo(() => {
   );
 });
 
+ProfileApp.displayName = 'ProfileApp';
+
 export default ProfileApp;
