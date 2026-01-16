@@ -98,21 +98,30 @@ const FinderApp = React.memo(() => {
   };
 
   const handleSidebarClick = (item: SidebarItem) => {
-    if (item.name === 'Escritorio') {
+    // Special handling for Desktop root
+    if (item.id === 'desktop') {
       navigateTo(null, 'Escritorio');
       return;
     } 
     
-    // Try to find the folder by name (case insensitive for better UX)
-    const target = fs.find(f => f.name.toLowerCase() === item.name.toLowerCase() && f.type === 'folder' && f.parentId === null);
+    // Try to find the folder by ID first (more reliable), then by name
+    let target = fs.find(f => f.id === item.id);
+    
+    // Fallback: Find by name (for legacy or user-created folders matching system names)
+    if (!target) {
+        target = fs.find(f => f.name.toLowerCase() === item.name.toLowerCase() && f.type === 'folder' && f.parentId === null);
+    }
     
     if (target) {
       navigateTo(target.id, target.name);
     } else {
-      // If folder doesn't exist, we can create it or just show empty view with that name
-      // For now, let's just navigate to a "view" with that name, effectively showing root (or empty if we handled filtering differently)
-      // Ideally we should create these folders in getInitialFiles (which we did)
-      navigateTo(null, item.name);
+      // Create it if it's a system folder that should exist but doesn't (safety net)
+      if (['documents', 'downloads', 'images', 'music', 'videos'].includes(item.id)) {
+          // This creates it in memory but doesn't persist properly if we don't use addFolder correctly. 
+          // Better to just show empty view or navigate to root.
+          // For now, let's navigate to a "virtual" view so the UI updates
+          navigateTo(item.id, item.name);
+      }
     }
   };
 
@@ -190,6 +199,7 @@ const FinderApp = React.memo(() => {
         { id: 'videos', name: 'Videos', icon: <Video size={16} /> },
         { id: 'music', name: 'Música', icon: <Music size={16} /> },
         { id: 'images', name: 'Imágenes', icon: <ImageIcon size={16} /> },
+        { id: 'projects', name: 'Proyectos', icon: <Folder size={16} /> },
       ]
     },
     {
@@ -291,7 +301,7 @@ const FinderApp = React.memo(() => {
                   onClick={() => handleSidebarClick(item)}
                   className={cn(
                     "flex items-center justify-between px-2.5 py-1.5 rounded-[6px] text-[12.5px] group transition-all",
-                    currentFolder.name === item.name
+                    (currentFolder.id === item.id || (item.id === 'desktop' && currentFolder.id === null))
                       ? "bg-[#fabd2e] text-black shadow-lg shadow-black/20"
                       : "hover:bg-white/[0.08] text-white/75"
                   )}
@@ -299,15 +309,15 @@ const FinderApp = React.memo(() => {
                   <div className="flex items-center gap-3">
                     <span className={cn(
                       "transition-colors",
-                      currentFolder.name === item.name ? "text-black/80 font-bold" : "text-blue-500"
+                      (currentFolder.id === item.id || (item.id === 'desktop' && currentFolder.id === null)) ? "text-black/80 font-bold" : "text-blue-500"
                     )}>{item.icon}</span>
                     <span className={cn(
                       "font-medium",
-                      currentFolder.name === item.name ? "opacity-100" : "opacity-90"
+                      (currentFolder.id === item.id || (item.id === 'desktop' && currentFolder.id === null)) ? "opacity-100" : "opacity-90"
                     )}>{item.name}</span>
                   </div>
                   <div className="flex items-center gap-1.5">
-                    {item.cloud && <Cloud size={11} className={cn(currentFolder.name === item.name ? "text-black/40" : "text-white/20")} />}
+                    {item.cloud && <Cloud size={11} className={cn((currentFolder.id === item.id || (item.id === 'desktop' && currentFolder.id === null)) ? "text-black/40" : "text-white/20")} />}
                     {item.badge && <span className="text-[10px] opacity-40 font-bold">{item.badge}</span>}
                   </div>
                 </button>
@@ -365,25 +375,34 @@ const FinderApp = React.memo(() => {
           </div>
 
           {/* Bottom Breadcrumbs */}
-          <div className="h-7 border-t border-white/[0.08] flex items-center px-4 gap-2 text-[10.5px] text-white/50 bg-[#252528] shrink-0 font-medium overflow-hidden">
-             <div className="flex items-center bg-black/20 px-2 py-0.5 rounded border border-white/5 hover:bg-black/40 cursor-default transition-colors gap-1.5">
-              <span className="text-[12px] opacity-80">💾</span> Macintosh HD
+          <div className="h-7 border-t border-white/[0.08] flex items-center px-4 gap-2 text-[10px] text-white/40 bg-[#252528] shrink-0 font-medium overflow-hidden">
+             <div className="flex items-center gap-1.5 opacity-60 hover:opacity-100 transition-opacity cursor-default">
+              <span className="text-[12px]">💾</span> Macintosh HD
             </div>
+            <span className="text-white/10 font-light">›</span>
+            <div className="flex items-center gap-1.5 opacity-60 hover:opacity-100 transition-opacity cursor-default">
+              <span className="text-[12px]">📂</span> Usuarios
+            </div>
+            <span className="text-white/10 font-light">›</span>
+            <div className="flex items-center gap-1.5 opacity-60 hover:opacity-100 transition-opacity cursor-default">
+              <span className="text-[12px]">📂</span> bryanvargas
+            </div>
+            
             {breadcrumbs.map((crumb, idx) => (
               <React.Fragment key={idx}>
-                <span className="text-white/20 font-light">›</span>
-                <div 
+                <span className="text-white/10 font-light">›</span>
+                <button 
                   onClick={() => navigateTo(crumb.id, crumb.name)}
                   className={cn(
-                    "flex items-center px-2 py-0.5 rounded border cursor-default transition-colors gap-1.5",
+                    "flex items-center px-1.5 py-0.5 rounded transition-colors gap-1.5 outline-none",
                     idx === breadcrumbs.length - 1 
-                      ? "bg-[#fabd2e]/10 border-[#fabd2e]/20 text-[#fabd2e]"
-                      : "bg-black/20 border-white/5 hover:bg-black/40 text-white/50"
+                      ? "text-[#fabd2e] font-bold"
+                      : "hover:bg-white/5 text-white/50"
                   )}
                 >
-                  <span className="text-[12px]">{crumb.id === null ? '🖥️' : '📂'}</span>
-                  {crumb.name}
-                </div>
+                  <span className="text-[12px] opacity-80">{crumb.id === null ? '🖥️' : '📂'}</span>
+                  <span className="truncate max-w-[100px]">{crumb.name}</span>
+                </button>
               </React.Fragment>
             ))}
           </div>
