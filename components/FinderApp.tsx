@@ -42,7 +42,27 @@ const FinderApp = React.memo(() => {
 
   // Derived state: Files in current folder (filtered by search)
   const currentFiles = useMemo(() => {
-    let filtered = fs.filter(f => f.parentId === currentFolder.id);
+    let filtered: typeof fs = [];
+
+    // Handle Virtual Folders & Special Views
+    if (currentFolder.id === 'recents') {
+      // Show all files (excluding folders for simplicity, or all items)
+      filtered = fs.filter(f => f.type !== 'folder'); 
+    } else if (currentFolder.id === 'applications') {
+      // Mock applications
+      filtered = [
+        { id: 'app-safari', name: 'Safari', type: 'app', parentId: 'applications' },
+        { id: 'app-terminal', name: 'Terminal', type: 'app', parentId: 'applications' },
+        { id: 'app-mail', name: 'Mail', type: 'app', parentId: 'applications' },
+      ] as any;
+    } else if (currentFolder.id === 'desktop' || currentFolder.id === null) {
+      // Desktop Root (null is the actual root parentId)
+      filtered = fs.filter(f => f.parentId === null);
+    } else {
+      // Standard Folder Navigation
+      filtered = fs.filter(f => f.parentId === currentFolder.id);
+    }
+
     if (searchQuery) {
       filtered = filtered.filter(f => f.name.toLowerCase().includes(searchQuery.toLowerCase()));
     }
@@ -51,12 +71,15 @@ const FinderApp = React.memo(() => {
 
   // Dynamic path building
   const breadcrumbs = useMemo(() => {
-    if (currentFolder.id === null) return [{ id: null, name: 'Escritorio' }];
+    if (currentFolder.id === null || currentFolder.id === 'desktop') return [{ id: null, name: 'Escritorio' }];
+    if (['recents', 'applications', 'airdrop'].includes(currentFolder.id || '')) return [{ id: currentFolder.id, name: currentFolder.name }];
     
     const path = [];
     let currId: string | null = currentFolder.id;
     
-    while (currId !== null) {
+    // Safety break to prevent infinite loops
+    let depth = 0;
+    while (currId !== null && depth < 10) {
       // eslint-disable-next-line no-loop-func
       const folder = fs.find(f => f.id === currId);
       if (folder) {
@@ -65,14 +88,12 @@ const FinderApp = React.memo(() => {
       } else {
         break;
       }
+      depth++;
     }
     return [{ id: null, name: 'Escritorio' }, ...path];
   }, [fs, currentFolder]);
 
   const navigateTo = (folderId: string | null, folderName: string) => {
-    // Allow navigation if IDs are different OR if names are different (e.g. switching 'views' on same root)
-    if (currentFolder.id === folderId && currentFolder.name === folderName) return;
-    
     const newHistory = history.slice(0, historyIndex + 1);
     newHistory.push({ id: folderId, name: folderName });
     setHistory(newHistory);
@@ -98,30 +119,15 @@ const FinderApp = React.memo(() => {
   };
 
   const handleSidebarClick = (item: SidebarItem) => {
-    // Special handling for Desktop root
+    // Navigate directly to the item's ID
+    // If it's a "real" folder in fs, it works.
+    // If it's a "virtual" folder (recents, applications), currentFiles logic handles it.
+    // If it's 'desktop', logic handles it.
+    
     if (item.id === 'desktop') {
       navigateTo(null, 'Escritorio');
-      return;
-    } 
-    
-    // Try to find the folder by ID first (more reliable), then by name
-    let target = fs.find(f => f.id === item.id);
-    
-    // Fallback: Find by name (for legacy or user-created folders matching system names)
-    if (!target) {
-        target = fs.find(f => f.name.toLowerCase() === item.name.toLowerCase() && f.type === 'folder' && f.parentId === null);
-    }
-    
-    if (target) {
-      navigateTo(target.id, target.name);
     } else {
-      // Create it if it's a system folder that should exist but doesn't (safety net)
-      if (['documents', 'downloads', 'images', 'music', 'videos'].includes(item.id)) {
-          // This creates it in memory but doesn't persist properly if we don't use addFolder correctly. 
-          // Better to just show empty view or navigate to root.
-          // For now, let's navigate to a "virtual" view so the UI updates
-          navigateTo(item.id, item.name);
-      }
+      navigateTo(item.id, item.name);
     }
   };
 
