@@ -65,7 +65,9 @@ const FinderApp = React.memo(() => {
   }, [fs, currentFolder]);
 
   const navigateTo = (folderId: string | null, folderName: string) => {
-    if (currentFolder.id === folderId) return;
+    // Allow navigation if IDs are different OR if names are different (e.g. switching 'views' on same root)
+    if (currentFolder.id === folderId && currentFolder.name === folderName) return;
+    
     const newHistory = history.slice(0, historyIndex + 1);
     newHistory.push({ id: folderId, name: folderName });
     setHistory(newHistory);
@@ -93,14 +95,19 @@ const FinderApp = React.memo(() => {
   const handleSidebarClick = (item: SidebarItem) => {
     if (item.name === 'Escritorio') {
       navigateTo(null, 'Escritorio');
+      return;
+    } 
+    
+    // Try to find the folder by name (case insensitive for better UX)
+    const target = fs.find(f => f.name.toLowerCase() === item.name.toLowerCase() && f.type === 'folder' && f.parentId === null);
+    
+    if (target) {
+      navigateTo(target.id, target.name);
     } else {
-      const target = fs.find(f => f.name === item.name && f.type === 'folder');
-      if (target) {
-        navigateTo(target.id, target.name);
-      } else {
-        // Simple mock behavior: if it doesn't exist, we stay but show name
-        navigateTo(null, item.name);
-      }
+      // If folder doesn't exist, we can create it or just show empty view with that name
+      // For now, let's just navigate to a "view" with that name, effectively showing root (or empty if we handled filtering differently)
+      // Ideally we should create these folders in getInitialFiles (which we did)
+      navigateTo(null, item.name);
     }
   };
 

@@ -22,8 +22,19 @@ interface FileSystemContextType {
 const FileSystemContext = createContext<FileSystemContextType | undefined>(undefined);
 
 const getInitialFiles = (): VFile[] => [
+  // Root Folders
   { id: 'projects', name: 'Proyectos', type: 'folder', parentId: null, isProtected: true },
+  { id: 'documents', name: 'Documentos', type: 'folder', parentId: null, isProtected: true },
+  { id: 'downloads', name: 'Descargas', type: 'folder', parentId: null, isProtected: true },
+  { id: 'images', name: 'Imágenes', type: 'folder', parentId: null, isProtected: true },
+  
+  // Files in Root
   { id: 'cv', name: 'CV_Bryan_Vargas.pdf', type: 'file', parentId: null, isProtected: true },
+
+  // Files in Proyectos
+  { id: 'p1', name: 'Portfolio.tsx', type: 'file', parentId: 'projects' },
+  { id: 'p2', name: 'E-commerce', type: 'folder', parentId: 'projects' },
+  { id: 'p3', name: 'Dashboard', type: 'folder', parentId: 'projects' },
 ];
 
 const safeLocalStorage = {
