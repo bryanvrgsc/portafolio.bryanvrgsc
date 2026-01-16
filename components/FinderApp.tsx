@@ -1,90 +1,289 @@
 "use client";
 
-import React, { useState } from 'react';
-import { Folder, ChevronLeft, ChevronRight, LayoutGrid, List } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
+import {
+  ChevronLeft, ChevronRight, LayoutGrid, List, Search,
+  Share, Tag, MoreHorizontal, Clock, Users, Airplay, Monitor,
+  FileText, Download, Video, Music, ImageIcon, Cloud, ChevronDown, Plus
+} from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useFileSystem } from '@/context/FileSystemContext';
 
-interface FinderFile {
+interface SidebarItem {
+  id: string; // internal id or special key
   name: string;
-  type: 'pdf' | 'archive' | 'text' | 'image' | 'folder';
-  size: string;
+  icon: React.ReactNode;
+  cloud?: boolean;
+  badge?: string;
+  specialPath?: string | null; // null for root, or specific ID
+}
+
+interface SidebarSection {
+  title: string;
+  items: SidebarItem[];
+  hideTitle?: boolean;
 }
 
 const FinderApp = React.memo(() => {
-  const [currentFolder, setCurrentFolder] = useState('Recientes');
+  const { fs } = useFileSystem();
+  
+  // Navigation State
+  const [history, setHistory] = useState<Array<{ id: string | null; name: string }>>([{ id: null, name: 'Escritorio' }]);
+  const [historyIndex, setHistoryIndex] = useState(0);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
-  const folders = [
-    { name: 'Recientes', icon: <LayoutGrid size={16} /> },
-    { name: 'Documentos', icon: <Folder size={16} /> },
-    { name: 'Proyectos', icon: <Folder size={16} /> },
-    { name: 'Descargas', icon: <Folder size={16} /> },
-  ];
+  const currentFolder = history[historyIndex];
 
-  const files: Record<string, FinderFile[]> = {
-    'Recientes': [
-      { name: 'CV_Bryan_Vargas.pdf', type: 'pdf', size: '1.2 MB' },
-      { name: 'Proyecto_Final.zip', type: 'archive', size: '45 MB' },
-    ],
-    'Documentos': [
-      { name: 'Certificado_React.pdf', type: 'pdf', size: '800 KB' },
-      { name: 'Notas_Reunion.txt', type: 'text', size: '12 KB' },
-    ],
-    'Proyectos': [
-      { name: 'Portafolio_v2', type: 'folder', size: '--' },
-      { name: 'E-commerce_API', type: 'folder', size: '--' },
-    ],
-    'Descargas': [
-      { name: 'wallpaper_macos.jpg', type: 'image', size: '2.4 MB' },
-    ]
+  // Derived state: Files in current folder
+  const currentFiles = useMemo(() => {
+    return fs.filter(f => f.parentId === currentFolder.id);
+  }, [fs, currentFolder]);
+
+  const navigateTo = (folderId: string | null, folderName: string) => {
+    const newHistory = history.slice(0, historyIndex + 1);
+    newHistory.push({ id: folderId, name: folderName });
+    setHistory(newHistory);
+    setHistoryIndex(newHistory.length - 1);
+    setSelectedIds([]);
   };
 
-  return (
-    <div className="flex h-full bg-[#1e1e1e] text-white overflow-hidden">
-      {/* Sidebar */}
-      <div className="w-44 bg-black/20 backdrop-blur-md border-r border-white/5 p-3 flex flex-col gap-1">
-        <div className="text-[10px] font-bold text-white/30 px-2 mb-2 uppercase tracking-wider">Favoritos</div>
-        {folders.map(folder => (
-          <button
-            key={folder.name}
-            onClick={() => setCurrentFolder(folder.name)}
-            className={cn(
-              "flex items-center gap-2 px-2 py-1.5 rounded-md text-[13px] transition-colors",
-              currentFolder === folder.name ? "bg-white/10" : "hover:bg-white/5 text-white/70"
-            )}
-          >
-            <span className="text-blue-400">{folder.icon}</span>
-            {folder.name}
-          </button>
-        ))}
-      </div>
+  const goBack = () => {
+    if (historyIndex > 0) {
+      setHistoryIndex(historyIndex - 1);
+      setSelectedIds([]);
+    }
+  };
 
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col">
-        {/* Toolbar */}
-        <div className="h-12 border-b border-white/5 flex items-center justify-between px-4">
-          <div className="flex items-center gap-4">
-            <div className="flex gap-2">
-              <ChevronLeft size={18} className="text-white/20" />
-              <ChevronRight size={18} className="text-white/20" />
-            </div>
-            <span className="text-[13px] font-bold">{currentFolder}</span>
+  const goForward = () => {
+    if (historyIndex < history.length - 1) {
+      setHistoryIndex(historyIndex + 1);
+      setSelectedIds([]);
+    }
+  };
+
+  const handleSidebarClick = (item: SidebarItem) => {
+    // For now, map everything to Desktop (null) or specific folders if they existed.
+    // In our simple FS, we only have one real root (null).
+    // We can simulate "Documentos", "Descargas" by creating them if missing, or just navigate to them if they exist.
+    // For this demo, let's just navigate to Root (Escritorio) for most, or filter differently?
+    // Let's stick to simple navigation:
+    // "Escritorio" -> parentId: null
+    // "Documentos" -> find folder named "Documentos" in root, else create it? Or just show empty.
+    
+    if (item.name === 'Escritorio') {
+      navigateTo(null, 'Escritorio');
+    } else if (item.name === 'Recientes') {
+      // Show all files flattened? Or just root. Let's just go Root for now.
+      navigateTo(null, 'Recientes');
+    } else {
+      // Try to find a folder with this name in root
+      const target = fs.find(f => f.name === item.name && f.type === 'folder' && f.parentId === null);
+      if (target) {
+        navigateTo(target.id, target.name);
+      } else {
+        // Fallback to desktop but maybe show empty state or "Not implemented" toast?
+        // Let's just go to Desktop to be safe.
+        navigateTo(null, 'Escritorio');
+      }
+    }
+  };
+
+  const sidebarSections: SidebarSection[] = [
+    {
+      title: 'Recientes',
+      items: [
+        { id: 'recents', name: 'Recientes', icon: <Clock size={16} /> },
+        { id: 'shared', name: 'Compartido', icon: <Users size={16} />, badge: '0' },
+      ],
+      hideTitle: true
+    },
+    {
+      title: 'Favoritos',
+      items: [
+        { id: 'airdrop', name: 'AirDrop', icon: <Airplay size={16} /> },
+        { id: 'applications', name: 'Aplicaciones', icon: <LayoutGrid size={16} /> },
+        { id: 'desktop', name: 'Escritorio', icon: <Monitor size={16} />, cloud: true },
+        { id: 'documents', name: 'Documentos', icon: <FileText size={16} />, cloud: true },
+        { id: 'downloads', name: 'Descargas', icon: <Download size={16} /> },
+        { id: 'videos', name: 'Videos', icon: <Video size={16} /> },
+        { id: 'music', name: 'Música', icon: <Music size={16} /> },
+        { id: 'images', name: 'Imágenes', icon: <ImageIcon size={16} /> },
+      ]
+    },
+    {
+      title: 'Ubicaciones',
+      items: [
+        { id: 'icloud', name: 'iCloud Drive', icon: <Cloud size={16} /> },
+      ]
+    }
+  ];
+
+  const FolderIcon = () => (
+    <div className="relative w-16 h-12 flex items-center justify-center">
+      <div className="absolute top-0 left-0 w-6 h-2 bg-[#f9cf48] rounded-t-sm" />
+      <div className="w-full h-11 bg-[#f9cf48] rounded-[4px] shadow-sm flex items-center justify-center">
+        <div className="w-[90%] h-[75%] bg-[#ffde6d] rounded-[2px] opacity-40 border-t border-white/20" />
+      </div>
+    </div>
+  );
+
+  const FileIcon = () => (
+    <div className="relative w-12 h-14 bg-white rounded-[3px] shadow-sm flex items-center justify-center">
+        <span className="text-gray-500 text-xs font-bold">DOC</span>
+        <div className="absolute top-0 right-0 w-3 h-3 bg-gray-200" style={{clipPath: 'polygon(0 0, 0% 100%, 100% 0)'}}/>
+    </div>
+  );
+
+  return (
+    <div className="flex flex-col h-full bg-[#1c1c1e] text-white overflow-hidden select-none">
+      {/* Integrated Title Bar Area */}
+      <div className="h-12 flex items-center justify-between px-4 shrink-0 [WebkitAppRegion:drag]">
+        <div className="flex items-center gap-20 ml-2">
+          <div className="flex gap-1 ml-16 transform scale-90">
+            <button onClick={goBack} disabled={historyIndex === 0} className={`p-1 rounded transition-colors ${historyIndex === 0 ? 'text-white/20' : 'hover:bg-white/5 text-white/40 hover:text-white'}`}><ChevronLeft size={20} /></button>
+            <button onClick={goForward} disabled={historyIndex === history.length - 1} className={`p-1 rounded transition-colors ${historyIndex === history.length - 1 ? 'text-white/20' : 'hover:bg-white/5 text-white/40 hover:text-white'}`}><ChevronRight size={20} /></button>
           </div>
-          <div className="flex items-center gap-3 text-white/40">
-            <LayoutGrid size={16} />
-            <List size={16} />
-          </div>
+          <span className="text-[13px] font-bold text-white/90">{currentFolder.name}</span>
         </div>
 
-        {/* Grid */}
-        <div className="flex-1 p-4 grid grid-cols-4 content-start gap-4 overflow-auto">
-          {files[currentFolder]?.map((file, i) => (
-            <div key={i} className="flex flex-col items-center gap-1 group p-2 rounded-lg hover:bg-white/5 transition-colors cursor-default">
-              <div className="text-4xl">
-                {file.type === 'pdf' ? '📄' : file.type === 'folder' ? '📂' : file.type === 'image' ? '🖼️' : '📁'}
-              </div>
-              <span className="text-[11px] text-center break-all line-clamp-2">{file.name}</span>
+        <div className="flex items-center gap-1.5 transform scale-95 origin-right mr-1 [WebkitAppRegion:no-drag]">
+          <div className="flex items-center bg-white/[0.08] rounded-md px-2 py-1 gap-1 border border-white/5 hover:bg-white/[0.12] cursor-default transition-colors">
+            <LayoutGrid size={15} className="text-white/70" />
+            <ChevronDown size={10} className="text-white/40" />
+          </div>
+          <div className="flex items-center bg-white/[0.08] rounded-md px-2 py-1 gap-1 border border-white/5 hover:bg-white/[0.12] cursor-default transition-colors">
+            <List size={15} className="text-white/70" />
+            <ChevronDown size={10} className="text-white/40" />
+          </div>
+          <button className="p-2 hover:bg-white/[0.08] rounded text-white/70"><Share size={18} /></button>
+          <button className="p-2 hover:bg-white/[0.08] rounded text-white/70"><Tag size={18} /></button>
+          <button className="p-2 hover:bg-white/[0.08] rounded text-white/70"><MoreHorizontal size={18} /></button>
+          <button className="p-2 hover:bg-white/[0.08] rounded text-white/70 ml-1"><Search size={18} /></button>
+        </div>
+      </div>
+
+      {/* Secondary Tab Bar (Pill) */}
+      <div className="h-10 px-4 flex items-center shrink-0">
+        <div className="flex-1 bg-black/30 rounded-lg border border-white/[0.08] h-7 flex items-center justify-center relative group">
+          <span className="text-[11px] font-medium text-white/70">{currentFolder.name}</span>
+          <button className="absolute right-1 w-5 h-5 flex items-center justify-center rounded-md hover:bg-white/10 text-white/40 transition-colors">
+            <Plus size={14} />
+          </button>
+        </div>
+      </div>
+
+      <div className="flex flex-1 overflow-hidden">
+        {/* Sidebar */}
+        <div className="w-52 bg-white/[0.03] backdrop-blur-3xl border-r border-black/20 p-3 pt-4 flex flex-col gap-6 overflow-y-auto shrink-0">
+          {sidebarSections.map((section, idx) => (
+            <div key={idx} className="flex flex-col gap-0.5">
+              {!section.hideTitle && (
+                <div className="text-[10.5px] font-bold text-white/30 px-2.5 mb-1.5 uppercase tracking-wider">{section.title}</div>
+              )}
+              {section.items.map(item => (
+                <button
+                  key={item.id}
+                  onClick={() => handleSidebarClick(item)}
+                  className={cn(
+                    "flex items-center justify-between px-2.5 py-1.5 rounded-[6px] text-[12.5px] group transition-all",
+                    currentFolder.name === item.name
+                      ? "bg-[#fabd2e] text-black shadow-lg shadow-black/20"
+                      : "hover:bg-white/[0.08] text-white/75"
+                  )}
+                >
+                  <div className="flex items-center gap-3">
+                    <span className={cn(
+                      "transition-colors",
+                      currentFolder.name === item.name ? "text-black/80 font-bold" : "text-blue-500"
+                    )}>{item.icon}</span>
+                    <span className={cn(
+                      "font-medium",
+                      currentFolder.name === item.name ? "opacity-100" : "opacity-90"
+                    )}>{item.name}</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    {item.cloud && <Cloud size={11} className={cn(currentFolder.name === item.name ? "text-black/40" : "text-white/20")} />}
+                    {item.badge && <span className="text-[10px] opacity-40 font-bold">{item.badge}</span>}
+                  </div>
+                </button>
+              ))}
             </div>
           ))}
+        </div>
+
+        {/* Workspace */}
+        <div className="flex-1 flex flex-col bg-[#1c1c1c]/95 relative" onClick={() => setSelectedIds([])}>
+          {/* Grid Area */}
+          <div className="flex-1 p-8 pt-4 overflow-auto scrollbar-hide">
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(110px,1fr))] gap-x-6 gap-y-10 content-start">
+              {currentFiles.map((file) => (
+                <div
+                  key={file.id}
+                  onClick={(e) => { e.stopPropagation(); setSelectedIds([file.id]); }}
+                  onDoubleClick={(e) => {
+                    e.stopPropagation();
+                    if (file.type === 'folder') {
+                      navigateTo(file.id, file.name);
+                    }
+                  }}
+                  className={cn(
+                    "flex flex-col items-center gap-2 group cursor-default p-2 rounded-md transition-all border border-transparent",
+                    selectedIds.includes(file.id) ? "bg-white/10 border-white/5" : "hover:bg-white/5"
+                  )}
+                >
+                  <div className="mb-1 transform scale-105">
+                    {file.type === 'folder' ? <FolderIcon /> : <FileIcon />}
+                  </div>
+                  <div className="flex items-center gap-1 max-w-[100px] mt-0.5">
+                    <span className={cn(
+                      "text-[11.5px] text-center leading-[1.2] line-clamp-2 drop-shadow-sm font-medium tracking-tight px-1.5 py-0.5 rounded",
+                      selectedIds.includes(file.id) ? "bg-blue-600 text-white" : "text-white/95"
+                    )}>
+                      {file.name}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Bottom Breadcrumbs (Simplified) */}
+          <div className="h-7 border-t border-white/[0.08] flex items-center px-4 gap-2 text-[10.5px] text-white/50 bg-[#252528] shrink-0 font-medium overflow-hidden">
+             <div className="flex items-center bg-black/20 px-2 py-0.5 rounded border border-white/5 hover:bg-black/40 cursor-default transition-colors gap-1.5">
+              <span className="text-[12px] opacity-80">💾</span> Macintosh HD
+            </div>
+            <span className="text-white/20 font-light">›</span>
+            {currentFolder.id === null ? (
+               <div className="flex items-center bg-[#fabd2e]/10 px-2 py-0.5 rounded border border-[#fabd2e]/20 text-[#fabd2e] cursor-default gap-1.5">
+               <span className="text-[12px]">📂</span> Escritorio
+             </div>
+            ) : (
+              <>
+                <div className="flex items-center bg-black/20 px-2 py-0.5 rounded border border-white/5 hover:bg-black/40 cursor-default transition-colors gap-1.5">
+                  <span className="text-[12px] opacity-80">📂</span> ...
+                </div>
+                <span className="text-white/20 font-light">›</span>
+                <div className="flex items-center bg-[#fabd2e]/10 px-2 py-0.5 rounded border border-[#fabd2e]/20 text-[#fabd2e] cursor-default gap-1.5">
+                  <span className="text-[12px]">📂</span> {currentFolder.name}
+                </div>
+              </>
+            )}
+          </div>
+
+          {/* Status Bar */}
+          <div className="h-9 border-t border-black/40 flex items-center justify-center px-4 relative bg-[#252528] shrink-0">
+            <span className="text-[11.5px] text-white/50 font-medium tracking-tight">{currentFiles.length} elementos, 34.49 GB disponible(s) en iCloud</span>
+            <div className="absolute right-5 flex items-center gap-4 group">
+              <div className="relative w-28 h-5 flex items-center">
+                <div className="absolute left-0 w-[4px] h-[1px] bg-white/20" />
+                <div className="w-full h-[1.5px] bg-[#1c1c1e] mx-2 relative overflow-hidden rounded-full border border-white/5 shadow-inner">
+                  <div className="absolute left-0 top-0 bottom-0 w-[85%] bg-[#fabd2e]/80" />
+                </div>
+                <div className="absolute right-[12px] top-[14%] w-3.5 h-3.5 bg-white rounded-full shadow-[0_1px_3px_rgba(0,0,0,0.5)] border border-black/10 transition-transform active:scale-90" />
+                <div className="absolute right-0 w-[4px] h-[1px] bg-white/40" />
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

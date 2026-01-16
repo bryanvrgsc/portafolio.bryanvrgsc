@@ -14,7 +14,7 @@ import AboutThisMac from './AboutThisMac';
 import ContextMenu from './ContextMenu';
 import ControlCenter from './ControlCenter';
 import NotificationCenter from './NotificationCenter';
-import { useFileSystem } from '@/hooks/useFileSystem';
+import { useFileSystem } from '@/context/FileSystemContext';
 import { cn } from '@/lib/utils';
 
 export type AppId = 'profile' | 'browser' | 'finder' | 'settings' | 'spotlight' | 'terminal' | 'about';
@@ -280,7 +280,7 @@ const Desktop = React.memo(() => {
           else if (id === 'terminal') { Content = <TerminalApp />; title = "Terminal"; it = 150 + windowPositionOffset; il = 300 + windowPositionOffset; w = "800px"; h = "500px"; }
           else if (id === 'about') { Content = <AboutThisMac />; title = ""; it = 100; il = (typeof window !== 'undefined' ? (window.innerWidth - 412) / 2 : 400); w = "412px"; h = "628px"; }
           else return null;
-          return <Window key={id} title={title} onClose={() => closeWindow(id as AppId)} onMinimize={() => setWindows(p => ({ ...p, [id]: { ...p[id], isMinimized: true } }))} onMaximize={() => setWindows(p => ({ ...p, [id]: { ...p[id], isMaximized: !p[id].isMaximized } }))} onFocus={() => { const nz = maxZIndex + 1; setMaxZIndex(nz); setWindows(p => ({ ...p, [id]: { ...p[id], zIndex: nz } })); setActiveApp(id as AppId); }} zIndex={state.zIndex} active={activeApp === id} isMaximized={state.isMaximized} initialTop={it} initialLeft={il} hideTitleBarStyling={id === 'about'} integratedTitleBar={id === 'browser'} isResizable={id !== 'about'} width={w} height={h}>{Content}</Window>;
+          return <Window key={id} title={title} onClose={() => closeWindow(id as AppId)} onMinimize={() => setWindows(p => ({ ...p, [id]: { ...p[id], isMinimized: true } }))} onMaximize={() => setWindows(p => ({ ...p, [id]: { ...p[id], isMaximized: !p[id].isMaximized } }))} onFocus={() => { const nz = maxZIndex + 1; setMaxZIndex(nz); setWindows(p => ({ ...p, [id]: { ...p[id], zIndex: nz } })); setActiveApp(id as AppId); }} zIndex={state.zIndex} active={activeApp === id} isMaximized={state.isMaximized} initialTop={it} initialLeft={il} hideTitleBarStyling={id === 'about'} integratedTitleBar={id === 'browser' || id === 'finder'} isResizable={id !== 'about'} width={w} height={h}>{Content}</Window>;
         })}
       </main>
       <Dock onLaunch={toggleApp} activeApp={activeApp} minimizedApps={minimizedAppIds} />

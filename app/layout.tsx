@@ -12,6 +12,7 @@ export const metadata: Metadata = {
 };
 
 import { SystemProvider } from "@/context/SystemContext";
+import { FileSystemProvider } from "@/context/FileSystemContext";
 import ErrorBoundary from "@/components/ErrorBoundary";
 
 export default function RootLayout({
@@ -24,7 +25,9 @@ export default function RootLayout({
       <body className="antialiased">
         <ErrorBoundary>
           <SystemProvider>
-            {children}
+            <FileSystemProvider>
+              {children}
+            </FileSystemProvider>
           </SystemProvider>
         </ErrorBoundary>
       </body>

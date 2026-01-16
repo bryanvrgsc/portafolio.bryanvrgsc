@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 
 export interface VFile {
   id: string;
@@ -11,6 +11,15 @@ export interface VFile {
   content?: string;
   isProtected?: boolean;
 }
+
+interface FileSystemContextType {
+  fs: VFile[];
+  addFolder: (parentId: string | null) => void;
+  renameFile: (id: string, newName: string) => void;
+  deleteFile: (id: string) => void;
+}
+
+const FileSystemContext = createContext<FileSystemContextType | undefined>(undefined);
 
 const getInitialFiles = (): VFile[] => [
   { id: 'projects', name: 'Proyectos', type: 'folder', parentId: null, isProtected: true },
@@ -37,7 +46,7 @@ const safeLocalStorage = {
   }
 };
 
-export const useFileSystem = () => {
+export const FileSystemProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [fs, setFs] = useState<VFile[]>([]);
 
   useEffect(() => {
@@ -59,12 +68,12 @@ export const useFileSystem = () => {
     }
   }, []);
 
-  const save = (newFs: VFile[]) => {
+  const save = useCallback((newFs: VFile[]) => {
     setFs(newFs);
     safeLocalStorage.setItem('macos_vfs_v2', JSON.stringify(newFs));
-  };
+  }, []);
 
-  const addFolder = (parentId: string | null) => {
+  const addFolder = useCallback((parentId: string | null) => {
     const newFolder: VFile = {
       id: Math.random().toString(36).substr(2, 9),
       name: 'Nueva Carpeta',
@@ -72,19 +81,31 @@ export const useFileSystem = () => {
       parentId
     };
     save([...fs, newFolder]);
-  };
+  }, [fs, save]);
 
-  const renameFile = (id: string, newName: string) => {
+  const renameFile = useCallback((id: string, newName: string) => {
     const file = fs.find(f => f.id === id);
     if (file?.isProtected) return;
     save(fs.map(f => f.id === id ? { ...f, name: newName } : f));
-  };
+  }, [fs, save]);
 
-  const deleteFile = (id: string) => {
+  const deleteFile = useCallback((id: string) => {
     const file = fs.find(f => f.id === id);
     if (file?.isProtected) return;
     save(fs.filter(f => f.id !== id));
-  };
+  }, [fs, save]);
 
-  return { fs, addFolder, renameFile, deleteFile };
+  return (
+    <FileSystemContext.Provider value={{ fs, addFolder, renameFile, deleteFile }}>
+      {children}
+    </FileSystemContext.Provider>
+  );
+};
+
+export const useFileSystem = () => {
+  const context = useContext(FileSystemContext);
+  if (context === undefined) {
+    throw new Error('useFileSystem must be used within a FileSystemProvider');
+  }
+  return context;
 };
