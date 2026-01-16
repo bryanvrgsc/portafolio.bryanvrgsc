@@ -38,6 +38,13 @@ const getInitialFiles = (): VFile[] => [
   { id: 'p1', name: 'Portfolio.tsx', type: 'file', parentId: 'projects' },
   { id: 'p2', name: 'E-commerce', type: 'folder', parentId: 'projects' },
   { id: 'p3', name: 'Dashboard', type: 'folder', parentId: 'projects' },
+
+  // Files in Documentos
+  { id: 'doc1', name: 'Presupuesto.pdf', type: 'file', parentId: 'documents' },
+  { id: 'doc2', name: 'Notas.txt', type: 'file', parentId: 'documents' },
+
+  // Files in Imágenes
+  { id: 'img1', name: 'Wallpaper.png', type: 'file', parentId: 'images' },
 ];
 
 const safeLocalStorage = {
