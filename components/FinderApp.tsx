@@ -175,15 +175,24 @@ const FinderApp = React.memo(({ initialPath }: FinderProps) => {
   };
 
   const handleSidebarClick = (item: SidebarItem) => {
-    // Navigate directly to the item's ID
-    // If it's a "real" folder in fs, it works.
-    // If it's a "virtual" folder (recents, applications), currentFiles logic handles it.
-    // If it's 'desktop', logic handles it.
-    
-    if (item.id === 'desktop') {
-      navigateTo(null, 'Escritorio');
+    // 1. Handle Virtual Views that don't correspond to physical folders
+    if (['recents', 'applications', 'airdrop', 'icloud'].includes(item.id)) {
+        navigateTo(item.id, item.name);
+        return;
+    }
+
+    // 2. Handle Standard Folders (Desktop, Documents, etc.)
+    // We strictly look for the folder with this ID in the file system.
+    const target = fs.find(f => f.id === item.id);
+
+    if (target) {
+        // Found physical folder -> Navigate to it
+        navigateTo(target.id, target.name);
     } else {
-      navigateTo(item.id, item.name);
+        // Folder should exist but doesn't (data sync issue?). 
+        // Force navigation to this ID anyway so the UI updates to the correct "View",
+        // even if it appears empty. This corrects the breadcrumbs.
+        navigateTo(item.id, item.name);
     }
   };
 
