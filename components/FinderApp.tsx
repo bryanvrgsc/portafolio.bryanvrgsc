@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useContext } from 'react';
 import {
   Folder, ChevronLeft, ChevronRight, LayoutGrid, List, Search,
   Share, Tag, MoreHorizontal, Clock, Users, Airplay, Monitor,
@@ -10,6 +10,7 @@ import { cn } from '@/lib/utils';
 import { useFileSystem } from '@/context/FileSystemContext';
 import { AnimatePresence } from 'framer-motion';
 import ContextMenu from './ContextMenu';
+import { WindowContext } from './Window';
 
 interface SidebarItem {
   id: string; // internal id or special key
@@ -32,12 +33,14 @@ interface FinderProps {
 
 const FinderApp = React.memo(({ initialPath }: FinderProps) => {
   const { fs, addFolder, deleteFile } = useFileSystem();
-  
+  const windowContext = useContext(WindowContext);
+  const dragControls = windowContext?.dragControls;
+
   // Helper to resolve initial folder
   const resolveInitialFolder = (path?: string | null) => {
     if (!path || path === 'root') return { id: null, name: 'Escritorio' }; // Default to root
     if (path === 'desktop') return { id: 'desktop', name: 'Escritorio' }; // Explicit desktop folder
-    
+
     const folder = fs.find(f => f.id === path);
     return folder ? { id: folder.id, name: folder.name } : { id: null, name: 'Escritorio' };
   };
@@ -47,7 +50,7 @@ const FinderApp = React.memo(({ initialPath }: FinderProps) => {
   const [historyIndex, setHistoryIndex] = useState(0);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
-  
+
   // React to external navigation requests (e.g. from Desktop double-click)
   React.useEffect(() => {
     if (initialPath) {
@@ -72,7 +75,7 @@ const FinderApp = React.memo(({ initialPath }: FinderProps) => {
     // Handle Virtual Folders & Special Views
     if (currentFolder.id === 'recents') {
       // Show all files (excluding folders for simplicity, or all items)
-      filtered = fs.filter(f => f.type !== 'folder'); 
+      filtered = fs.filter(f => f.type !== 'folder');
     } else if (currentFolder.id === 'applications') {
       // Mock applications
       filtered = [
@@ -101,21 +104,21 @@ const FinderApp = React.memo(({ initialPath }: FinderProps) => {
   const breadcrumbs = useMemo(() => {
     // Handle Virtual Folders first (Recents, Apps, AirDrop don't have a path)
     if (['recents', 'applications', 'airdrop'].includes(currentFolder.id || '')) {
-        return [{ id: currentFolder.id, name: currentFolder.name }];
+      return [{ id: currentFolder.id, name: currentFolder.name }];
     }
 
     const path = [];
-    
+
     // If we are explicitly at the 'desktop' folder (ID 'desktop'), add it to the path.
     // If we are at root (ID null), we treat it as Desktop in this specific view logic if desired,
     // BUT our new file system has a real 'desktop' folder ID.
     // So 'null' is technically the User Home ('bryanvargas').
-    
+
     let currId: string | null = currentFolder.id;
-    
+
     // If current is NULL, we are at User Home.
     // If current is 'desktop', we are at Desktop.
-    
+
     // Build path upwards
     let depth = 0;
     while (currId !== null && depth < 10) {
@@ -130,7 +133,7 @@ const FinderApp = React.memo(({ initialPath }: FinderProps) => {
       }
       depth++;
     }
-    
+
     // Explicitly handle the case where we are at 'desktop' but the recursive loop might have missed adding it 
     // if parentId was null (which it is for desktop in fs).
     // Actually, 'desktop' has parentId: null. So the loop finds 'desktop', adds it, then sets currId = null and breaks.
@@ -138,11 +141,11 @@ const FinderApp = React.memo(({ initialPath }: FinderProps) => {
     // Then we prepend [{id: null, name: 'bryanvargas'}].
     // Result: bryanvargas > Escritorio.
     // If it's missing, maybe fs.find failed?
-    
+
     // Fallback: If path is empty but we are at a known ID that is NOT root/null, verify we added it.
     if (path.length === 0 && currentFolder.id && currentFolder.id !== 'recents') {
-         // It implies currentFolder is a direct child of root (like 'desktop' or 'documents')
-         path.push({ id: currentFolder.id, name: currentFolder.name });
+      // It implies currentFolder is a direct child of root (like 'desktop' or 'documents')
+      path.push({ id: currentFolder.id, name: currentFolder.name });
     }
 
     // Base path always starts at User Home
@@ -177,8 +180,8 @@ const FinderApp = React.memo(({ initialPath }: FinderProps) => {
   const handleSidebarClick = (item: SidebarItem) => {
     // 1. Handle Virtual Views that don't correspond to physical folders
     if (['recents', 'applications', 'airdrop', 'icloud'].includes(item.id)) {
-        navigateTo(item.id, item.name);
-        return;
+      navigateTo(item.id, item.name);
+      return;
     }
 
     // 2. Handle Standard Folders (Desktop, Documents, etc.)
@@ -186,13 +189,13 @@ const FinderApp = React.memo(({ initialPath }: FinderProps) => {
     const target = fs.find(f => f.id === item.id);
 
     if (target) {
-        // Found physical folder -> Navigate to it
-        navigateTo(target.id, target.name);
+      // Found physical folder -> Navigate to it
+      navigateTo(target.id, target.name);
     } else {
-        // Folder should exist but doesn't (data sync issue?). 
-        // Force navigation to this ID anyway so the UI updates to the correct "View",
-        // even if it appears empty. This corrects the breadcrumbs.
-        navigateTo(item.id, item.name);
+      // Folder should exist but doesn't (data sync issue?). 
+      // Force navigation to this ID anyway so the UI updates to the correct "View",
+      // even if it appears empty. This corrects the breadcrumbs.
+      navigateTo(item.id, item.name);
     }
   };
 
@@ -214,34 +217,36 @@ const FinderApp = React.memo(({ initialPath }: FinderProps) => {
 
   const contextMenuItems = useMemo(() => {
     if (!contextMenu) return [];
-    
+
     const baseItems = [
       { label: 'Nueva Carpeta', onClick: () => addFolder(currentFolder.id) },
-      { label: 'Obtener información', onClick: () => {} },
+      { label: 'Obtener información', onClick: () => { } },
     ];
 
     if (contextMenu.targetId) {
       const target = fs.find(f => f.id === contextMenu.targetId);
       const fileItems = [
-        { label: 'Abrir', onClick: () => {
+        {
+          label: 'Abrir', onClick: () => {
             if (target?.type === 'folder') {
               navigateTo(target.id, target.name);
             }
-          } 
+          }
         },
-        { label: 'Renombrar', onClick: () => {} }, // TODO: Implement rename trigger
+        { label: 'Renombrar', onClick: () => { } }, // TODO: Implement rename trigger
         { label: 'Mover a la papelera', onClick: () => deleteFile(contextMenu.targetId!) },
-        { label: 'Obtener información', onClick: () => {}, divider: true },
+        { label: 'Obtener información', onClick: () => { }, divider: true },
       ];
-      
+
       // If protected, remove delete/rename
       if (target?.isProtected) {
-        return [{ label: 'Abrir', onClick: () => {
+        return [{
+          label: 'Abrir', onClick: () => {
             if (target?.type === 'folder') {
               navigateTo(target.id, target.name);
             }
-          } 
-        }, { label: 'Obtener información', onClick: () => {} }];
+          }
+        }, { label: 'Obtener información', onClick: () => { } }];
       }
 
       return fileItems;
@@ -292,8 +297,8 @@ const FinderApp = React.memo(({ initialPath }: FinderProps) => {
 
   const FileIcon = () => (
     <div className="relative w-12 h-14 bg-white rounded-[3px] shadow-sm flex items-center justify-center">
-        <span className="text-gray-500 text-xs font-bold">DOC</span>
-        <div className="absolute top-0 right-0 w-3 h-3 bg-gray-200" style={{clipPath: 'polygon(0 0, 0% 100%, 100% 0)'}}/>
+      <span className="text-gray-500 text-xs font-bold">DOC</span>
+      <div className="absolute top-0 right-0 w-3 h-3 bg-gray-200" style={{ clipPath: 'polygon(0 0, 0% 100%, 100% 0)' }} />
     </div>
   );
 
@@ -311,16 +316,19 @@ const FinderApp = React.memo(({ initialPath }: FinderProps) => {
       </AnimatePresence>
 
       {/* Integrated Title Bar Area */}
-      <div className="h-12 flex items-center justify-between px-4 shrink-0 [WebkitAppRegion:drag]">
+      <div
+        className="h-12 flex items-center justify-between px-4 shrink-0 cursor-grab active:cursor-grabbing"
+        onPointerDown={(e) => dragControls?.start(e)}
+      >
         <div className="flex items-center gap-20 ml-2">
           <div className="flex gap-1 ml-16 transform scale-90">
-            <button onClick={goBack} disabled={historyIndex === 0} className={`p-1 rounded transition-colors ${historyIndex === 0 ? 'text-white/20' : 'hover:bg-white/5 text-white/40 hover:text-white'}`}><ChevronLeft size={20} /></button>
-            <button onClick={goForward} disabled={historyIndex === history.length - 1} className={`p-1 rounded transition-colors ${historyIndex === history.length - 1 ? 'text-white/20' : 'hover:bg-white/5 text-white/40 hover:text-white'}`}><ChevronRight size={20} /></button>
+            <button onPointerDown={(e) => e.stopPropagation()} onClick={goBack} disabled={historyIndex === 0} className={`p-1 rounded transition-colors ${historyIndex === 0 ? 'text-white/20' : 'hover:bg-white/5 text-white/40 hover:text-white'}`}><ChevronLeft size={20} /></button>
+            <button onPointerDown={(e) => e.stopPropagation()} onClick={goForward} disabled={historyIndex === history.length - 1} className={`p-1 rounded transition-colors ${historyIndex === history.length - 1 ? 'text-white/20' : 'hover:bg-white/5 text-white/40 hover:text-white'}`}><ChevronRight size={20} /></button>
           </div>
           <span className="text-[13px] font-bold text-white/90">{currentFolder.name}</span>
         </div>
 
-        <div className="flex items-center gap-1.5 transform scale-95 origin-right mr-1 [WebkitAppRegion:no-drag]">
+        <div className="flex items-center gap-1.5 transform scale-95 origin-right mr-1" onPointerDown={(e) => e.stopPropagation()}>
           <div className="flex items-center bg-white/[0.08] rounded-md px-2 py-1 gap-1 border border-white/5 hover:bg-white/[0.12] cursor-default transition-colors">
             <LayoutGrid size={15} className="text-white/70" />
             <ChevronDown size={10} className="text-white/40" />
@@ -334,7 +342,7 @@ const FinderApp = React.memo(({ initialPath }: FinderProps) => {
           <button className="p-2 hover:bg-white/[0.08] rounded text-white/70"><MoreHorizontal size={18} /></button>
           <div className="relative ml-1 group/search">
             <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-white/30 group-focus-within/search:text-white/60 transition-colors" />
-            <input 
+            <input
               type="text"
               placeholder="Buscar"
               value={searchQuery}
@@ -349,7 +357,7 @@ const FinderApp = React.memo(({ initialPath }: FinderProps) => {
       <div className="h-10 px-4 flex items-center shrink-0">
         <div className="flex-1 bg-black/30 rounded-lg border border-white/[0.08] h-7 flex items-center justify-center relative group">
           <span className="text-[11px] font-medium text-white/70">{currentFolder.name}</span>
-          <button 
+          <button
             onClick={handleCreateFolder}
             className="absolute right-1 w-5 h-5 flex items-center justify-center rounded-md hover:bg-white/10 text-white/40 transition-colors"
           >
@@ -396,8 +404,8 @@ const FinderApp = React.memo(({ initialPath }: FinderProps) => {
         </div>
 
         {/* Workspace */}
-        <div 
-          className="flex-1 flex flex-col bg-[#1c1c1c]/95 relative" 
+        <div
+          className="flex-1 flex flex-col bg-[#1c1c1c]/95 relative"
           onClick={() => setSelectedIds([])}
           onContextMenu={(e) => handleContextMenu(e)}
         >
@@ -445,22 +453,22 @@ const FinderApp = React.memo(({ initialPath }: FinderProps) => {
 
           {/* Bottom Breadcrumbs */}
           <div className="h-7 border-t border-white/[0.08] flex items-center px-4 gap-2 text-[10px] text-white/40 bg-[#252528] shrink-0 font-medium overflow-hidden">
-             <div className="flex items-center gap-1.5 opacity-60 hover:opacity-100 transition-opacity cursor-default">
+            <div className="flex items-center gap-1.5 opacity-60 hover:opacity-100 transition-opacity cursor-default">
               <span className="text-[12px]">💾</span> Macintosh HD
             </div>
             <span className="text-white/10 font-light">›</span>
             <div className="flex items-center gap-1.5 opacity-60 hover:opacity-100 transition-opacity cursor-default">
               <span className="text-[12px]">📂</span> Usuarios
             </div>
-            
+
             {breadcrumbs.map((crumb, idx) => (
               <React.Fragment key={idx}>
                 <span className="text-white/10 font-light">›</span>
-                <button 
+                <button
                   onClick={() => navigateTo(crumb.id, crumb.name)}
                   className={cn(
                     "flex items-center px-1.5 py-0.5 rounded transition-colors gap-1.5 outline-none",
-                    idx === breadcrumbs.length - 1 
+                    idx === breadcrumbs.length - 1
                       ? "text-[#fabd2e] font-bold"
                       : "hover:bg-white/5 text-white/50"
                   )}
