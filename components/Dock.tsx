@@ -151,7 +151,7 @@ const Dock: React.FC<DockProps> = ({ onLaunch, activeApp, minimizedApps }) => {
   });
 
   return (
-    <div className="fixed bottom-3 left-1/2 -translate-x-1/2 z-[2000] dock-container">
+    <div className="fixed bottom-2 left-1/2 -translate-x-1/2 z-[2000] dock-container">
       {/* Contenedor exterior para permitir overflow de iconos */}
       <div className="relative">
         {/* Fondo del dock con altura FIJA */}
