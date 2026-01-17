@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
+import { motion } from 'framer-motion';
 
 interface Experience {
   company: string;
@@ -281,38 +282,66 @@ const ProfileApp = React.memo(() => {
           )}
 
           {activeTab === 'experience' && (
-            <div className="space-y-5">
-              <h2 className="text-2xl font-bold mb-6">Experiencia Profesional</h2>
-              {experiences.map((exp) => (
-                <div key={exp.company} className="p-5 bg-white/5 border border-white/10 rounded-xl hover:bg-white/[0.07] transition-colors">
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center text-2xl flex-shrink-0">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.3 }}
+              className="relative pb-10"
+            >
+              <h2 className="text-2xl font-bold mb-8 pl-2">Experiencia Profesional</h2>
+              
+              {/* Vertical Timeline Line */}
+              <div className="absolute left-6 top-[70px] bottom-0 w-px bg-gradient-to-b from-white/20 via-white/10 to-transparent" />
+
+              <div className="space-y-8">
+                {experiences.map((exp, index) => (
+                  <motion.div 
+                    key={exp.company}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.1, duration: 0.4 }}
+                    className="relative flex gap-6 group"
+                  >
+                    {/* Timeline Node/Icon */}
+                    <div className="relative z-10 w-12 h-12 bg-[#2a2a2a] border border-white/20 rounded-full flex items-center justify-center text-2xl shrink-0 shadow-lg group-hover:border-orange-500/50 group-hover:shadow-orange-500/20 transition-all duration-300">
                       {exp.icon}
                     </div>
-                    <div className="flex-1">
-                      <div className="flex justify-between items-start mb-3">
+
+                    {/* Content Card */}
+                    <div className="flex-1 p-5 bg-white/5 border border-white/10 rounded-xl hover:bg-white/[0.07] hover:border-white/20 transition-all duration-300 relative">
+                      {/* Triangle Pointer */}
+                      <div className="absolute top-6 -left-2 w-4 h-4 bg-white/5 border-l border-t border-white/10 transform -rotate-45 group-hover:bg-white/[0.07] group-hover:border-white/20 transition-colors rounded-tl-sm" />
+                      
+                      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-3 gap-2">
                         <div>
-                          <h3 className="text-lg font-bold text-white">{exp.position}</h3>
-                          <p className="text-orange-400 font-medium">{exp.company}</p>
+                          <h3 className="text-lg font-bold text-white group-hover:text-orange-400 transition-colors">{exp.position}</h3>
+                          <p className="text-orange-400 font-medium text-sm sm:text-base">{exp.company}</p>
                         </div>
-                        <div className="text-right">
-                          <p className="text-white/60 text-sm">{exp.period}</p>
-                          <p className="text-white/40 text-xs">{exp.location}</p>
+                        <div className="text-left sm:text-right">
+                          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/5 border border-white/5 text-xs font-medium text-white/70 mb-1">
+                            <span>📅</span>
+                            {exp.period}
+                          </div>
+                          <p className="text-white/40 text-xs flex items-center gap-1 sm:justify-end">
+                            <span>📍</span>
+                            {exp.location}
+                          </p>
                         </div>
                       </div>
-                      <ul className="space-y-2">
+                      
+                      <ul className="space-y-2 mt-4">
                         {exp.highlights.map((h, i) => (
                           <li key={i} className="text-sm text-white/70 flex items-start gap-2 leading-relaxed">
-                            <span className="text-orange-400 mt-0.5">•</span>
+                            <span className="text-orange-400/70 mt-1.5 w-1.5 h-1.5 rounded-full bg-orange-400/70 shrink-0" />
                             <span>{h}</span>
                           </li>
                         ))}
                       </ul>
                     </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
           )}
 
           {activeTab === 'projects' && (
