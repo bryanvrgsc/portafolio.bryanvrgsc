@@ -199,7 +199,7 @@ const Window: React.FC<WindowProps> = ({
   // ============================================================================
 
   const handleDrag = useCallback(
-    (_: any, info: PanInfo) => {
+    (_: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
       // Don't process snap during resize
       if (isMaximized || isResizing) return;
 
@@ -214,7 +214,7 @@ const Window: React.FC<WindowProps> = ({
   );
 
   const handleDragEnd = useCallback(
-    (_: any, info: PanInfo) => {
+    (_: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
       // Don't process snap if resizing or maximized
       if (isMaximized || isResizing) return;
 
@@ -269,101 +269,6 @@ const Window: React.FC<WindowProps> = ({
   // ============================================================================
   // Resize Handler - Using refs for smooth, direct cursor following
   // ============================================================================
-
-  const resizeStartState = useRef<{
-    width: number;
-    height: number;
-    top: number;
-    left: number;
-    startX: number;
-    startY: number;
-  } | null>(null);
-
-  const handleResizeStart = useCallback(
-    (e: React.PointerEvent) => {
-      e.stopPropagation();
-
-      // If snapped, unsnap first
-      if (snapMode) {
-        unsnap();
-      }
-
-      // Store initial state
-      resizeStartState.current = {
-        width: parseInt(size.width),
-        height: parseInt(size.height),
-        top: position.top,
-        left: position.left,
-        startX: e.clientX,
-        startY: e.clientY,
-      };
-      setIsResizing(true);
-    },
-    [snapMode, unsnap, size.width, size.height, position.top, position.left]
-  );
-
-  const handleResizePan = useCallback(
-    (handle: string, info: PanInfo) => {
-      if (!isResizable || isMaximized || !resizeStartState.current) return;
-
-      const start = resizeStartState.current;
-
-      // Calculate total movement from start position
-      const totalDeltaX = info.offset.x;
-      const totalDeltaY = info.offset.y;
-
-      let newWidth = start.width;
-      let newHeight = start.height;
-      let newTop = start.top;
-      let newLeft = start.left;
-
-      // Right edge: expand width
-      if (handle.includes('right')) {
-        newWidth = Math.max(MIN_WIDTH, start.width + totalDeltaX);
-      }
-
-      // Left edge: expand width and move left
-      if (handle.includes('left')) {
-        const potentialWidth = start.width - totalDeltaX;
-        if (potentialWidth >= MIN_WIDTH) {
-          newWidth = potentialWidth;
-          newLeft = start.left + totalDeltaX;
-        }
-      }
-
-      // Bottom edge: expand height (respecting dock)
-      if (handle.includes('bottom')) {
-        const maxHeight = window.innerHeight - DOCK_SPACE - newTop - WINDOW_GAP;
-        newHeight = clamp(start.height + totalDeltaY, MIN_HEIGHT, maxHeight);
-      }
-
-      // Top edge: expand height and move top (respecting menu bar)
-      if (handle.includes('top')) {
-        const potentialHeight = start.height - totalDeltaY;
-        const potentialTop = start.top + totalDeltaY;
-        if (potentialTop >= MENU_BAR_HEIGHT + WINDOW_GAP && potentialHeight >= MIN_HEIGHT) {
-          newHeight = potentialHeight;
-          newTop = potentialTop;
-        }
-      }
-
-      // Clamp to viewport bounds
-      const maxWidth = window.innerWidth - newLeft - WINDOW_GAP;
-      newWidth = clamp(newWidth, MIN_WIDTH, maxWidth);
-
-      // Ensure left doesn't go off screen
-      newLeft = Math.max(WINDOW_GAP, newLeft);
-
-      setSize({ width: `${newWidth}px`, height: `${newHeight}px` });
-      setPosition({ top: newTop, left: newLeft });
-    },
-    [isResizable, isMaximized]
-  );
-
-  const handleResizeEnd = useCallback(() => {
-    resizeStartState.current = null;
-    setIsResizing(false);
-  }, []);
 
   const handleTitleBarDoubleClick = useCallback(() => {
     if (isResizable) {

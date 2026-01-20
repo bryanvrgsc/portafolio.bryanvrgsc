@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo, useContext } from 'react';
+import React, { useState, useMemo, useContext, useCallback } from 'react';
 import {
   Folder, ChevronLeft, ChevronRight, LayoutGrid, List, Search,
   Share, Tag, MoreHorizontal, Clock, Users, Airplay, Monitor,
@@ -51,6 +51,16 @@ const FinderApp = React.memo(({ initialPath }: FinderProps) => {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
 
+  const navigateTo = useCallback((folderId: string | null, folderName: string) => {
+    const newHistory = history.slice(0, historyIndex + 1);
+    newHistory.push({ id: folderId, name: folderName });
+    setHistory(newHistory);
+    setHistoryIndex(newHistory.length - 1);
+    setSelectedIds([]);
+    setSearchQuery('');
+  }, [history, historyIndex]);
+
+
   // React to external navigation requests (e.g. from Desktop double-click)
   React.useEffect(() => {
     if (initialPath) {
@@ -82,7 +92,7 @@ const FinderApp = React.memo(({ initialPath }: FinderProps) => {
         { id: 'app-safari', name: 'Safari', type: 'app', parentId: 'applications' },
         { id: 'app-terminal', name: 'Terminal', type: 'app', parentId: 'applications' },
         { id: 'app-mail', name: 'Mail', type: 'app', parentId: 'applications' },
-      ] as any;
+      ] as unknown as typeof fs;
     } else if (currentFolder.id === 'desktop') {
       // Desktop Folder: STRICTLY show files inside the 'desktop' folder
       filtered = fs.filter(f => f.parentId === 'desktop');
@@ -122,7 +132,6 @@ const FinderApp = React.memo(({ initialPath }: FinderProps) => {
     // Build path upwards
     let depth = 0;
     while (currId !== null && depth < 10) {
-      // eslint-disable-next-line no-loop-func
       const folder = fs.find(f => f.id === currId);
       if (folder) {
         path.unshift({ id: folder.id, name: folder.name });
@@ -151,15 +160,6 @@ const FinderApp = React.memo(({ initialPath }: FinderProps) => {
     // Base path always starts at User Home
     return [{ id: null, name: 'bryanvargas' }, ...path];
   }, [fs, currentFolder]);
-
-  const navigateTo = (folderId: string | null, folderName: string) => {
-    const newHistory = history.slice(0, historyIndex + 1);
-    newHistory.push({ id: folderId, name: folderName });
-    setHistory(newHistory);
-    setHistoryIndex(newHistory.length - 1);
-    setSelectedIds([]);
-    setSearchQuery('');
-  };
 
   const goBack = () => {
     if (historyIndex > 0) {
@@ -253,7 +253,7 @@ const FinderApp = React.memo(({ initialPath }: FinderProps) => {
     }
 
     return baseItems;
-  }, [contextMenu, fs, currentFolder.id, addFolder, deleteFile]);
+  }, [contextMenu, fs, currentFolder.id, addFolder, deleteFile, navigateTo]);
 
   const sidebarSections: SidebarSection[] = [
     {

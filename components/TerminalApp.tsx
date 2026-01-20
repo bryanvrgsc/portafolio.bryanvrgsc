@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useEffect, useMemo } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Home, Check, Clock } from 'lucide-react';
 import { useFileSystem } from '@/context/FileSystemContext';
 import { cn } from '@/lib/utils';
@@ -12,20 +12,63 @@ interface TerminalLine {
   path?: string;
 }
 
+const getTime = () => {
+  return new Date().toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' }).toLowerCase();
+};
+
+const AppleLogo = () => (
+  <svg viewBox="0 0 384 512" className="w-3 h-3 fill-current">
+    <path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 46.9 86.7 82.8 119.5 23.3 21.6 51.1 46.9 82.2 3.9 30.8-43.9 66.7-43.9 96.1 3.9 30.6 47.5 59.4 18.3 83.3-15.6 15.6-21.9 31.9-50 31.9-50-6.1-9.4-44.4-38.3-46.7-104.4zm-48.9-152.8c19.7-21.4 33.1-50.6 28.1-80.8-23.9 3.6-50.6 18.3-69.4 41.7-16.7 20-32.8 52.8-27.5 81.7 25.8 2.2 51.4-18.9 68.8-42.6z" />
+  </svg>
+);
+
+const LeftPrompt = ({ path }: { path: string }) => (
+  <div className="flex items-center font-bold text-[11px] h-6 select-none shrink-0">
+    <div className="bg-[#9ca3af] text-black px-2 h-full flex items-center rounded-l-md relative z-20">
+      <AppleLogo />
+      <div className="absolute right-[-12px] top-0 h-0 w-0 border-y-[12px] border-y-transparent border-l-[12px] border-l-[#9ca3af] z-20" />
+    </div>
+    <div className="bg-[#3b82f6] text-white pl-4 pr-2 h-full flex items-center relative ml-[0px] z-10">
+      <Home size={12} className="mr-1" />
+      <span>{path}</span>
+      <div className="absolute right-[-12px] top-0 h-0 w-0 border-y-[12px] border-y-transparent border-l-[12px] border-l-[#3b82f6]" />
+    </div>
+  </div>
+);
+
+const RightPrompt = ({ timestamp }: { timestamp?: string }) => {
+  const time = timestamp || getTime();
+  return (
+    <div className="flex items-center font-bold text-[11px] h-6 select-none ml-auto shrink-0 gap-1 opacity-90">
+      <div className="bg-[#1e293b] text-green-500 px-2 h-full flex items-center rounded-l-full relative">
+        <Check size={12} />
+      </div>
+      <div className="bg-[#d1d5db] text-black px-3 h-full flex items-center rounded-r-full relative -ml-1">
+        <span className="mr-1">{time}</span>
+        <Clock size={12} />
+      </div>
+    </div>
+  );
+};
+
 const TerminalApp = React.memo(() => {
   const { fs } = useFileSystem();
-  const [history, setHistory] = useState<TerminalLine[]>([]);
+  const [history, setHistory] = useState<TerminalLine[]>(() => {
+    // Initial state logic moved here to avoid useEffect setState error
+    const now = new Date();
+    const dateStr = now.toString().split(' ').slice(0, 4).join(' ') + ' ' + now.toTimeString().split(' ')[0];
+    return [{ type: 'output', content: `Last login: ${dateStr} on console` }];
+  });
   const [input, setInput] = useState('');
   const [cwdId, setCwdId] = useState<string | null>(null); // null is ~ (home root)
   const bottomRef = useRef<HTMLDivElement>(null);
-  const initialized = useRef(false);
 
   // Command History State
   const [cmdHistory, setCmdHistory] = useState<string[]>([]);
   const [historyPointer, setHistoryPointer] = useState<number>(-1);
 
-  // Helper to get current directory object
-  const currentDir = useMemo(() => fs.find(f => f.id === cwdId), [fs, cwdId]);
+  // Helper to get current directory object (derived state)
+  // const currentDir = useMemo(() => fs.find(f => f.id === cwdId), [fs, cwdId]); // Unused
 
   // Helper to get path string for prompt
   const getPathString = (id: string | null): string => {
@@ -51,19 +94,6 @@ const TerminalApp = React.memo(() => {
     }
     return '/Users/bryanvargas/' + path.join('/');
   };
-
-  const getTime = () => {
-    return new Date().toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' }).toLowerCase();
-  };
-
-  useEffect(() => {
-    if (!initialized.current) {
-      const now = new Date();
-      const dateStr = now.toString().split(' ').slice(0, 4).join(' ') + ' ' + now.toTimeString().split(' ')[0];
-      setHistory([{ type: 'output', content: `Last login: ${dateStr} on console` }]);
-      initialized.current = true;
-    }
-  }, []);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -222,41 +252,6 @@ const TerminalApp = React.memo(() => {
         e.preventDefault();
         setHistory([]);
     }
-  };
-
-  const AppleLogo = () => (
-    <svg viewBox="0 0 384 512" className="w-3 h-3 fill-current">
-      <path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 46.9 86.7 82.8 119.5 23.3 21.6 51.1 46.9 82.2 3.9 30.8-43.9 66.7-43.9 96.1 3.9 30.6 47.5 59.4 18.3 83.3-15.6 15.6-21.9 31.9-50 31.9-50-6.1-9.4-44.4-38.3-46.7-104.4zm-48.9-152.8c19.7-21.4 33.1-50.6 28.1-80.8-23.9 3.6-50.6 18.3-69.4 41.7-16.7 20-32.8 52.8-27.5 81.7 25.8 2.2 51.4-18.9 68.8-42.6z" />
-    </svg>
-  );
-
-  const LeftPrompt = ({ path }: { path: string }) => (
-    <div className="flex items-center font-bold text-[11px] h-6 select-none shrink-0">
-      <div className="bg-[#9ca3af] text-black px-2 h-full flex items-center rounded-l-md relative z-20">
-        <AppleLogo />
-        <div className="absolute right-[-12px] top-0 h-0 w-0 border-y-[12px] border-y-transparent border-l-[12px] border-l-[#9ca3af] z-20" />
-      </div>
-      <div className="bg-[#3b82f6] text-white pl-4 pr-2 h-full flex items-center relative ml-[0px] z-10">
-        <Home size={12} className="mr-1" />
-        <span>{path}</span>
-        <div className="absolute right-[-12px] top-0 h-0 w-0 border-y-[12px] border-y-transparent border-l-[12px] border-l-[#3b82f6]" />
-      </div>
-    </div>
-  );
-
-  const RightPrompt = ({ timestamp }: { timestamp?: string }) => {
-    const time = timestamp || getTime();
-    return (
-      <div className="flex items-center font-bold text-[11px] h-6 select-none ml-auto shrink-0 gap-1 opacity-90">
-        <div className="bg-[#1e293b] text-green-500 px-2 h-full flex items-center rounded-l-full relative">
-            <Check size={12} />
-        </div>
-        <div className="bg-[#d1d5db] text-black px-3 h-full flex items-center rounded-r-full relative -ml-1">
-            <span className="mr-1">{time}</span>
-            <Clock size={12} />
-        </div>
-      </div>
-    );
   };
 
   return (
