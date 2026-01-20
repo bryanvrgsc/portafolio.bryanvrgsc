@@ -28,9 +28,9 @@ export default function RootLayout({
           <SystemProvider>
             <FileSystemProvider>
               {children}
-              <Analytics />
             </FileSystemProvider>
           </SystemProvider>
+          <Analytics />
         </ErrorBoundary>
       </body>
     </html>
