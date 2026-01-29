@@ -2,7 +2,9 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Apple, Search } from 'lucide-react';
+import { Search } from 'lucide-react';
+import AppleLogo from './AppleLogo';
+import Spotlight from './Spotlight';
 import MenuBar from './MenuBar';
 import Dock from './Dock';
 import Window from './Window';
@@ -10,14 +12,16 @@ import BrowserApp from './BrowserApp';
 import ProfileApp from './ProfileApp';
 import FinderApp from './FinderApp';
 import TerminalApp from './TerminalApp';
+import NotesApp from './NotesApp';
 import AboutThisMac from './AboutThisMac';
 import ContextMenu from './ContextMenu';
 import ControlCenter from './ControlCenter';
 import NotificationCenter from './NotificationCenter';
+import Image from 'next/image';
 import { useFileSystem } from '@/context/FileSystemContext';
 import { cn } from '@/lib/utils';
 
-export type AppId = 'profile' | 'browser' | 'finder' | 'settings' | 'spotlight' | 'terminal' | 'about';
+export type AppId = 'profile' | 'browser' | 'finder' | 'settings' | 'spotlight' | 'terminal' | 'about' | 'notes';
 
 export interface WindowState {
   id: AppId;
@@ -46,12 +50,18 @@ const Desktop = React.memo(() => {
     finder: { id: 'finder', isOpen: false, isMinimized: false, isMaximized: false, zIndex: 100 },
     settings: { id: 'settings', isOpen: false, isMinimized: false, isMaximized: false, zIndex: 100 },
     terminal: { id: 'terminal', isOpen: false, isMinimized: false, isMaximized: false, zIndex: 100 },
+    notes: { id: 'notes', isOpen: false, isMinimized: false, isMaximized: false, zIndex: 100 },
     about: { id: 'about', isOpen: false, isMinimized: false, isMaximized: false, zIndex: 100 },
     spotlight: { id: 'spotlight', isOpen: false, isMinimized: false, isMaximized: false, zIndex: 1000000 },
   });
 
   const minimizedAppIds = React.useMemo(() =>
     Object.values(windows).filter(w => w.isMinimized).map(w => w.id),
+    [windows]
+  );
+
+  const openAppIds = React.useMemo(() =>
+    Object.values(windows).filter(w => w.isOpen).map(w => w.id),
     [windows]
   );
 
@@ -68,6 +78,8 @@ const Desktop = React.memo(() => {
     const timer = setTimeout(() => setBooting(false), 2000);
     return () => clearTimeout(timer);
   }, []);
+
+
 
   const toggleSpotlight = useCallback(() => {
     setSpotlightOpen(prev => !prev);
@@ -91,6 +103,21 @@ const Desktop = React.memo(() => {
     // Cascade window positioning
     setWindowPositionOffset(offset => (offset + 30) % 150);
   }, [maxZIndex]);
+
+  // Auto-open Notes app on first visit (per session, not on reload)
+  useEffect(() => {
+    if (typeof window === 'undefined' || booting) return;
+
+    const hasSeenWelcome = sessionStorage.getItem('macos_seen_welcome');
+    if (!hasSeenWelcome) {
+      // Wait a bit after boot animation
+      const timer = setTimeout(() => {
+        toggleApp('notes');
+        sessionStorage.setItem('macos_seen_welcome', 'true');
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [booting, toggleApp]);
 
   const handleSystemAction = useCallback((action: string) => {
     if (action === 'shutdown') { setIsShutDown(true); setTimeout(() => window.location.reload(), 3000); }
@@ -206,7 +233,7 @@ const Desktop = React.memo(() => {
   if (booting) {
     return (
       <div className="h-screen w-full bg-black flex flex-col items-center justify-center gap-12 text-white">
-        <Apple size={80} className="fill-current" />
+        <AppleLogo size={100} />
         <div className="w-48 h-1 bg-white/20 rounded-full overflow-hidden">
           <motion.div initial={{ width: 0 }} animate={{ width: '100%' }} transition={{ duration: 1.5 }} className="h-full bg-white" />
         </div>
@@ -232,7 +259,17 @@ const Desktop = React.memo(() => {
           />
         )}
       </AnimatePresence>
-      <AnimatePresence>{spotlightOpen && <div className="fixed inset-0 z-[1000000] flex items-center justify-center pointer-events-none"><motion.div initial={{ opacity: 0, scale: 0.95, y: -20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: -20 }} className="spotlight-container w-[600px] h-14 bg-[#1c1c1e]/80 backdrop-blur-3xl border border-white/20 rounded-xl shadow-2xl flex items-center px-4 gap-3 z-[1000001] pointer-events-auto" onClick={(e) => e.stopPropagation()}><Search size={24} className="text-white/40" /><input autoFocus placeholder="Spotlight Search" className="bg-transparent border-none outline-none text-xl w-full text-white font-light" /></motion.div></div>}</AnimatePresence>
+      <Spotlight
+        isOpen={spotlightOpen}
+        onClose={() => setSpotlightOpen(false)}
+        onLaunchApp={(id) => {
+          if (id === 'finder') {
+            toggleApp(id, 'desktop');
+          } else {
+            toggleApp(id);
+          }
+        }}
+      />
       <main className="relative flex-1 w-full p-6 z-[10]">
         <div className="flex flex-col gap-6 items-end flex-wrap h-full content-end">
           {fs.filter(f => f.parentId === 'desktop' && !f.isHiddenFromDesktop).map(file => (
@@ -251,15 +288,21 @@ const Desktop = React.memo(() => {
                 onDoubleClick={() => {
                   if (file.type === 'folder') {
                     toggleApp('finder', file.id);
+                  } else if (file.name.endsWith('.pdf') && file.content) {
+                    // Open PDF in new tab
+                    window.open(file.content, '_blank');
                   } else {
-                    // Open file logic (preview, etc) - for now just finder in parent? Or nothing.
-                    // Let's open finder in desktop for now if it's a file
+                    // Open file in Finder
                     toggleApp('finder', 'desktop');
                   }
                 }}
-                className="w-14 h-14 flex items-center justify-center text-5xl transition-colors cursor-default"
+                className="w-14 h-14 flex items-center justify-center transition-colors cursor-default"
               >
-                {file.type === 'folder' ? '📂' : '📄'}
+                {file.icon ? (
+                  <Image src={file.icon} alt={file.name} width={56} height={56} className="object-contain" draggable={false} />
+                ) : (
+                  <span className="text-5xl">{file.type === 'folder' ? '📂' : '📄'}</span>
+                )}
               </div>
               <input
                 className={cn(
@@ -286,21 +329,23 @@ const Desktop = React.memo(() => {
           else if (id === 'browser') { Content = <BrowserApp />; title = "Safari"; it = 80 + windowPositionOffset; il = 150 + windowPositionOffset; w = "1200px"; h = "700px"; }
           else if (id === 'finder') { Content = <FinderApp initialPath={state.initialPath} />; title = "Finder"; it = 60 + windowPositionOffset; il = 100 + windowPositionOffset; w = "800px"; h = "500px"; }
           else if (id === 'terminal') { Content = <TerminalApp />; title = "bryanvargas@MacBookProdeBryan:~"; it = 150 + windowPositionOffset; il = 300 + windowPositionOffset; w = "800px"; h = "500px"; }
+          else if (id === 'notes') { Content = <NotesApp />; title = "Mi Portafolio"; it = 80 + windowPositionOffset; il = 200 + windowPositionOffset; w = "900px"; h = "600px"; }
           else if (id === 'about') { Content = <AboutThisMac />; title = ""; it = 100; il = (typeof window !== 'undefined' ? (window.innerWidth - 412) / 2 : 400); w = "412px"; h = "628px"; }
           else return null;
-          return <Window key={id} title={title} onClose={() => closeWindow(id as AppId)} onMinimize={() => setWindows(p => ({ ...p, [id]: { ...p[id], isMinimized: true } }))} onMaximize={() => setWindows(p => ({ ...p, [id]: { ...p[id], isMaximized: !p[id].isMaximized } }))} onFocus={() => { const nz = maxZIndex + 1; setMaxZIndex(nz); setWindows(p => ({ ...p, [id]: { ...p[id], zIndex: nz } })); setActiveApp(id as AppId); }} zIndex={state.zIndex} active={activeApp === id} isMaximized={state.isMaximized} initialTop={it} initialLeft={il} hideTitleBarStyling={id === 'about'} integratedTitleBar={id === 'browser' || id === 'finder'} isResizable={id !== 'about'} width={w} height={h}>{Content}</Window>;
+          return <Window key={id} title={title} onClose={() => closeWindow(id as AppId)} onMinimize={() => setWindows(p => ({ ...p, [id]: { ...p[id], isMinimized: true } }))} onMaximize={() => setWindows(p => ({ ...p, [id]: { ...p[id], isMaximized: !p[id].isMaximized } }))} onFocus={() => { const nz = maxZIndex + 1; setMaxZIndex(nz); setWindows(p => ({ ...p, [id]: { ...p[id], zIndex: nz } })); setActiveApp(id as AppId); }} zIndex={state.zIndex} active={activeApp === id} isMaximized={state.isMaximized} initialTop={it} initialLeft={il} hideTitleBarStyling={id === 'about'} integratedTitleBar={id === 'browser' || id === 'finder' || id === 'notes'} isResizable={id !== 'about'} width={w} height={h}>{Content}</Window>;
         })}
       </main>
-      <Dock 
+      <Dock
         onLaunch={(id) => {
           if (id === 'finder') {
             toggleApp(id, 'desktop');
           } else {
             toggleApp(id);
           }
-        }} 
-        activeApp={activeApp} 
-        minimizedApps={minimizedAppIds} 
+        }}
+        activeApp={activeApp}
+        minimizedApps={minimizedAppIds}
+        openApps={openAppIds}
       />
 
       {/* Brightness Overlay */}

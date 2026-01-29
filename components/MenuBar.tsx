@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState, useEffect, useRef, memo } from 'react';
-import { Apple, Wifi, Battery, Search, SlidersHorizontal } from 'lucide-react';
+import { Wifi, Battery, Search, SlidersHorizontal } from 'lucide-react';
+import AppleLogo from './AppleLogo';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface MenuBarProps {
@@ -44,7 +45,7 @@ const MenuItem = ({ id, label, children, isApple = false, align = 'left', isOpen
   return (
     <div className="relative h-full flex items-center">
       <button onClick={() => onToggle(id)} className={`px-2 h-full flex items-center transition-colors rounded-md ${isOpen ? 'bg-white/20' : 'hover:bg-white/10'}`}>
-        {isApple ? <Apple size={16} className="fill-current" /> : label}
+        {isApple ? <AppleLogo size={18} /> : label}
       </button>
       <AnimatePresence>
         {isOpen && (

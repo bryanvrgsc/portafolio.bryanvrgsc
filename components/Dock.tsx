@@ -9,6 +9,7 @@ interface DockProps {
   onLaunch: (id: AppId) => void;
   activeApp: AppId | null;
   minimizedApps: AppId[];
+  openApps: AppId[];
 }
 
 interface DockIconProps {
@@ -16,17 +17,18 @@ interface DockIconProps {
   label: string;
   onClick: () => void;
   mouseX: MotionValue<number>;
-  isActive: boolean;
+  isOpen: boolean;
   isMinimized: boolean;
   baseSize: number;
   maxSize: number;
 }
 
 const DOCK_APPS: { id: AppId; iconSrc: string; label: string }[] = [
-  { id: 'finder', iconSrc: '/icons/finder.png', label: 'Finder' },
-  { id: 'profile', iconSrc: '/icons/profile.png', label: 'Perfil' },
-  { id: 'browser', iconSrc: '/icons/safari.png', label: 'Safari' },
-  { id: 'terminal', iconSrc: '/icons/terminal.png', label: 'Terminal' },
+  { id: 'finder', iconSrc: '/api/icon?path=/icons/finder.icns', label: 'Finder' },
+  { id: 'profile', iconSrc: '/api/icon?path=/icons/profile.icns', label: 'Perfil' },
+  { id: 'browser', iconSrc: '/api/icon?path=/icons/safari.icns', label: 'Safari' },
+  { id: 'notes', iconSrc: '/api/icon?path=/icons/notes.icns', label: 'Notas' },
+  { id: 'terminal', iconSrc: '/api/icon?path=/icons/terminal.icns', label: 'Terminal' },
 ];
 
 const DockIcon = memo(({
@@ -34,7 +36,7 @@ const DockIcon = memo(({
   label,
   onClick,
   mouseX,
-  isActive,
+  isOpen,
   isMinimized,
   baseSize,
   maxSize
@@ -91,8 +93,8 @@ const DockIcon = memo(({
         {label}
       </div>
 
-      {/* Indicador de app activa */}
-      {isActive && (
+      {/* Indicador de app abierta */}
+      {isOpen && (
         <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-white rounded-full" />
       )}
     </motion.div>
@@ -101,17 +103,17 @@ const DockIcon = memo(({
 
 DockIcon.displayName = 'DockIcon';
 
-const Dock: React.FC<DockProps> = ({ onLaunch, activeApp, minimizedApps }) => {
+const Dock: React.FC<DockProps> = ({ onLaunch, activeApp, minimizedApps, openApps }) => {
   const mouseX = useMotionValue(Infinity);
   const dockRef = useRef<HTMLDivElement>(null);
-  const [iconSize, setIconSize] = React.useState({ base: 64, max: 120 });
+  const [iconSize, setIconSize] = React.useState({ base: 80, max: 140 });
 
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth < 640) {
-        setIconSize({ base: 48, max: 80 });
+        setIconSize({ base: 56, max: 96 });
       } else {
-        setIconSize({ base: 64, max: 120 });
+        setIconSize({ base: 80, max: 140 });
       }
     };
 
@@ -183,7 +185,7 @@ const Dock: React.FC<DockProps> = ({ onLaunch, activeApp, minimizedApps }) => {
               label={app.label}
               onClick={() => onLaunch(app.id)}
               mouseX={mouseX}
-              isActive={activeApp === app.id}
+              isOpen={openApps.includes(app.id)}
               isMinimized={minimizedApps.includes(app.id)}
               baseSize={iconSize.base}
               maxSize={iconSize.max}
