@@ -9,6 +9,7 @@ import {
 import { cn } from '@/lib/utils';
 import { useFileSystem } from '@/context/FileSystemContext';
 import { AnimatePresence } from 'framer-motion';
+import Image from 'next/image';
 import ContextMenu from './ContextMenu';
 import { WindowContext } from './Window';
 
@@ -89,9 +90,11 @@ const FinderApp = React.memo(({ initialPath }: FinderProps) => {
     } else if (currentFolder.id === 'applications') {
       // Mock applications
       filtered = [
-        { id: 'app-safari', name: 'Safari', type: 'app', parentId: 'applications' },
-        { id: 'app-terminal', name: 'Terminal', type: 'app', parentId: 'applications' },
-        { id: 'app-mail', name: 'Mail', type: 'app', parentId: 'applications' },
+        { id: 'app-safari', name: 'Safari', type: 'app', parentId: 'applications', icon: '/api/icon?path=/icons/safari.icns' },
+        { id: 'app-terminal', name: 'Terminal', type: 'app', parentId: 'applications', icon: '/api/icon?path=/icons/terminal.icns' },
+        { id: 'app-finder', name: 'Finder', type: 'app', parentId: 'applications', icon: '/api/icon?path=/icons/finder.icns' },
+        { id: 'app-notes', name: 'Notas', type: 'app', parentId: 'applications', icon: '/api/icon?path=/icons/notes.icns' },
+        { id: 'app-profile', name: 'Perfil', type: 'app', parentId: 'applications', icon: '/api/icon?path=/icons/profile.icns' },
       ] as unknown as typeof fs;
     } else if (currentFolder.id === 'desktop') {
       // Desktop Folder: STRICTLY show files inside the 'desktop' folder
@@ -426,6 +429,16 @@ const FinderApp = React.memo(({ initialPath }: FinderProps) => {
                       e.stopPropagation();
                       if (file.type === 'folder') {
                         navigateTo(file.id, file.name);
+                      } else if (file.type === 'file') {
+                        // Handle file opening based on file type
+                        if (file.name.endsWith('.pdf') && file.content) {
+                          // Open PDF in new tab
+                          window.open(file.content, '_blank');
+                        } else {
+                          // For other files, you can add more handlers here
+                          // For now, we'll just show an alert or do nothing
+                          console.log('Opening file:', file.name);
+                        }
                       }
                     }}
                     onContextMenu={(e) => handleContextMenu(e, file.id)}
@@ -435,7 +448,11 @@ const FinderApp = React.memo(({ initialPath }: FinderProps) => {
                     )}
                   >
                     <div className="mb-1 transform scale-105">
-                      {file.type === 'folder' ? <FolderIcon /> : <FileIcon />}
+                      {file.icon ? (
+                        <Image src={file.icon} alt={file.name} width={56} height={56} className="object-contain" draggable={false} />
+                      ) : (
+                        file.type === 'folder' ? <FolderIcon /> : <FileIcon />
+                      )}
                     </div>
                     <div className="flex items-center gap-1 max-w-[100px] mt-0.5">
                       <span className={cn(

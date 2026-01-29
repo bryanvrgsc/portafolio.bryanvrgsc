@@ -30,10 +30,11 @@ const getInitialFiles = (): VFile[] => [
   { id: 'images', name: 'Imágenes', type: 'folder', parentId: null, isProtected: true, isHiddenFromDesktop: true },
   { id: 'videos', name: 'Videos', type: 'folder', parentId: null, isProtected: true, isHiddenFromDesktop: true },
   { id: 'music', name: 'Música', type: 'folder', parentId: null, isProtected: true, isHiddenFromDesktop: true },
-  
+
   // Files INSIDE Escritorio (These will appear on the wallpaper)
   { id: 'projects', name: 'Proyectos', type: 'folder', parentId: 'desktop', isProtected: true },
-  { id: 'cv', name: 'CV_Bryan_Vargas.pdf', type: 'file', parentId: 'desktop', isProtected: true },
+  { id: 'cv-es', name: 'CV_Español.pdf', type: 'file', parentId: 'desktop', isProtected: true, content: '/docs/bryan-alan-vargas-chavez_es.pdf' },
+  { id: 'cv-en', name: 'CV_English.pdf', type: 'file', parentId: 'desktop', isProtected: true, content: '/docs/bryan-alan-vargas-chavez_en.pdf' },
 
   // Files in Proyectos
   { id: 'p1', name: 'Portfolio.tsx', type: 'file', parentId: 'projects' },
