@@ -14,12 +14,12 @@ interface SpotlightApp {
 }
 
 const SPOTLIGHT_APPS: SpotlightApp[] = [
-    { id: 'finder', iconSrc: '/api/icon?path=/icons/finder.icns', label: 'Finder', keywords: ['archivos', 'files', 'carpetas', 'folders'] },
-    { id: 'profile', iconSrc: '/api/icon?path=/icons/profile.icns', label: 'Perfil', keywords: ['about', 'cv', 'resume', 'información', 'contacto'] },
-    { id: 'browser', iconSrc: '/api/icon?path=/icons/safari.icns', label: 'Safari', keywords: ['web', 'internet', 'navegador', 'browser'] },
-    { id: 'notes', iconSrc: '/api/icon?path=/icons/notes.icns', label: 'Notas', keywords: ['notes', 'portafolio', 'bienvenido', 'welcome'] },
-    { id: 'terminal', iconSrc: '/api/icon?path=/icons/terminal.icns', label: 'Terminal', keywords: ['console', 'shell', 'command', 'bash', 'zsh'] },
-    { id: 'about', iconSrc: '/api/icon?path=/icons/profile.icns', label: 'Acerca de este Mac', keywords: ['system', 'info', 'mac', 'apple'] },
+    { id: 'finder', iconSrc: '/icons/finder.png', label: 'Finder', keywords: ['archivos', 'files', 'carpetas', 'folders'] },
+    { id: 'profile', iconSrc: '/icons/profile.png', label: 'Perfil', keywords: ['about', 'cv', 'resume', 'información', 'contacto'] },
+    { id: 'browser', iconSrc: '/icons/safari.png', label: 'Safari', keywords: ['web', 'internet', 'navegador', 'browser'] },
+    { id: 'notes', iconSrc: '/icons/notes.png', label: 'Notas', keywords: ['notes', 'portafolio', 'bienvenido', 'welcome'] },
+    { id: 'terminal', iconSrc: '/icons/terminal.png', label: 'Terminal', keywords: ['console', 'shell', 'command', 'bash', 'zsh'] },
+    { id: 'about', iconSrc: '/icons/profile.png', label: 'Acerca de este Mac', keywords: ['system', 'info', 'mac', 'apple'] },
 ];
 
 interface SpotlightProps {

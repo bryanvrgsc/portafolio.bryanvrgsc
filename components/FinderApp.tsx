@@ -90,11 +90,11 @@ const FinderApp = React.memo(({ initialPath }: FinderProps) => {
     } else if (currentFolder.id === 'applications') {
       // Mock applications
       filtered = [
-        { id: 'app-safari', name: 'Safari', type: 'app', parentId: 'applications', icon: '/api/icon?path=/icons/safari.icns' },
-        { id: 'app-terminal', name: 'Terminal', type: 'app', parentId: 'applications', icon: '/api/icon?path=/icons/terminal.icns' },
-        { id: 'app-finder', name: 'Finder', type: 'app', parentId: 'applications', icon: '/api/icon?path=/icons/finder.icns' },
-        { id: 'app-notes', name: 'Notas', type: 'app', parentId: 'applications', icon: '/api/icon?path=/icons/notes.icns' },
-        { id: 'app-profile', name: 'Perfil', type: 'app', parentId: 'applications', icon: '/api/icon?path=/icons/profile.icns' },
+        { id: 'app-safari', name: 'Safari', type: 'app', parentId: 'applications', icon: '/icons/safari.png' },
+        { id: 'app-terminal', name: 'Terminal', type: 'app', parentId: 'applications', icon: '/icons/terminal.png' },
+        { id: 'app-finder', name: 'Finder', type: 'app', parentId: 'applications', icon: '/icons/finder.png' },
+        { id: 'app-notes', name: 'Notas', type: 'app', parentId: 'applications', icon: '/icons/notes.png' },
+        { id: 'app-profile', name: 'Perfil', type: 'app', parentId: 'applications', icon: '/icons/profile.png' },
       ] as unknown as typeof fs;
     } else if (currentFolder.id === 'desktop') {
       // Desktop Folder: STRICTLY show files inside the 'desktop' folder

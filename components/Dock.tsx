@@ -24,11 +24,11 @@ interface DockIconProps {
 }
 
 const DOCK_APPS: { id: AppId; iconSrc: string; label: string }[] = [
-  { id: 'finder', iconSrc: '/api/icon?path=/icons/finder.icns', label: 'Finder' },
-  { id: 'profile', iconSrc: '/api/icon?path=/icons/profile.icns', label: 'Perfil' },
-  { id: 'browser', iconSrc: '/api/icon?path=/icons/safari.icns', label: 'Safari' },
-  { id: 'notes', iconSrc: '/api/icon?path=/icons/notes.icns', label: 'Notas' },
-  { id: 'terminal', iconSrc: '/api/icon?path=/icons/terminal.icns', label: 'Terminal' },
+  { id: 'finder', iconSrc: '/icons/finder.png', label: 'Finder' },
+  { id: 'profile', iconSrc: '/icons/profile.png', label: 'Perfil' },
+  { id: 'browser', iconSrc: '/icons/safari.png', label: 'Safari' },
+  { id: 'notes', iconSrc: '/icons/notes.png', label: 'Notas' },
+  { id: 'terminal', iconSrc: '/icons/terminal.png', label: 'Terminal' },
 ];
 
 const DockIcon = memo(({
