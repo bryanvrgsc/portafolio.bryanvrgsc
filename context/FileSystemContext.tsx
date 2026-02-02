@@ -75,7 +75,7 @@ export const FileSystemProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
-    const saved = safeLocalStorage.getItem('macos_vfs_v7');
+    const saved = safeLocalStorage.getItem('macos_vfs_v8');
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
@@ -87,13 +87,13 @@ export const FileSystemProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     } else {
       const initial = getInitialFiles();
       setTimeout(() => setFs(initial), 0);
-      safeLocalStorage.setItem('macos_vfs_v7', JSON.stringify(initial));
+      safeLocalStorage.setItem('macos_vfs_v8', JSON.stringify(initial));
     }
   }, []);
 
   const save = useCallback((newFs: VFile[]) => {
     setFs(newFs);
-    safeLocalStorage.setItem('macos_vfs_v7', JSON.stringify(newFs));
+    safeLocalStorage.setItem('macos_vfs_v8', JSON.stringify(newFs));
   }, []);
 
   const addFolder = useCallback((parentId: string | null) => {
