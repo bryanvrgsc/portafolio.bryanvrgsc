@@ -6,7 +6,7 @@ import { AppId } from './Desktop';
 import Image from 'next/image';
 
 interface DockProps {
-  onLaunch: (id: AppId) => void;
+  onLaunch: (id: AppId, path?: string) => void;
   activeApp: AppId | null;
   minimizedApps: AppId[];
   openApps: AppId[];
@@ -23,8 +23,8 @@ interface DockIconProps {
   maxSize: number;
 }
 
-const DOCK_APPS: { id: AppId; iconSrc: string; label: string }[] = [
-  { id: 'finder', iconSrc: '/icons/finder.png', label: 'Finder' },
+const DOCK_APPS: { id: AppId; iconSrc: string; label: string; initialPath?: string }[] = [
+  { id: 'finder', iconSrc: '/icons/finder.png', label: 'Finder', initialPath: 'desktop' },
   { id: 'profile', iconSrc: '/icons/profile.png', label: 'Perfil' },
   { id: 'browser', iconSrc: '/icons/safari.png', label: 'Safari' },
   { id: 'notes', iconSrc: '/icons/notes.png', label: 'Notas' },
@@ -178,12 +178,12 @@ const Dock: React.FC<DockProps> = ({ onLaunch, activeApp, minimizedApps, openApp
           }}
           className="relative flex items-end pb-2 pt-10"
         >
-          {DOCK_APPS.map((app) => (
+          {DOCK_APPS.map((app, index) => (
             <DockIcon
-              key={app.id}
+              key={`${app.id}-${index}`}
               iconSrc={app.iconSrc}
               label={app.label}
-              onClick={() => onLaunch(app.id)}
+              onClick={() => onLaunch(app.id, app.initialPath)}
               mouseX={mouseX}
               isOpen={openApps.includes(app.id)}
               isMinimized={minimizedApps.includes(app.id)}
