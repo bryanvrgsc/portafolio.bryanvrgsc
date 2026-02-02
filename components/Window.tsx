@@ -32,6 +32,7 @@ interface WindowProps {
   width?: string;
   height?: string;
   integratedTitleBar?: boolean;
+  headerActions?: React.ReactNode;
 }
 
 // ============================================================================
@@ -96,6 +97,7 @@ const Window: React.FC<WindowProps> = ({
   width = '800px',
   height = '500px',
   integratedTitleBar = false,
+  headerActions,
 }) => {
   const dragControls = useDragControls();
   const windowRef = useRef<HTMLDivElement>(null);
@@ -589,6 +591,11 @@ const Window: React.FC<WindowProps> = ({
           {title && !integratedTitleBar && (
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <span className="text-white/40 text-[13px] font-medium">{title}</span>
+            </div>
+          )}
+          {headerActions && (
+            <div className="ml-auto flex items-center gap-2 pointer-events-auto">
+              {headerActions}
             </div>
           )}
         </div>
