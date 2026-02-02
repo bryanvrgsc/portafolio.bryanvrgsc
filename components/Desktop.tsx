@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search } from 'lucide-react';
+import { Search, FileText } from 'lucide-react';
 import AppleLogo from './AppleLogo';
 import Spotlight from './Spotlight';
 import MenuBar from './MenuBar';
@@ -18,10 +18,11 @@ import ContextMenu from './ContextMenu';
 import ControlCenter from './ControlCenter';
 import NotificationCenter from './NotificationCenter';
 import Image from 'next/image';
-import { useFileSystem } from '@/context/FileSystemContext';
+import PreviewApp, { PreviewToolbar } from './PreviewApp';
+import { useFileSystem, VFile } from '@/context/FileSystemContext';
 import { cn } from '@/lib/utils';
 
-export type AppId = 'profile' | 'browser' | 'finder' | 'settings' | 'spotlight' | 'terminal' | 'about' | 'notes';
+export type AppId = 'profile' | 'browser' | 'finder' | 'settings' | 'spotlight' | 'terminal' | 'about' | 'notes' | 'preview';
 
 export interface WindowState {
   id: AppId;
@@ -30,6 +31,7 @@ export interface WindowState {
   isMaximized: boolean;
   zIndex: number;
   initialPath?: string | null;
+  previewFile?: VFile;
 }
 
 import { useSystem } from '@/context/SystemContext';
@@ -53,6 +55,7 @@ const Desktop = React.memo(() => {
     notes: { id: 'notes', isOpen: false, isMinimized: false, isMaximized: false, zIndex: 100 },
     about: { id: 'about', isOpen: false, isMinimized: false, isMaximized: false, zIndex: 100 },
     spotlight: { id: 'spotlight', isOpen: false, isMinimized: false, isMaximized: false, zIndex: 1000000 },
+    preview: { id: 'preview', isOpen: false, isMinimized: false, isMaximized: false, zIndex: 100 },
   });
 
   const minimizedAppIds = React.useMemo(() =>
@@ -92,11 +95,21 @@ const Desktop = React.memo(() => {
     setActiveApp(prev => prev === id ? null : prev);
   }, []);
 
-  const toggleApp = useCallback((id: AppId, path?: string) => {
+  const toggleApp = useCallback((id: AppId, path?: string, file?: VFile) => {
     setWindows((prev) => {
       const newZIndex = maxZIndex + 1;
       setMaxZIndex(newZIndex);
-      return { ...prev, [id]: { ...prev[id], isOpen: true, isMinimized: false, zIndex: newZIndex, initialPath: path } };
+      return { 
+        ...prev, 
+        [id]: { 
+          ...prev[id], 
+          isOpen: true, 
+          isMinimized: false, 
+          zIndex: newZIndex, 
+          initialPath: path,
+          previewFile: file || prev[id].previewFile
+        } 
+      };
     });
     setActiveApp(id);
 
@@ -288,9 +301,8 @@ const Desktop = React.memo(() => {
                 onDoubleClick={() => {
                   if (file.type === 'folder') {
                     toggleApp('finder', file.id);
-                  } else if (file.name.endsWith('.pdf') && file.content) {
-                    // Open PDF in new tab
-                    window.open(file.content, '_blank');
+                  } else if ((file.name.endsWith('.pdf') || file.name.match(/\.(png|jpg|jpeg|svg|gif|webp)$/i)) && file.content) {
+                    toggleApp('preview', undefined, file);
                   } else {
                     // Open file in Finder
                     toggleApp('finder', 'desktop');
@@ -301,7 +313,22 @@ const Desktop = React.memo(() => {
                 {file.icon ? (
                   <Image src={file.icon} alt={file.name} width={56} height={56} className="object-contain" draggable={false} />
                 ) : (
-                  <span className="text-5xl">{file.type === 'folder' ? '📂' : '📄'}</span>
+                  file.type === 'folder' ? (
+                    <span className="text-5xl">📂</span>
+                  ) : file.name.toLowerCase().endsWith('.pdf') ? (
+                    <div className="relative flex flex-col items-center justify-center">
+                      <div className="w-12 h-14 bg-white rounded-sm shadow-sm border border-gray-200 relative overflow-hidden flex flex-col">
+                        <div className="h-4 w-full bg-red-600 flex items-center justify-center">
+                           <span className="text-[8px] text-white font-bold">PDF</span>
+                        </div>
+                        <div className="flex-1 flex items-center justify-center text-red-500 opacity-80">
+                           <FileText size={24} />
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <span className="text-5xl">📄</span>
+                  )
                 )}
               </div>
               <input
@@ -324,24 +351,38 @@ const Desktop = React.memo(() => {
         </div>
         {Object.entries(windows).map(([id, state]) => {
           if (!state.isOpen || state.isMinimized) return null;
-          let Content; let title; let it = 60; let il = 120; let w = "800px"; let h = "500px";
+          let Content; let title; let it = 60; let il = 120; let w = "800px"; let h = "500px"; let actions = null;
           if (id === 'profile') { Content = <ProfileApp />; title = "Perfil"; it = 60 + windowPositionOffset; il = 120 + windowPositionOffset; w = "1000px"; h = "650px"; }
           else if (id === 'browser') { Content = <BrowserApp />; title = "Safari"; it = 80 + windowPositionOffset; il = 150 + windowPositionOffset; w = "1200px"; h = "700px"; }
-          else if (id === 'finder') { Content = <FinderApp initialPath={state.initialPath} />; title = "Finder"; it = 60 + windowPositionOffset; il = 100 + windowPositionOffset; w = "800px"; h = "500px"; }
-          else if (id === 'terminal') { Content = <TerminalApp />; title = "bryanvargas@MacBookProdeBryan:~"; it = 150 + windowPositionOffset; il = 300 + windowPositionOffset; w = "800px"; h = "500px"; }
+          else if (id === 'finder') { 
+            Content = <FinderApp 
+              initialPath={state.initialPath} 
+              onOpenFile={(file) => toggleApp('preview', undefined, file)}
+            />; 
+            title = "Finder"; it = 60 + windowPositionOffset; il = 100 + windowPositionOffset; w = "800px"; h = "500px"; 
+          }
+          else if (id === 'terminal') { 
+            Content = <TerminalApp 
+              onOpenFile={(file) => toggleApp('preview', undefined, file)} 
+              onOpenFolder={(path) => toggleApp('finder', path)} 
+            />; 
+            title = "bryanvargas@MacBookProdeBryan:~"; it = 150 + windowPositionOffset; il = 300 + windowPositionOffset; w = "800px"; h = "500px"; 
+          }
           else if (id === 'notes') { Content = <NotesApp />; title = "Mi Portafolio"; it = 80 + windowPositionOffset; il = 200 + windowPositionOffset; w = "900px"; h = "600px"; }
+          else if (id === 'preview') { 
+            Content = <PreviewApp file={state.previewFile} />; 
+            title = state.previewFile?.name || "Vista Previa"; 
+            it = 50 + windowPositionOffset; il = 200 + windowPositionOffset; w = "700px"; h = "800px"; 
+            actions = state.previewFile ? <PreviewToolbar file={state.previewFile} /> : null;
+          }
           else if (id === 'about') { Content = <AboutThisMac />; title = ""; it = 100; il = (typeof window !== 'undefined' ? (window.innerWidth - 412) / 2 : 400); w = "412px"; h = "628px"; }
           else return null;
-          return <Window key={id} title={title} onClose={() => closeWindow(id as AppId)} onMinimize={() => setWindows(p => ({ ...p, [id]: { ...p[id], isMinimized: true } }))} onMaximize={() => setWindows(p => ({ ...p, [id]: { ...p[id], isMaximized: !p[id].isMaximized } }))} onFocus={() => { const nz = maxZIndex + 1; setMaxZIndex(nz); setWindows(p => ({ ...p, [id]: { ...p[id], zIndex: nz } })); setActiveApp(id as AppId); }} zIndex={state.zIndex} active={activeApp === id} isMaximized={state.isMaximized} initialTop={it} initialLeft={il} hideTitleBarStyling={id === 'about'} integratedTitleBar={id === 'browser' || id === 'finder' || id === 'notes'} isResizable={id !== 'about'} width={w} height={h}>{Content}</Window>;
+          return <Window key={id} title={title} headerActions={actions} onClose={() => closeWindow(id as AppId)} onMinimize={() => setWindows(p => ({ ...p, [id]: { ...p[id], isMinimized: true } }))} onMaximize={() => setWindows(p => ({ ...p, [id]: { ...p[id], isMaximized: !p[id].isMaximized } }))} onFocus={() => { const nz = maxZIndex + 1; setMaxZIndex(nz); setWindows(p => ({ ...p, [id]: { ...p[id], zIndex: nz } })); setActiveApp(id as AppId); }} zIndex={state.zIndex} active={activeApp === id} isMaximized={state.isMaximized} initialTop={it} initialLeft={il} hideTitleBarStyling={id === 'about'} integratedTitleBar={id === 'browser' || id === 'finder' || id === 'notes'} isResizable={id !== 'about'} width={w} height={h}>{Content}</Window>;
         })}
       </main>
       <Dock
-        onLaunch={(id) => {
-          if (id === 'finder') {
-            toggleApp(id, 'desktop');
-          } else {
-            toggleApp(id);
-          }
+        onLaunch={(id, path) => {
+          toggleApp(id, path);
         }}
         activeApp={activeApp}
         minimizedApps={minimizedAppIds}
