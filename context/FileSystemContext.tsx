@@ -30,6 +30,7 @@ const getInitialFiles = (): VFile[] => [
   { id: 'images', name: 'Imágenes', type: 'folder', parentId: null, isProtected: true, isHiddenFromDesktop: true },
   { id: 'videos', name: 'Videos', type: 'folder', parentId: null, isProtected: true, isHiddenFromDesktop: true },
   { id: 'music', name: 'Música', type: 'folder', parentId: null, isProtected: true, isHiddenFromDesktop: true },
+  { id: 'trash', name: 'Papelera', type: 'folder', parentId: null, isProtected: true, isHiddenFromDesktop: true },
 
   // Files INSIDE Escritorio (These will appear on the wallpaper)
   { id: 'projects', name: 'Proyectos', type: 'folder', parentId: 'desktop', isProtected: true },
@@ -75,7 +76,7 @@ export const FileSystemProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
-    const saved = safeLocalStorage.getItem('macos_vfs_v8');
+    const saved = safeLocalStorage.getItem('macos_vfs_v9');
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
@@ -87,13 +88,13 @@ export const FileSystemProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     } else {
       const initial = getInitialFiles();
       setTimeout(() => setFs(initial), 0);
-      safeLocalStorage.setItem('macos_vfs_v8', JSON.stringify(initial));
+      safeLocalStorage.setItem('macos_vfs_v9', JSON.stringify(initial));
     }
   }, []);
 
   const save = useCallback((newFs: VFile[]) => {
     setFs(newFs);
-    safeLocalStorage.setItem('macos_vfs_v8', JSON.stringify(newFs));
+    safeLocalStorage.setItem('macos_vfs_v9', JSON.stringify(newFs));
   }, []);
 
   const addFolder = useCallback((parentId: string | null) => {
@@ -114,8 +115,15 @@ export const FileSystemProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
   const deleteFile = useCallback((id: string) => {
     const file = fs.find(f => f.id === id);
-    if (file?.isProtected) return;
-    save(fs.filter(f => f.id !== id));
+    if (!file || file.isProtected) return;
+
+    if (file.parentId === 'trash') {
+      // Permanent delete
+      save(fs.filter(f => f.id !== id));
+    } else {
+      // Move to trash
+      save(fs.map(f => f.id === id ? { ...f, parentId: 'trash' } : f));
+    }
   }, [fs, save]);
 
   return (
