@@ -4,10 +4,10 @@ import React, { useState, useMemo, useContext, useCallback } from 'react';
 import {
   Folder, ChevronLeft, ChevronRight, LayoutGrid, List, Search,
   Share, Tag, MoreHorizontal, Clock, Users, Airplay, Monitor,
-  FileText, Download, Video, Music, ImageIcon, Cloud, ChevronDown, Plus
+  FileText, Download, Video, Music, ImageIcon, Cloud, ChevronDown, Plus, Trash2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useFileSystem } from '@/context/FileSystemContext';
+import { useFileSystem, VFile } from '@/context/FileSystemContext';
 import { AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import ContextMenu from './ContextMenu';
@@ -30,9 +30,10 @@ interface SidebarSection {
 
 interface FinderProps {
   initialPath?: string | null;
+  onOpenFile?: (file: VFile) => void;
 }
 
-const FinderApp = React.memo(({ initialPath }: FinderProps) => {
+const FinderApp = React.memo(({ initialPath, onOpenFile }: FinderProps) => {
   const { fs, addFolder, deleteFile } = useFileSystem();
   const windowContext = useContext(WindowContext);
   const dragControls = windowContext?.dragControls;
@@ -41,6 +42,7 @@ const FinderApp = React.memo(({ initialPath }: FinderProps) => {
   const resolveInitialFolder = (path?: string | null) => {
     if (!path || path === 'root') return { id: null, name: 'Escritorio' }; // Default to root
     if (path === 'desktop') return { id: 'desktop', name: 'Escritorio' }; // Explicit desktop folder
+    if (path === 'trash') return { id: 'trash', name: 'Papelera' };
 
     const folder = fs.find(f => f.id === path);
     return folder ? { id: folder.id, name: folder.name } : { id: null, name: 'Escritorio' };
@@ -279,6 +281,7 @@ const FinderApp = React.memo(({ initialPath }: FinderProps) => {
         { id: 'music', name: 'Música', icon: <Music size={16} /> },
         { id: 'images', name: 'Imágenes', icon: <ImageIcon size={16} /> },
         { id: 'projects', name: 'Proyectos', icon: <Folder size={16} /> },
+        { id: 'trash', name: 'Papelera', icon: <Trash2 size={16} /> },
       ]
     },
     {
@@ -430,13 +433,9 @@ const FinderApp = React.memo(({ initialPath }: FinderProps) => {
                       if (file.type === 'folder') {
                         navigateTo(file.id, file.name);
                       } else if (file.type === 'file') {
-                        // Handle file opening based on file type
-                        if (file.name.endsWith('.pdf') && file.content) {
-                          // Open PDF in new tab
-                          window.open(file.content, '_blank');
+                        if ((file.name.endsWith('.pdf') || file.name.match(/\.(png|jpg|jpeg|svg|gif|webp)$/i)) && file.content) {
+                          onOpenFile?.(file);
                         } else {
-                          // For other files, you can add more handlers here
-                          // For now, we'll just show an alert or do nothing
                           console.log('Opening file:', file.name);
                         }
                       }
@@ -451,7 +450,20 @@ const FinderApp = React.memo(({ initialPath }: FinderProps) => {
                       {file.icon ? (
                         <Image src={file.icon} alt={file.name} width={56} height={56} className="object-contain" draggable={false} />
                       ) : (
-                        file.type === 'folder' ? <FolderIcon /> : <FileIcon />
+                        file.type === 'folder' ? <FolderIcon /> : (
+                            file.name.toLowerCase().endsWith('.pdf') ? (
+                                <div className="relative flex flex-col items-center justify-center scale-90">
+                                  <div className="w-10 h-12 bg-white rounded-sm shadow-sm border border-gray-200 relative overflow-hidden flex flex-col">
+                                    <div className="h-3 w-full bg-red-600 flex items-center justify-center">
+                                       <span className="text-[6px] text-white font-bold">PDF</span>
+                                    </div>
+                                    <div className="flex-1 flex items-center justify-center text-red-500 opacity-80">
+                                       <FileText size={16} />
+                                    </div>
+                                  </div>
+                                </div>
+                              ) : <FileIcon />
+                        )
                       )}
                     </div>
                     <div className="flex items-center gap-1 max-w-[100px] mt-0.5">

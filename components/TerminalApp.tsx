@@ -2,8 +2,13 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { Home, Check, Clock } from 'lucide-react';
-import { useFileSystem } from '@/context/FileSystemContext';
+import { useFileSystem, VFile } from '@/context/FileSystemContext';
 import { cn } from '@/lib/utils';
+
+interface TerminalAppProps {
+  onOpenFile?: (file: VFile) => void;
+  onOpenFolder?: (id: string) => void;
+}
 
 interface TerminalLine {
   type: 'input' | 'output';
@@ -51,7 +56,7 @@ const RightPrompt = ({ timestamp }: { timestamp?: string }) => {
   );
 };
 
-const TerminalApp = React.memo(() => {
+const TerminalApp = React.memo(({ onOpenFile, onOpenFolder }: TerminalAppProps) => {
   const { fs } = useFileSystem();
   const [history, setHistory] = useState<TerminalLine[]>(() => {
     // Initial state logic moved here to avoid useEffect setState error
@@ -116,7 +121,7 @@ const TerminalApp = React.memo(() => {
 
     switch (cmd) {
       case 'help':
-        response = 'Available commands: help, ls, cd [dir], pwd, whoami, date, clear, uname';
+        response = 'Available commands: help, ls, cd [dir], pwd, open [file/dir], whoami, date, clear, uname';
         break;
       case 'ls':
         const files = fs.filter(f => f.parentId === cwdId);
@@ -153,6 +158,23 @@ const TerminalApp = React.memo(() => {
           } else {
             response = `cd: no such file or directory: ${target}`;
           }
+        }
+        break;
+      case 'open':
+        const fileTarget = args[1];
+        if (!fileTarget) {
+            response = 'Usage: open [filename]';
+        } else {
+            const file = fs.find(f => f.parentId === cwdId && f.name.toLowerCase() === fileTarget.toLowerCase());
+            if (file) {
+                if (file.type === 'folder') {
+                    onOpenFolder?.(file.id);
+                } else {
+                    onOpenFile?.(file);
+                }
+            } else {
+                response = `open: ${fileTarget}: No such file or directory`;
+            }
         }
         break;
       case 'pwd':
