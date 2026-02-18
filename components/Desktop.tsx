@@ -7,8 +7,8 @@ import AppleLogo from './AppleLogo';
 import dynamic from 'next/dynamic';
 
 const Spotlight = dynamic(() => import('./Spotlight'), { ssr: false });
-const MenuBar = dynamic(() => import('./MenuBar'), { ssr: false });
-const Dock = dynamic(() => import('./Dock'), { ssr: false });
+import MenuBar from './MenuBar';
+import Dock from './Dock';
 const Window = dynamic(() => import('./Window'), { ssr: false });
 const BrowserApp = dynamic(() => import('./BrowserApp'), { ssr: false });
 const ProfileApp = dynamic(() => import('./ProfileApp'), { ssr: false });
