@@ -2,9 +2,18 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   images: {
-    remotePatterns: [],
+    formats: ['image/avif', 'image/webp'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'upload.wikimedia.org',
+      },
+      {
+        protocol: 'https',
+        hostname: 'github.com',
+      }
+    ],
     dangerouslyAllowSVG: true,
-    unoptimized: true, // Allow unoptimized images from API routes
   },
 };
 

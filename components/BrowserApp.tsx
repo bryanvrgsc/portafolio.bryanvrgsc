@@ -829,8 +829,8 @@ const BrowserApp = React.memo(() => {
           <div style={{ fontSize: `${fontSize}%` }} className={`h-full ${isReaderMode ? 'bg-[#f5f5f7] text-black transition-colors duration-500' : ''}`}>
             {activeTab.view === 'profile' && (
               <div className="h-full relative overflow-hidden bg-[#0a0c10] text-white font-sans selection:bg-orange-500/30">
-                {/* Background Wireframe Mesh */}
-                <div className="absolute inset-0 z-0 opacity-20 pointer-events-none overflow-hidden">
+                {/* Background Wireframe Mesh - Desktop Only */}
+                <div className="hidden md:block absolute inset-0 z-0 opacity-20 pointer-events-none overflow-hidden">
                   <svg width="100%" height="100%" viewBox="0 0 1000 1000" preserveAspectRatio="none">
                     <defs>
                       <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
@@ -880,8 +880,8 @@ const BrowserApp = React.memo(() => {
                   </svg>
                 </div>
 
-                {/* 3D Floating Icons Layer */}
-                <div className="absolute inset-0 z-10 pointer-events-none">
+                {/* 3D Floating Icons Layer - Desktop Only */}
+                <div className="hidden md:block absolute inset-0 z-10 pointer-events-none">
                   <motion.div
                     animate={{ y: [0, -20, 0], rotate: [0, 5, 0] }}
                     transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}

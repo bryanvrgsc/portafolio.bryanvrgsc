@@ -7,6 +7,7 @@ import AppleLogo from './AppleLogo';
 const BootShell: React.FC = () => {
     return (
         <div className="h-screen w-full bg-black flex flex-col items-center justify-center gap-12 text-white">
+            {/* Optimized for mobile LCP */}
             <AppleLogo size={80} className="md:w-[100px] md:h-[100px]" />
             <div className="w-32 md:w-48 h-1 bg-white/20 rounded-full overflow-hidden">
                 <motion.div
