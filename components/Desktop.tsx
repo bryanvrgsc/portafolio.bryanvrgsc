@@ -142,7 +142,7 @@ const Desktop = React.memo(() => {
       const timer = setTimeout(() => {
         toggleApp('notes');
         sessionStorage.setItem('macos_seen_welcome', 'true');
-      }, 500);
+      }, 2500); // Deferred to avoid TBT impact during boot
       return () => clearTimeout(timer);
     }
   }, [booting, toggleApp]);
@@ -257,25 +257,43 @@ const Desktop = React.memo(() => {
     ];
   }, [contextMenu, fs, addFolder, deleteFile]);
 
-  if (isShutDown) return <div className="h-screen w-full bg-black transition-opacity duration-1000" />;
-  if (booting) {
-    return (
-      <div className="h-screen w-full bg-black flex flex-col items-center justify-center gap-12 text-white">
-        <AppleLogo size={80} className="md:w-[100px] md:h-[100px]" />
-        <div className="w-32 md:w-48 h-1 bg-white/20 rounded-full overflow-hidden">
-          <motion.div
-            initial={{ width: 0 }}
-            animate={{ width: '100%' }}
-            transition={{ duration: 1.5, ease: "easeInOut" }}
-            className="h-full bg-white"
-          />
-        </div>
-      </div>
-    );
-  }
+  // if (isShutDown) return <div className="h-screen w-full bg-black transition-opacity duration-1000" />;
+  // Removed early return to allow parallel rendering/hydration
 
   return (
     <div className="relative h-[100dvh] w-full overflow-hidden select-none flex flex-col" onContextMenu={(e) => { e.preventDefault(); setContextMenu({ x: e.clientX, y: e.clientY }); }} onMouseDown={handleMouseDown} onMouseMove={handleMouseMove} onMouseUp={handleMouseUp}>
+
+      {/* Boot Sequence Overlay */}
+      <AnimatePresence mode="wait">
+        {booting && (
+          <motion.div
+            key="boot-shell"
+            initial={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5 }}
+            className="absolute inset-0 z-[999999] bg-black"
+          >
+            <div className="h-full w-full flex flex-col items-center justify-center gap-12 text-white">
+              <AppleLogo size={80} className="md:w-[100px] md:h-[100px]" />
+              <div className="w-32 md:w-48 h-1 bg-white/20 rounded-full overflow-hidden">
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: '100%' }}
+                  transition={{ duration: 1.5, ease: "easeInOut" }}
+                  className="h-full bg-white"
+                />
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Shutdown Overlay */}
+      {isShutDown && (
+        <div className="absolute inset-0 z-[999999] bg-black animate-fade-in duration-1000" />
+      )}
+
+      {/* Main Desktop Content - Renders immediately behind boot screen */}
       {/* Optimized Background Image */}
       <Image
         src={"/wallpaper.avif"}
