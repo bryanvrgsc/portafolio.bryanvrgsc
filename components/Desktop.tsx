@@ -42,6 +42,8 @@ const Desktop = React.memo(() => {
   const [booting, setBooting] = useState(true);
   const [isShutDown, setIsShutDown] = useState(false);
 
+  const [isMobile, setIsMobile] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const [selection, setSelection] = useState<{ startX: number, startY: number, endX: number, endY: number } | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
@@ -78,8 +80,18 @@ const Desktop = React.memo(() => {
   const [windowPositionOffset, setWindowPositionOffset] = useState(0);
 
   useEffect(() => {
-    const timer = setTimeout(() => setBooting(false), 2000);
-    return () => clearTimeout(timer);
+    setMounted(true);
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+
+    const bootTime = window.innerWidth < 768 ? 1200 : 2000;
+    const timer = setTimeout(() => setBooting(false), bootTime);
+
+    return () => {
+      window.removeEventListener('resize', checkMobile);
+      clearTimeout(timer);
+    };
   }, []);
 
 
@@ -99,16 +111,16 @@ const Desktop = React.memo(() => {
     setWindows((prev) => {
       const newZIndex = maxZIndex + 1;
       setMaxZIndex(newZIndex);
-      return { 
-        ...prev, 
-        [id]: { 
-          ...prev[id], 
-          isOpen: true, 
-          isMinimized: false, 
-          zIndex: newZIndex, 
+      return {
+        ...prev,
+        [id]: {
+          ...prev[id],
+          isOpen: true,
+          isMinimized: false,
+          zIndex: newZIndex,
           initialPath: path,
           previewFile: file || prev[id].previewFile
-        } 
+        }
       };
     });
     setActiveApp(id);
@@ -255,7 +267,18 @@ const Desktop = React.memo(() => {
   }
 
   return (
-    <div className="relative h-screen w-full overflow-hidden macos-wallpaper select-none flex flex-col" onContextMenu={(e) => { e.preventDefault(); setContextMenu({ x: e.clientX, y: e.clientY }); }} onMouseDown={handleMouseDown} onMouseMove={handleMouseMove} onMouseUp={handleMouseUp}>
+    <div className="relative h-screen w-full overflow-hidden select-none flex flex-col" onContextMenu={(e) => { e.preventDefault(); setContextMenu({ x: e.clientX, y: e.clientY }); }} onMouseDown={handleMouseDown} onMouseMove={handleMouseMove} onMouseUp={handleMouseUp}>
+      {/* Optimized Background Image */}
+      <Image
+        src="/wallpaper.avif"
+        alt="Wallpaper"
+        fill
+        priority
+        quality={75}
+        className="object-cover pointer-events-none z-0"
+        sizes="100vw"
+      />
+
       <div className="h-8 w-full shrink-0 z-[800000]">
         <MenuBar activeApp={activeApp} onAction={handleSystemAction} toggleSpotlight={toggleSpotlight} closeSpotlight={() => setSpotlightOpen(false)} isControlCenterOpen={isControlCenterOpen} setIsControlCenterOpen={setIsControlCenterOpen} isNotifOpen={isNotifOpen} setIsNotifOpen={setIsNotifOpen} />
       </div>
@@ -319,10 +342,10 @@ const Desktop = React.memo(() => {
                     <div className="relative flex flex-col items-center justify-center">
                       <div className="w-12 h-14 bg-white rounded-sm shadow-sm border border-gray-200 relative overflow-hidden flex flex-col">
                         <div className="h-4 w-full bg-red-600 flex items-center justify-center">
-                           <span className="text-[8px] text-white font-bold">PDF</span>
+                          <span className="text-[8px] text-white font-bold">PDF</span>
                         </div>
                         <div className="flex-1 flex items-center justify-center text-red-500 opacity-80">
-                           <FileText size={24} />
+                          <FileText size={24} />
                         </div>
                       </div>
                     </div>
@@ -352,30 +375,69 @@ const Desktop = React.memo(() => {
         {Object.entries(windows).map(([id, state]) => {
           if (!state.isOpen || state.isMinimized) return null;
           let Content; let title; let it = 60; let il = 120; let w = "800px"; let h = "500px"; let actions = null;
-          if (id === 'profile') { Content = <ProfileApp />; title = "Perfil"; it = 60 + windowPositionOffset; il = 120 + windowPositionOffset; w = "1000px"; h = "650px"; }
-          else if (id === 'browser') { Content = <BrowserApp />; title = "Safari"; it = 80 + windowPositionOffset; il = 150 + windowPositionOffset; w = "1200px"; h = "700px"; }
-          else if (id === 'finder') { 
-            Content = <FinderApp 
-              initialPath={state.initialPath} 
+          if (id === 'profile') {
+            Content = <ProfileApp />;
+            title = "Perfil";
+            it = isMobile ? 40 : 60 + windowPositionOffset;
+            il = isMobile ? 10 : 120 + windowPositionOffset;
+            w = isMobile ? `${window.innerWidth - 20}px` : "1000px";
+            h = isMobile ? `${window.innerHeight - 140}px` : "650px";
+          }
+          else if (id === 'browser') {
+            Content = <BrowserApp />;
+            title = "Safari";
+            it = isMobile ? 40 : 80 + windowPositionOffset;
+            il = isMobile ? 10 : 150 + windowPositionOffset;
+            w = isMobile ? `${window.innerWidth - 20}px` : "1200px";
+            h = isMobile ? `${window.innerHeight - 140}px` : "700px";
+          }
+          else if (id === 'finder') {
+            Content = <FinderApp
+              initialPath={state.initialPath}
               onOpenFile={(file) => toggleApp('preview', undefined, file)}
-            />; 
-            title = "Finder"; it = 60 + windowPositionOffset; il = 100 + windowPositionOffset; w = "800px"; h = "500px"; 
+            />;
+            title = "Finder";
+            it = isMobile ? 40 : 60 + windowPositionOffset;
+            il = isMobile ? 10 : 100 + windowPositionOffset;
+            w = isMobile ? `${window.innerWidth - 20}px` : "800px";
+            h = isMobile ? `${window.innerHeight - 140}px` : "500px";
           }
-          else if (id === 'terminal') { 
-            Content = <TerminalApp 
-              onOpenFile={(file) => toggleApp('preview', undefined, file)} 
-              onOpenFolder={(path) => toggleApp('finder', path)} 
-            />; 
-            title = "bryanvargas@MacBookProdeBryan:~"; it = 150 + windowPositionOffset; il = 300 + windowPositionOffset; w = "800px"; h = "500px"; 
+          else if (id === 'terminal') {
+            Content = <TerminalApp
+              onOpenFile={(file) => toggleApp('preview', undefined, file)}
+              onOpenFolder={(path) => toggleApp('finder', path)}
+            />;
+            title = "bryanvargas@MacBookProdeBryan:~";
+            it = isMobile ? 40 : 150 + windowPositionOffset;
+            il = isMobile ? 10 : 300 + windowPositionOffset;
+            w = isMobile ? `${window.innerWidth - 20}px` : "800px";
+            h = isMobile ? `${window.innerHeight - 140}px` : "500px";
           }
-          else if (id === 'notes') { Content = <NotesApp />; title = "Mi Portafolio"; it = 80 + windowPositionOffset; il = 200 + windowPositionOffset; w = "900px"; h = "600px"; }
-          else if (id === 'preview') { 
-            Content = <PreviewApp file={state.previewFile} />; 
-            title = state.previewFile?.name || "Vista Previa"; 
-            it = 50 + windowPositionOffset; il = 200 + windowPositionOffset; w = "700px"; h = "800px"; 
+          else if (id === 'notes') {
+            Content = <NotesApp />;
+            title = "Mi Portafolio";
+            it = isMobile ? 40 : 80 + windowPositionOffset;
+            il = isMobile ? 10 : 200 + windowPositionOffset;
+            w = isMobile ? `${window.innerWidth - 20}px` : "900px";
+            h = isMobile ? `${window.innerHeight - 140}px` : "600px";
+          }
+          else if (id === 'preview') {
+            Content = <PreviewApp file={state.previewFile} />;
+            title = state.previewFile?.name || "Vista Previa";
+            it = isMobile ? 40 : 50 + windowPositionOffset;
+            il = isMobile ? 10 : 200 + windowPositionOffset;
+            w = isMobile ? `${window.innerWidth - 20}px` : "700px";
+            h = isMobile ? `${window.innerHeight - 140}px` : "800px";
             actions = state.previewFile ? <PreviewToolbar file={state.previewFile} /> : null;
           }
-          else if (id === 'about') { Content = <AboutThisMac />; title = ""; it = 100; il = (typeof window !== 'undefined' ? (window.innerWidth - 412) / 2 : 400); w = "412px"; h = "628px"; }
+          else if (id === 'about') {
+            Content = <AboutThisMac />;
+            title = "";
+            it = isMobile ? 40 : 100;
+            il = mounted ? (window.innerWidth - (isMobile ? window.innerWidth - 40 : 412)) / 2 : 400;
+            w = isMobile ? `${window.innerWidth - 40}px` : "412px";
+            h = isMobile ? "auto" : "628px";
+          }
           else return null;
           return <Window key={id} title={title} headerActions={actions} onClose={() => closeWindow(id as AppId)} onMinimize={() => setWindows(p => ({ ...p, [id]: { ...p[id], isMinimized: true } }))} onMaximize={() => setWindows(p => ({ ...p, [id]: { ...p[id], isMaximized: !p[id].isMaximized } }))} onFocus={() => { const nz = maxZIndex + 1; setMaxZIndex(nz); setWindows(p => ({ ...p, [id]: { ...p[id], zIndex: nz } })); setActiveApp(id as AppId); }} zIndex={state.zIndex} active={activeApp === id} isMaximized={state.isMaximized} initialTop={it} initialLeft={il} hideTitleBarStyling={id === 'about'} integratedTitleBar={id === 'browser' || id === 'finder' || id === 'notes'} isResizable={id !== 'about'} width={w} height={h}>{Content}</Window>;
         })}
