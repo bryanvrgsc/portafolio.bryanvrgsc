@@ -282,7 +282,7 @@ const Desktop = React.memo(() => {
         alt="Wallpaper"
         fill
         priority
-        quality={85}
+        quality={60}
         placeholder="blur"
         blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mN8/+F9PQAI8wNPvd7POQAAAABJRU5ErkJggg=="
         className="object-cover pointer-events-none z-0"
@@ -382,7 +382,8 @@ const Desktop = React.memo(() => {
             </div>
           ))}
         </div>
-        {Object.entries(windows).map(([id, state]) => {
+        {/* Defer window rendering until mounted to prevent CLS from isMobile flip */}
+        {mounted && Object.entries(windows).map(([id, state]) => {
           if (!state.isOpen || state.isMinimized) return null;
           let Content; let title; let it = 60; let il = 120; let w = "800px"; let h = "500px"; let actions = null;
           if (id === 'profile') {
