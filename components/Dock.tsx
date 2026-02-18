@@ -21,6 +21,7 @@ interface DockIconProps {
   isMinimized: boolean;
   baseSize: number;
   maxSize: number;
+  priority?: boolean;
 }
 
 const DOCK_APPS: { id: AppId; iconSrc: string; label: string; initialPath?: string }[] = [
@@ -39,7 +40,8 @@ const DockIcon = memo(({
   isOpen,
   isMinimized,
   baseSize,
-  maxSize
+  maxSize,
+  priority = false
 }: DockIconProps) => {
   const ref = useRef<HTMLButtonElement>(null);
 
@@ -87,6 +89,7 @@ const DockIcon = memo(({
         className={`object-cover transition-opacity ${isMinimized ? 'opacity-50' : 'opacity-100'}`}
         draggable={false}
         sizes={`${maxSize}px`}
+        priority={priority}
       />
 
       {/* Tooltip */}
@@ -191,6 +194,7 @@ const Dock: React.FC<DockProps> = ({ onLaunch, activeApp, minimizedApps, openApp
               isMinimized={minimizedApps.includes(app.id)}
               baseSize={iconSize.base}
               maxSize={iconSize.max}
+              priority={true}
             />
           ))}
         </motion.div>
