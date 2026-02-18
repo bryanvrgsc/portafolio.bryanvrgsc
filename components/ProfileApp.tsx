@@ -196,7 +196,7 @@ const ProfileApp = React.memo(() => {
                 <h2 className="text-sm font-bold text-white/30 uppercase tracking-widest mb-4">Educación</h2>
                 <div className="bg-white/5 border border-white/10 rounded-xl p-4">
                   <div className="flex gap-4 items-start">
-                    <div className="w-16 h-16 bg-white rounded-xl flex items-center justify-center p-2 flex-shrink-0">
+                    <div className="relative w-16 h-16 bg-white rounded-xl flex items-center justify-center p-2 flex-shrink-0">
                       <Image
                         src="/icons/anahuac.svg"
                         alt="Universidad Anáhuac"
