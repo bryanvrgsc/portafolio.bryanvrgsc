@@ -42,4 +42,18 @@ body {
     transform: translateZ(0);
     will-change: transform;
   }
+
+  /* Force static positioning on mobile to prevent JS hydration jumps (CLS) */
+  @media (max-width: 768px) {
+    .mobile-window {
+      top: 40px !important;
+      /* MenuBar height + margin */
+      left: 10px !important;
+      width: calc(100vw - 20px) !important;
+      height: calc(100dvh - 140px) !important;
+      /* Viewport - Menu - Dock */
+      transform: none !important;
+      /* Override framer-motion transform if needed */
+    }
+  }
 }
