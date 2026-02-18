@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 
 interface Experience {
   company: string;
@@ -196,7 +197,13 @@ const ProfileApp = React.memo(() => {
                 <div className="bg-white/5 border border-white/10 rounded-xl p-4">
                   <div className="flex gap-4 items-start">
                     <div className="w-16 h-16 bg-white rounded-xl flex items-center justify-center p-2 flex-shrink-0">
-                      <img src="/icons/anahuac.svg" alt="Universidad Anáhuac" className="w-full h-full object-contain" />
+                      <Image
+                        src="/icons/anahuac.svg"
+                        alt="Universidad Anáhuac"
+                        fill
+                        className="object-contain p-1"
+                        sizes="64px"
+                      />
                     </div>
                     <div className="flex-1 flex justify-between items-start">
                       <div>

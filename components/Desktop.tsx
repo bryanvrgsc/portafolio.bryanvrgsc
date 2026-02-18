@@ -344,7 +344,7 @@ const Desktop = React.memo(() => {
                 className="w-14 h-14 flex items-center justify-center transition-colors cursor-default"
               >
                 {file.icon ? (
-                  <Image src={file.icon} alt={file.name} width={56} height={56} className="object-contain" draggable={false} />
+                  <Image src={file.icon} alt={file.name} width={56} height={56} className="object-contain" draggable={false} priority />
                 ) : (
                   file.type === 'folder' ? (
                     <span className="text-5xl">📂</span>

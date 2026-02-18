@@ -1281,10 +1281,12 @@ const BrowserApp = React.memo(() => {
                 {/* Screenshot del sitio */}
                 <div className="flex-1 relative overflow-hidden">
                   {activeTab.blockedScreenshot ? (
-                    <img
+                    <Image
                       src={activeTab.blockedScreenshot}
                       alt={activeTab.blockedCompany}
-                      className="w-full h-full object-cover object-top"
+                      fill
+                      className="object-cover object-top"
+                      priority
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center bg-gradient-to-b from-[#1e1e1e] to-[#2c2c2e]">
