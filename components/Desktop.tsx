@@ -258,8 +258,8 @@ const Desktop = React.memo(() => {
   if (booting) {
     return (
       <div className="h-screen w-full bg-black flex flex-col items-center justify-center gap-12 text-white">
-        <AppleLogo size={100} />
-        <div className="w-48 h-1 bg-white/20 rounded-full overflow-hidden">
+        <AppleLogo size={80} className="md:w-[100px] md:h-[100px]" />
+        <div className="w-32 md:w-48 h-1 bg-white/20 rounded-full overflow-hidden">
           <motion.div
             initial={{ width: 0 }}
             animate={{ width: '100%' }}
@@ -275,11 +275,13 @@ const Desktop = React.memo(() => {
     <div className="relative h-screen w-full overflow-hidden select-none flex flex-col" onContextMenu={(e) => { e.preventDefault(); setContextMenu({ x: e.clientX, y: e.clientY }); }} onMouseDown={handleMouseDown} onMouseMove={handleMouseMove} onMouseUp={handleMouseUp}>
       {/* Optimized Background Image */}
       <Image
-        src="/wallpaper.avif"
+        src={"/wallpaper.avif"}
         alt="Wallpaper"
         fill
         priority
-        quality={75}
+        quality={85}
+        placeholder="blur"
+        blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mN8/+F9PQAI8wNPvd7POQAAAABJRU5ErkJggg=="
         className="object-cover pointer-events-none z-0"
         sizes="100vw"
       />

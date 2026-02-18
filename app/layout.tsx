@@ -10,6 +10,12 @@ export const metadata: Metadata = {
     statusBarStyle: "black-translucent",
     title: "macOS Tahoe",
   },
+  viewport: {
+    width: "device-width",
+    initialScale: 1,
+    maximumScale: 1,
+    userScalable: false,
+  },
 };
 
 import { SystemProvider } from "@/context/SystemContext";
