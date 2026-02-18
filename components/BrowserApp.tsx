@@ -110,6 +110,7 @@ const experiences: Experience[] = [
     icon: "🏗️",
     url: "https://kreaconstruction.com",
     canEmbed: true,
+    screenshot: "/screenshots/kreaconstruction.avif",
     highlights: [
       "Sistema de presupuestación automatizado Excel + Home Depot API",
       "Gestión integral de infraestructura TI y redes",
@@ -138,6 +139,7 @@ const experiences: Experience[] = [
     icon: "🌱",
     url: "https://vitalis.net",
     canEmbed: true,
+    screenshot: "/screenshots/vitalis.avif",
     highlights: [
       "Optimización WPO: LCP de 1.14s mejorando SEO y retención",
       "Administración de Moodle LMS y WordPress",
@@ -167,6 +169,7 @@ const experiences: Experience[] = [
     icon: "🏀",
     url: "https://sportsminers.com",
     canEmbed: true,
+    screenshot: "/screenshots/sportsminers.avif",
     highlights: [
       "Automatización de ingesta de datos CSV a PostgreSQL",
       "Web Scraping de estadísticas NCAA/ESPN con Python",
@@ -258,8 +261,10 @@ const languages: LanguageItem[] = [
 ];
 
 const ScrambledText = ({ text, delay = 0 }: { text: string; delay?: number }) => {
-  const [displayText, setDisplayText] = useState("");
   const chars = "!@#$%^&*()_+{}:\"<>?|1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  const [displayText, setDisplayText] = useState(() =>
+    text.split("").map(() => chars[Math.floor(Math.random() * chars.length)]).join("")
+  );
 
   useEffect(() => {
     let iteration = 0;
@@ -1107,22 +1112,42 @@ const BrowserApp = React.memo(() => {
                         onClick={() => navigateTo(project.url, true, project.canEmbed, project.name, project.screenshot, project.icon)}
                         className={`group p-1 bg-gradient-to-br from-white/10 to-transparent rounded-2xl transition-all hover:from-orange-500/20 text-left w-full ${isReaderMode ? 'from-black/10' : ''}`}
                       >
-                        <div className={`h-full p-6 backdrop-blur-md rounded-[15px] border border-white/5 flex flex-col gap-4 ${isReaderMode ? 'bg-white border-black/5' : 'bg-[#2c2c2e]/80'}`}>
-                          <div className="flex items-center justify-between">
-                            <div className="w-14 h-14 bg-white/5 rounded-2xl flex items-center justify-center text-3xl group-hover:scale-110 group-hover:bg-white/10 transition-all duration-300">
-                              {project.icon}
-                            </div>
-                            <div className="bg-white/5 px-3 py-1 rounded-full text-[10px] text-white/40 font-mono">
-                              github.com
-                            </div>
+                        <div className={`h-full p-0 backdrop-blur-md rounded-[15px] border border-white/5 flex flex-col overflow-hidden ${isReaderMode ? 'bg-white border-black/5' : 'bg-[#212123]/90'}`}>
+                          {/* Project Preview with reserved space */}
+                          <div className="aspect-video relative w-full overflow-hidden bg-black/20 shrink-0">
+                            {project.screenshot ? (
+                              <Image
+                                src={project.screenshot}
+                                alt={project.name}
+                                fill
+                                className="object-cover group-hover:scale-105 transition-transform duration-700"
+                                sizes="(max-width: 768px) 100vw, 400px"
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center text-4xl bg-gradient-to-br from-orange-500/10 to-transparent">
+                                {project.icon}
+                              </div>
+                            )}
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60" />
                           </div>
-                          <div>
-                            <h3 className={`text-xl font-bold group-hover:text-orange-400 transition-colors mb-2 ${isReaderMode ? 'text-black' : 'text-white'}`}>{project.name}</h3>
-                            <p className={`text-sm leading-relaxed mb-3 ${isReaderMode ? 'text-black/60' : 'text-white/50'}`}>{project.description}</p>
-                            <div className="flex flex-wrap gap-2">
-                              {project.highlights.map((h: string) => (
-                                <span key={h} className="text-xs bg-white/5 text-white/60 px-2 py-1 rounded">{h}</span>
-                              ))}
+
+                          <div className="p-6 flex flex-col flex-1">
+                            <div className="flex items-center justify-between mb-4">
+                              <div className="w-10 h-10 bg-white/5 rounded-xl flex items-center justify-center text-xl group-hover:scale-110 group-hover:bg-white/10 transition-all duration-300">
+                                {project.icon}
+                              </div>
+                              <div className="bg-white/5 px-3 py-1 rounded-full text-[10px] text-white/40 font-mono">
+                                github.com
+                              </div>
+                            </div>
+                            <div>
+                              <h3 className={`text-xl font-bold group-hover:text-orange-400 transition-colors mb-2 ${isReaderMode ? 'text-black' : 'text-white'}`}>{project.name}</h3>
+                              <p className={`text-sm leading-relaxed mb-3 ${isReaderMode ? 'text-black/60' : 'text-white/50'}`}>{project.description}</p>
+                              <div className="flex flex-wrap gap-2">
+                                {project.highlights.map((h: string) => (
+                                  <span key={h} className="text-xs bg-white/5 text-white/60 px-2 py-1 rounded">{h}</span>
+                                ))}
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -1164,15 +1189,35 @@ const BrowserApp = React.memo(() => {
                         onClick={() => navigateTo(exp.url, true, exp.canEmbed, exp.company, exp.screenshot, typeof exp.icon === 'string' ? exp.icon : undefined)}
                         className={`group p-1 bg-gradient-to-br from-white/10 to-transparent rounded-2xl transition-all hover:from-orange-500/20 text-left w-full ${isReaderMode ? 'from-black/10' : ''}`}
                       >
-                        <div className={`h-full p-6 backdrop-blur-md rounded-[15px] border border-white/5 flex flex-col items-center text-center gap-4 ${isReaderMode ? 'bg-white border-black/5 shadow-sm' : 'bg-[#2c2c2e]/80'}`}>
-                          <div className="w-20 h-20 bg-white/5 rounded-2xl flex items-center justify-center text-4xl group-hover:scale-110 group-hover:bg-white/10 transition-all duration-300 shadow-inner">
-                            {exp.icon}
+                        <div className={`h-full p-0 backdrop-blur-md rounded-[15px] border border-white/5 flex flex-col overflow-hidden ${isReaderMode ? 'bg-white border-black/5 shadow-sm' : 'bg-[#212123]/90'}`}>
+                          {/* Experience Preview with reserved space */}
+                          <div className="aspect-video relative w-full overflow-hidden bg-black/20 shrink-0">
+                            {exp.screenshot ? (
+                              <Image
+                                src={exp.screenshot}
+                                alt={exp.company}
+                                fill
+                                className="object-cover group-hover:scale-105 transition-transform duration-700"
+                                sizes="(max-width: 768px) 100vw, 300px"
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center text-4xl bg-gradient-to-br from-blue-500/10 to-transparent">
+                                {exp.icon}
+                              </div>
+                            )}
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60" />
                           </div>
-                          <div>
-                            <h3 className={`text-lg font-bold group-hover:text-orange-400 transition-colors mb-1 ${isReaderMode ? 'text-black' : 'text-white'}`}>{exp.company}</h3>
-                            <p className="text-xs text-orange-400/80 font-medium mb-2">{exp.position}</p>
-                            <p className={`text-xs ${isReaderMode ? 'text-black/40' : 'text-white/40'}`}>{exp.period}</p>
-                            <p className={`text-xs ${isReaderMode ? 'text-black/30' : 'text-white/30'}`}>{exp.location}</p>
+
+                          <div className="p-6 flex flex-col items-center text-center">
+                            <div className="w-14 h-14 bg-white/5 rounded-2xl flex items-center justify-center text-3xl group-hover:scale-110 group-hover:bg-white/10 transition-all duration-300 shadow-inner mb-4">
+                              {exp.icon}
+                            </div>
+                            <div>
+                              <h3 className={`text-lg font-bold group-hover:text-orange-400 transition-colors mb-1 ${isReaderMode ? 'text-black' : 'text-white'}`}>{exp.company}</h3>
+                              <p className="text-xs text-orange-400/80 font-medium mb-2">{exp.position}</p>
+                              <p className={`text-xs ${isReaderMode ? 'text-black/40' : 'text-white/40'}`}>{exp.period}</p>
+                              <p className={`text-xs ${isReaderMode ? 'text-black/30' : 'text-white/30'}`}>{exp.location}</p>
+                            </div>
                           </div>
                         </div>
                       </button>
