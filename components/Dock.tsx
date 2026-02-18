@@ -77,7 +77,7 @@ const DockIcon = memo(({
       onClick={onClick}
       title={label}
       aria-label={`Abrir ${label}`}
-      className="relative cursor-pointer flex-shrink-0 group mx-1 outline-none"
+      className="relative cursor-pointer flex-shrink-0 group mx-1 outline-none w-[var(--dock-base)] h-[var(--dock-base)]"
     >
       {/* Icono */}
       <Image
@@ -107,6 +107,8 @@ DockIcon.displayName = 'DockIcon';
 const Dock: React.FC<DockProps> = ({ onLaunch, activeApp, minimizedApps, openApps }) => {
   const mouseX = useMotionValue(Infinity);
   const dockRef = useRef<HTMLDivElement>(null);
+
+  // Mantener tamaños de referencia para la lógica JS
   const [iconSize, setIconSize] = React.useState({ base: 80, max: 140 });
 
   useEffect(() => {
@@ -117,10 +119,7 @@ const Dock: React.FC<DockProps> = ({ onLaunch, activeApp, minimizedApps, openApp
         setIconSize({ base: 80, max: 140 });
       }
     };
-
-    // Initial check
     handleResize();
-
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
@@ -156,8 +155,10 @@ const Dock: React.FC<DockProps> = ({ onLaunch, activeApp, minimizedApps, openApp
   return (
     <div className="fixed bottom-2 left-1/2 -translate-x-1/2 z-[2000] dock-container">
       {/* Contenedor exterior para permitir overflow de iconos */}
-      <div className="relative">
-        {/* Fondo del dock con altura FIJA */}
+      <div
+        className="relative [--dock-base:56px] [--dock-max:96px] sm:[--dock-base:80px] sm:[--dock-max:140px]"
+      >
+        {/* Fondo del dock con altura vinculada a la variable CSS */}
         <motion.div
           ref={dockRef}
           onMouseMove={handleMouseMove}
@@ -165,11 +166,11 @@ const Dock: React.FC<DockProps> = ({ onLaunch, activeApp, minimizedApps, openApp
           style={{
             paddingLeft: paddingSpring,
             paddingRight: paddingSpring,
-            height: iconSize.base + 8
+            height: 'calc(var(--dock-base) + 8px)'
           }}
           className="absolute bottom-0 left-0 right-0 bg-white/20 backdrop-blur-2xl border border-white/30 rounded-2xl shadow-2xl pointer-events-auto transition-all duration-300"
         />
-        {/* Contenedor de iconos (pueden sobresalir del fondo) */}
+        {/* Contenedor de iconos */}
         <motion.div
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
