@@ -12,6 +12,7 @@ body {
   overflow: hidden;
   user-select: none;
   font-display: swap;
+  scrollbar-gutter: stable;
 }
 
 @layer utilities {

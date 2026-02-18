@@ -33,6 +33,7 @@ interface WindowProps {
   height?: string;
   integratedTitleBar?: boolean;
   headerActions?: React.ReactNode;
+  className?: string;
 }
 
 // ============================================================================
@@ -98,6 +99,7 @@ const Window: React.FC<WindowProps> = ({
   height = '500px',
   integratedTitleBar = false,
   headerActions,
+  className,
 }) => {
   const [isMobile, setIsMobile] = useState(false);
   const dragControls = useDragControls();
@@ -531,7 +533,8 @@ const Window: React.FC<WindowProps> = ({
             ? 'rounded-xl border border-white/10 shadow-none'
             : 'rounded-xl border border-white/10 shadow-[0_20px_50px_-10px_rgba(0,0,0,0.6)]',
           active && !isMaximized && !snapMode && 'ring-1 ring-white/20 shadow-[0_40px_100px_-20px_rgba(0,0,0,0.9)]',
-          !active && !isMaximized && !snapMode && 'opacity-95'
+          !active && !isMaximized && !snapMode && 'opacity-95',
+          className
         )}
       >
         {/* Resize Handles */}
