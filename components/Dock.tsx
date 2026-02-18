@@ -24,11 +24,11 @@ interface DockIconProps {
 }
 
 const DOCK_APPS: { id: AppId; iconSrc: string; label: string; initialPath?: string }[] = [
-  { id: 'finder', iconSrc: '/icons/finder.png', label: 'Finder', initialPath: 'desktop' },
-  { id: 'profile', iconSrc: '/icons/profile.png', label: 'Perfil' },
-  { id: 'browser', iconSrc: '/icons/safari.png', label: 'Safari' },
-  { id: 'notes', iconSrc: '/icons/notes.png', label: 'Notas' },
-  { id: 'terminal', iconSrc: '/icons/terminal.png', label: 'Terminal' },
+  { id: 'finder', iconSrc: '/icons/finder.avif', label: 'Finder', initialPath: 'desktop' },
+  { id: 'profile', iconSrc: '/icons/profile.avif', label: 'Perfil' },
+  { id: 'browser', iconSrc: '/icons/safari.avif', label: 'Safari' },
+  { id: 'notes', iconSrc: '/icons/notes.avif', label: 'Notas' },
+  { id: 'terminal', iconSrc: '/icons/terminal.avif', label: 'Terminal' },
 ];
 
 const DockIcon = memo(({
@@ -41,7 +41,7 @@ const DockIcon = memo(({
   baseSize,
   maxSize
 }: DockIconProps) => {
-  const ref = useRef<HTMLDivElement>(null);
+  const ref = useRef<HTMLButtonElement>(null);
 
   // Calcular distancia al cursor
   const distance = useTransform(mouseX, (val) => {
@@ -68,7 +68,7 @@ const DockIcon = memo(({
   });
 
   return (
-    <motion.div
+    <motion.button
       ref={ref}
       style={{
         width: sizeSpring,
@@ -76,7 +76,8 @@ const DockIcon = memo(({
       }}
       onClick={onClick}
       title={label}
-      className="relative cursor-pointer flex-shrink-0 group mx-1"
+      aria-label={`Abrir ${label}`}
+      className="relative cursor-pointer flex-shrink-0 group mx-1 outline-none"
     >
       {/* Icono */}
       <Image
@@ -97,7 +98,7 @@ const DockIcon = memo(({
       {isOpen && (
         <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-white rounded-full" />
       )}
-    </motion.div>
+    </motion.button>
   );
 });
 

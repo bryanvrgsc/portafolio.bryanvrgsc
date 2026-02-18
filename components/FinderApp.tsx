@@ -92,11 +92,11 @@ const FinderApp = React.memo(({ initialPath, onOpenFile }: FinderProps) => {
     } else if (currentFolder.id === 'applications') {
       // Mock applications
       filtered = [
-        { id: 'app-safari', name: 'Safari', type: 'app', parentId: 'applications', icon: '/icons/safari.png' },
-        { id: 'app-terminal', name: 'Terminal', type: 'app', parentId: 'applications', icon: '/icons/terminal.png' },
-        { id: 'app-finder', name: 'Finder', type: 'app', parentId: 'applications', icon: '/icons/finder.png' },
-        { id: 'app-notes', name: 'Notas', type: 'app', parentId: 'applications', icon: '/icons/notes.png' },
-        { id: 'app-profile', name: 'Perfil', type: 'app', parentId: 'applications', icon: '/icons/profile.png' },
+        { id: 'app-safari', name: 'Safari', type: 'app', parentId: 'applications', icon: '/icons/safari.avif' },
+        { id: 'app-terminal', name: 'Terminal', type: 'app', parentId: 'applications', icon: '/icons/terminal.avif' },
+        { id: 'app-finder', name: 'Finder', type: 'app', parentId: 'applications', icon: '/icons/finder.avif' },
+        { id: 'app-notes', name: 'Notas', type: 'app', parentId: 'applications', icon: '/icons/notes.avif' },
+        { id: 'app-profile', name: 'Perfil', type: 'app', parentId: 'applications', icon: '/icons/profile.avif' },
       ] as unknown as typeof fs;
     } else if (currentFolder.id === 'desktop') {
       // Desktop Folder: STRICTLY show files inside the 'desktop' folder
@@ -326,26 +326,26 @@ const FinderApp = React.memo(({ initialPath, onOpenFile }: FinderProps) => {
         className="h-12 flex items-center justify-between px-4 shrink-0 cursor-grab active:cursor-grabbing"
         onPointerDown={(e) => dragControls?.start(e)}
       >
-        <div className="flex items-center gap-20 ml-2">
-          <div className="flex gap-1 ml-16 transform scale-90">
-            <button onPointerDown={(e) => e.stopPropagation()} onClick={goBack} disabled={historyIndex === 0} className={`p-1 rounded transition-colors ${historyIndex === 0 ? 'text-white/20' : 'hover:bg-white/5 text-white/40 hover:text-white'}`}><ChevronLeft size={20} /></button>
-            <button onPointerDown={(e) => e.stopPropagation()} onClick={goForward} disabled={historyIndex === history.length - 1} className={`p-1 rounded transition-colors ${historyIndex === history.length - 1 ? 'text-white/20' : 'hover:bg-white/5 text-white/40 hover:text-white'}`}><ChevronRight size={20} /></button>
+        <div className="flex items-center gap-4 md:gap-20 ml-2">
+          <div className="flex gap-1 ml-0 md:ml-16 transform scale-90">
+            <button onPointerDown={(e) => e.stopPropagation()} onClick={goBack} disabled={historyIndex === 0} className={`p-1 rounded transition-colors ${historyIndex === 0 ? 'text-white/20' : 'hover:bg-white/5 text-white/40 hover:text-white'}`} aria-label="Retroceder"><ChevronLeft size={20} /></button>
+            <button onPointerDown={(e) => e.stopPropagation()} onClick={goForward} disabled={historyIndex === history.length - 1} className={`p-1 rounded transition-colors ${historyIndex === history.length - 1 ? 'text-white/20' : 'hover:bg-white/5 text-white/40 hover:text-white'}`} aria-label="Avanzar"><ChevronRight size={20} /></button>
           </div>
           <span className="text-[13px] font-bold text-white/90">{currentFolder.name}</span>
         </div>
 
         <div className="flex items-center gap-1.5 transform scale-95 origin-right mr-1" onPointerDown={(e) => e.stopPropagation()}>
-          <div className="flex items-center bg-white/[0.08] rounded-md px-2 py-1 gap-1 border border-white/5 hover:bg-white/[0.12] cursor-default transition-colors">
+          <div className="hidden sm:flex items-center bg-white/[0.08] rounded-md px-2 py-1 gap-1 border border-white/5 hover:bg-white/[0.12] cursor-default transition-colors" role="button" aria-label="Opciones de visualización cuadrícula">
             <LayoutGrid size={15} className="text-white/70" />
             <ChevronDown size={10} className="text-white/40" />
           </div>
-          <div className="flex items-center bg-white/[0.08] rounded-md px-2 py-1 gap-1 border border-white/5 hover:bg-white/[0.12] cursor-default transition-colors">
+          <div className="hidden sm:flex items-center bg-white/[0.08] rounded-md px-2 py-1 gap-1 border border-white/5 hover:bg-white/[0.12] cursor-default transition-colors" role="button" aria-label="Opciones de visualización lista">
             <List size={15} className="text-white/70" />
             <ChevronDown size={10} className="text-white/40" />
           </div>
-          <button className="p-2 hover:bg-white/[0.08] rounded text-white/70"><Share size={18} /></button>
-          <button className="p-2 hover:bg-white/[0.08] rounded text-white/70"><Tag size={18} /></button>
-          <button className="p-2 hover:bg-white/[0.08] rounded text-white/70"><MoreHorizontal size={18} /></button>
+          <button className="hidden md:block p-2 hover:bg-white/[0.08] rounded text-white/70" aria-label="Compartir"><Share size={18} /></button>
+          <button className="hidden md:block p-2 hover:bg-white/[0.08] rounded text-white/70" aria-label="Editar etiquetas"><Tag size={18} /></button>
+          <button className="p-2 hover:bg-white/[0.08] rounded text-white/70" aria-label="Más opciones"><MoreHorizontal size={18} /></button>
           <div className="relative ml-1 group/search">
             <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-white/30 group-focus-within/search:text-white/60 transition-colors" />
             <input
@@ -353,7 +353,8 @@ const FinderApp = React.memo(({ initialPath, onOpenFile }: FinderProps) => {
               placeholder="Buscar"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="bg-white/[0.05] border border-white/5 rounded-md py-1 pl-8 pr-2 text-[12px] outline-none focus:bg-white/[0.1] transition-all w-32 focus:w-48"
+              className="bg-white/[0.05] border border-white/5 rounded-md py-1 pl-8 pr-2 text-[12px] outline-none focus:bg-white/[0.1] transition-all w-24 sm:w-32 focus:w-48"
+              aria-label="Buscar archivos"
             />
           </div>
         </div>
@@ -366,6 +367,7 @@ const FinderApp = React.memo(({ initialPath, onOpenFile }: FinderProps) => {
           <button
             onClick={handleCreateFolder}
             className="absolute right-1 w-5 h-5 flex items-center justify-center rounded-md hover:bg-white/10 text-white/40 transition-colors"
+            aria-label="Nueva carpeta"
           >
             <Plus size={14} />
           </button>
@@ -374,7 +376,7 @@ const FinderApp = React.memo(({ initialPath, onOpenFile }: FinderProps) => {
 
       <div className="flex flex-1 overflow-hidden">
         {/* Sidebar */}
-        <div className="w-[220px] bg-white/[0.03] backdrop-blur-3xl border-r border-black/20 p-3 pt-4 flex flex-col gap-4 overflow-y-auto shrink-0 text-[13px]">
+        <div className="hidden md:flex w-[220px] bg-white/[0.03] backdrop-blur-3xl border-r border-black/20 p-3 pt-4 flex-col gap-4 overflow-y-auto shrink-0 text-[13px]">
           {sidebarSections.map((section, idx) => (
             <div key={idx} className="flex flex-col">
               {!section.hideTitle && (
@@ -416,14 +418,14 @@ const FinderApp = React.memo(({ initialPath, onOpenFile }: FinderProps) => {
           onContextMenu={(e) => handleContextMenu(e)}
         >
           {/* Grid Area */}
-          <div className="flex-1 p-8 pt-4 overflow-auto scrollbar-hide">
+          <div className="flex-1 p-4 md:p-8 pt-4 overflow-auto scrollbar-hide">
             {currentFiles.length === 0 ? (
               <div className="h-full flex flex-col items-center justify-center text-white/20 gap-4">
                 <Folder size={64} strokeWidth={1} />
                 <span className="text-sm font-medium">Esta carpeta está vacía</span>
               </div>
             ) : (
-              <div className="grid grid-cols-[repeat(auto-fill,minmax(110px,1fr))] gap-x-6 gap-y-10 content-start">
+              <div className="grid grid-cols-[repeat(auto-fill,minmax(80px,1fr))] md:grid-cols-[repeat(auto-fill,minmax(110px,1fr))] gap-x-4 md:gap-x-6 gap-y-6 md:gap-y-10 content-start">
                 {currentFiles.map((file) => (
                   <div
                     key={file.id}
@@ -451,18 +453,18 @@ const FinderApp = React.memo(({ initialPath, onOpenFile }: FinderProps) => {
                         <Image src={file.icon} alt={file.name} width={56} height={56} className="object-contain" draggable={false} />
                       ) : (
                         file.type === 'folder' ? <FolderIcon /> : (
-                            file.name.toLowerCase().endsWith('.pdf') ? (
-                                <div className="relative flex flex-col items-center justify-center scale-90">
-                                  <div className="w-10 h-12 bg-white rounded-sm shadow-sm border border-gray-200 relative overflow-hidden flex flex-col">
-                                    <div className="h-3 w-full bg-red-600 flex items-center justify-center">
-                                       <span className="text-[6px] text-white font-bold">PDF</span>
-                                    </div>
-                                    <div className="flex-1 flex items-center justify-center text-red-500 opacity-80">
-                                       <FileText size={16} />
-                                    </div>
-                                  </div>
+                          file.name.toLowerCase().endsWith('.pdf') ? (
+                            <div className="relative flex flex-col items-center justify-center scale-90">
+                              <div className="w-10 h-12 bg-white rounded-sm shadow-sm border border-gray-200 relative overflow-hidden flex flex-col">
+                                <div className="h-3 w-full bg-red-600 flex items-center justify-center">
+                                  <span className="text-[6px] text-white font-bold">PDF</span>
                                 </div>
-                              ) : <FileIcon />
+                                <div className="flex-1 flex items-center justify-center text-red-500 opacity-80">
+                                  <FileText size={16} />
+                                </div>
+                              </div>
+                            </div>
+                          ) : <FileIcon />
                         )
                       )}
                     </div>
@@ -482,11 +484,11 @@ const FinderApp = React.memo(({ initialPath, onOpenFile }: FinderProps) => {
 
           {/* Bottom Breadcrumbs */}
           <div className="h-7 border-t border-white/[0.08] flex items-center px-4 gap-2 text-[10px] text-white/40 bg-[#252528] shrink-0 font-medium overflow-hidden">
-            <div className="flex items-center gap-1.5 opacity-60 hover:opacity-100 transition-opacity cursor-default">
+            <div className="hidden sm:flex items-center gap-1.5 opacity-60 hover:opacity-100 transition-opacity cursor-default">
               <span className="text-[12px]">💾</span> Macintosh HD
             </div>
-            <span className="text-white/10 font-light">›</span>
-            <div className="flex items-center gap-1.5 opacity-60 hover:opacity-100 transition-opacity cursor-default">
+            <span className="hidden sm:inline text-white/10 font-light">›</span>
+            <div className="hidden sm:flex items-center gap-1.5 opacity-60 hover:opacity-100 transition-opacity cursor-default">
               <span className="text-[12px]">📂</span> Usuarios
             </div>
 
@@ -513,8 +515,8 @@ const FinderApp = React.memo(({ initialPath, onOpenFile }: FinderProps) => {
 
           {/* Status Bar */}
           <div className="h-9 border-t border-black/40 flex items-center justify-center px-4 relative bg-[#252528] shrink-0">
-            <span className="text-[11.5px] text-white/50 font-medium tracking-tight">{currentFiles.length} elementos, 34.49 GB disponible(s) en iCloud</span>
-            <div className="absolute right-5 flex items-center gap-4 group">
+            <span className="text-[11.5px] text-white/50 font-medium tracking-tight truncate px-2">{currentFiles.length} elementos, 34.49 GB disponible(s)</span>
+            <div className="hidden sm:flex absolute right-5 items-center gap-4 group">
               <div className="relative w-28 h-5 flex items-center">
                 <div className="absolute left-0 w-[4px] h-[1px] bg-white/20" />
                 <div className="w-full h-[1.5px] bg-[#1c1c1e] mx-2 relative overflow-hidden rounded-full border border-white/5 shadow-inner">

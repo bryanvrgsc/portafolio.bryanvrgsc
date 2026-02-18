@@ -10,7 +10,7 @@ A fully interactive portfolio website that simulates the macOS desktop
 experience in your browser. Built with **Next.js 16**, **React 19**,
 **Tailwind CSS**, and **Framer Motion**.
 
-![Project Screenshot](public/macbook_pro.png)
+![Project Screenshot](public/macbook_pro.avif)
 
 ## 🚀 Overview
 

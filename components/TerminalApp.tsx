@@ -89,13 +89,13 @@ const TerminalApp = React.memo(({ onOpenFile, onOpenFolder }: TerminalAppProps) 
     const path: string[] = [];
     let currId = id;
     while (currId) {
-        const folder = fs.find(f => f.id === currId);
-        if (folder) {
-            path.unshift(folder.name);
-            currId = folder.parentId as string;
-        } else {
-            break;
-        }
+      const folder = fs.find(f => f.id === currId);
+      if (folder) {
+        path.unshift(folder.name);
+        currId = folder.parentId as string;
+      } else {
+        break;
+      }
     }
     return '/Users/bryanvargas/' + path.join('/');
   };
@@ -163,18 +163,18 @@ const TerminalApp = React.memo(({ onOpenFile, onOpenFolder }: TerminalAppProps) 
       case 'open':
         const fileTarget = args[1];
         if (!fileTarget) {
-            response = 'Usage: open [filename]';
+          response = 'Usage: open [filename]';
         } else {
-            const file = fs.find(f => f.parentId === cwdId && f.name.toLowerCase() === fileTarget.toLowerCase());
-            if (file) {
-                if (file.type === 'folder') {
-                    onOpenFolder?.(file.id);
-                } else {
-                    onOpenFile?.(file);
-                }
+          const file = fs.find(f => f.parentId === cwdId && f.name.toLowerCase() === fileTarget.toLowerCase());
+          if (file) {
+            if (file.type === 'folder') {
+              onOpenFolder?.(file.id);
             } else {
-                response = `open: ${fileTarget}: No such file or directory`;
+              onOpenFile?.(file);
             }
+          } else {
+            response = `open: ${fileTarget}: No such file or directory`;
+          }
         }
         break;
       case 'pwd':
@@ -197,9 +197,9 @@ const TerminalApp = React.memo(({ onOpenFile, onOpenFolder }: TerminalAppProps) 
         response = `zsh: command not found: ${cmd}`;
     }
 
-    setHistory(prev => [...prev, 
-      { type: 'input', content: trimmedInput, timestamp: currentTime, path: currentPath },
-      ...(response !== '' ? [{ type: 'output', content: response } as TerminalLine] : [])
+    setHistory(prev => [...prev,
+    { type: 'input', content: trimmedInput, timestamp: currentTime, path: currentPath },
+    ...(response !== '' ? [{ type: 'output', content: response } as TerminalLine] : [])
     ]);
     setInput('');
   };
@@ -208,17 +208,17 @@ const TerminalApp = React.memo(({ onOpenFile, onOpenFolder }: TerminalAppProps) 
     if (e.key === 'ArrowUp') {
       e.preventDefault();
       if (cmdHistory.length === 0) return;
-      
+
       const newPointer = Math.min(historyPointer + 1, cmdHistory.length - 1);
       setHistoryPointer(newPointer);
       setInput(cmdHistory[cmdHistory.length - 1 - newPointer]);
     } else if (e.key === 'ArrowDown') {
       e.preventDefault();
       if (historyPointer === -1) return;
-      
+
       const newPointer = Math.max(historyPointer - 1, -1);
       setHistoryPointer(newPointer);
-      
+
       if (newPointer === -1) {
         setInput('');
       } else {
@@ -228,12 +228,12 @@ const TerminalApp = React.memo(({ onOpenFile, onOpenFolder }: TerminalAppProps) 
       e.preventDefault();
       const tokens = input.split(' ');
       const lastToken = tokens[tokens.length - 1];
-      
+
       if (!lastToken) return;
 
       // Determine context (commands or files)
       let candidates: string[] = [];
-      
+
       if (tokens.length === 1) {
         // Commands
         const commands = ['help', 'ls', 'cd', 'pwd', 'whoami', 'date', 'clear', 'uname'];
@@ -259,20 +259,20 @@ const TerminalApp = React.memo(({ onOpenFile, onOpenFolder }: TerminalAppProps) 
         // Simplified: Just match the first one to avoid complexity
         // Better: List them?
         // Let's implement simple first-match completion for now
-         tokens[tokens.length - 1] = matches[0];
-         setInput(tokens.join(' '));
+        tokens[tokens.length - 1] = matches[0];
+        setInput(tokens.join(' '));
       }
     } else if (e.ctrlKey && e.key === 'c') {
-       e.preventDefault();
-       // Cancel current command
-       const currentTime = getTime();
-       const currentPath = getPathString(cwdId);
-       setHistory(prev => [...prev, { type: 'input', content: input + '^C', timestamp: currentTime, path: currentPath }]);
-       setInput('');
-       setHistoryPointer(-1);
+      e.preventDefault();
+      // Cancel current command
+      const currentTime = getTime();
+      const currentPath = getPathString(cwdId);
+      setHistory(prev => [...prev, { type: 'input', content: input + '^C', timestamp: currentTime, path: currentPath }]);
+      setInput('');
+      setHistoryPointer(-1);
     } else if (e.ctrlKey && e.key === 'l') {
-        e.preventDefault();
-        setHistory([]);
+      e.preventDefault();
+      setHistory([]);
     }
   };
 
@@ -284,32 +284,33 @@ const TerminalApp = React.memo(({ onOpenFile, onOpenFolder }: TerminalAppProps) 
     >
       {history.map((line, i) => (
         <div key={i} className="min-h-[1.5em] w-full mb-1">
-            {line.type === 'input' ? (
-                <div className="flex items-center w-full gap-3">
-                    <LeftPrompt path={line.path || '~'} />
-                    <span className="break-all">{line.content as string}</span>
-                    <div className="flex-1" />
-                    <RightPrompt timestamp={line.timestamp} />
-                </div>
-            ) : (
-                <div className="whitespace-pre-wrap break-words">{line.content}</div>
-            )}
+          {line.type === 'input' ? (
+            <div className="flex items-center w-full gap-3">
+              <LeftPrompt path={line.path || '~'} />
+              <span className="break-all">{line.content as string}</span>
+              <div className="flex-1" />
+              <RightPrompt timestamp={line.timestamp} />
+            </div>
+          ) : (
+            <div className="whitespace-pre-wrap break-words">{line.content}</div>
+          )}
         </div>
       ))}
       <div className="flex items-center w-full gap-3 mt-1">
         <LeftPrompt path={getPathString(cwdId)} />
         <div className="flex-1 relative">
-            <form onSubmit={handleCommand} className="flex">
-                <input
-                    id="term-input"
-                    autoFocus
-                    autoComplete="off"
-                    className="bg-transparent border-none outline-none text-white w-full min-w-[10px] caret-white"
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                />
-            </form>
+          <form onSubmit={handleCommand} className="flex">
+            <input
+              id="term-input"
+              autoFocus
+              autoComplete="off"
+              className="bg-transparent border-none outline-none text-white w-full min-w-[10px] caret-white"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              aria-label="Entrada de terminal"
+            />
+          </form>
         </div>
         <RightPrompt />
       </div>

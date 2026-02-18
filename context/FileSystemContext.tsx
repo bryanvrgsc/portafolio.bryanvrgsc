@@ -47,7 +47,7 @@ const getInitialFiles = (): VFile[] => [
   { id: 'doc2', name: 'Notas.txt', type: 'file', parentId: 'documents' },
 
   // Files in Imágenes
-  { id: 'img1', name: 'Wallpaper.png', type: 'file', parentId: 'images' },
+  { id: 'img1', name: 'Wallpaper.avif', type: 'file', parentId: 'images' },
 ];
 
 const safeLocalStorage = {

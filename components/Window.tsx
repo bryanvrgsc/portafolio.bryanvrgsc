@@ -99,6 +99,7 @@ const Window: React.FC<WindowProps> = ({
   integratedTitleBar = false,
   headerActions,
 }) => {
+  const [isMobile, setIsMobile] = useState(false);
   const dragControls = useDragControls();
   const windowRef = useRef<HTMLDivElement>(null);
 
@@ -143,6 +144,13 @@ const Window: React.FC<WindowProps> = ({
   // ============================================================================
   // Browser Resize Handler
   // ============================================================================
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   useEffect(() => {
     const handleWindowResize = () => {
@@ -553,6 +561,7 @@ const Window: React.FC<WindowProps> = ({
                 e.stopPropagation();
                 onClose();
               }}
+              aria-label="Cerrar"
               className="w-3 h-3 rounded-full bg-[#ff5f57] flex items-center justify-center text-black/50 hover:text-black transition-colors"
             >
               <X size={8} className="opacity-0 group-hover:opacity-100" />
@@ -563,6 +572,7 @@ const Window: React.FC<WindowProps> = ({
                 e.stopPropagation();
                 onMinimize();
               }}
+              aria-label="Minimizar"
               className="w-3 h-3 rounded-full bg-[#febc2e] flex items-center justify-center text-black/50 hover:text-black transition-colors"
             >
               <Minus size={8} className="opacity-0 group-hover:opacity-100" />
@@ -580,6 +590,7 @@ const Window: React.FC<WindowProps> = ({
                 }
               }}
               disabled={!isResizable}
+              aria-label="Maximizar"
               className={cn(
                 'w-3 h-3 rounded-full flex items-center justify-center text-black/50 transition-colors',
                 isResizable ? 'bg-[#28c840] hover:text-black' : 'bg-white/10 cursor-default'

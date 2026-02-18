@@ -142,38 +142,38 @@ const ProfileApp = React.memo(() => {
   const [activeTab, setActiveTab] = useState<'info' | 'experience' | 'projects'>('info');
 
   return (
-    <div className="flex h-full text-white overflow-hidden">
+    <div className="flex flex-col md:flex-row h-full text-white overflow-hidden">
       {/* Sidebar */}
-      <div className="w-48 bg-black/20 backdrop-blur-md border-r border-white/5 p-4 flex flex-col gap-2">
-        <div className="text-[11px] font-bold text-white/30 px-2 mb-2 uppercase tracking-wider">Navegación</div>
-        <button onClick={() => setActiveTab('info')} className={`px-3 py-1.5 rounded-md text-sm font-medium text-left transition-colors ${activeTab === 'info' ? 'bg-blue-500' : 'hover:bg-white/5 text-white/60'}`}>Información</button>
-        <button onClick={() => setActiveTab('experience')} className={`px-3 py-1.5 rounded-md text-sm font-medium text-left transition-colors ${activeTab === 'experience' ? 'bg-blue-500' : 'hover:bg-white/5 text-white/60'}`}>Experiencia</button>
-        <button onClick={() => setActiveTab('projects')} className={`px-3 py-1.5 rounded-md text-sm font-medium text-left transition-colors ${activeTab === 'projects' ? 'bg-blue-500' : 'hover:bg-white/5 text-white/60'}`}>Proyectos</button>
+      <div className="w-full md:w-48 bg-black/20 backdrop-blur-md border-b md:border-b-0 md:border-r border-white/5 p-4 flex flex-row md:flex-col gap-2 overflow-x-auto no-scrollbar">
+        <div className="hidden md:block text-[11px] font-bold text-white/30 px-2 mb-2 uppercase tracking-wider">Navegación</div>
+        <button onClick={() => setActiveTab('info')} className={`px-3 py-1.5 rounded-md text-sm font-medium text-left transition-colors whitespace-nowrap ${activeTab === 'info' ? 'bg-blue-500' : 'hover:bg-white/5 text-white/60'}`}>Información</button>
+        <button onClick={() => setActiveTab('experience')} className={`px-3 py-1.5 rounded-md text-sm font-medium text-left transition-colors whitespace-nowrap ${activeTab === 'experience' ? 'bg-blue-500' : 'hover:bg-white/5 text-white/60'}`}>Experiencia</button>
+        <button onClick={() => setActiveTab('projects')} className={`px-3 py-1.5 rounded-md text-sm font-medium text-left transition-colors whitespace-nowrap ${activeTab === 'projects' ? 'bg-blue-500' : 'hover:bg-white/5 text-white/60'}`}>Proyectos</button>
 
-        <div className="mt-8 text-[11px] font-bold text-white/30 px-2 mb-2 uppercase tracking-wider">Social</div>
-        <a href="https://github.com/bryanvrgsc" target="_blank" rel="noopener noreferrer" className="px-3 py-1.5 hover:bg-white/5 rounded-md text-sm font-medium text-white/60 transition-colors cursor-pointer flex items-center gap-2">
+        <div className="hidden md:block mt-8 text-[11px] font-bold text-white/30 px-2 mb-2 uppercase tracking-wider">Social</div>
+        <a href="https://github.com/bryanvrgsc" target="_blank" rel="noopener noreferrer" className="px-3 py-1.5 hover:bg-white/5 rounded-md text-sm font-medium text-white/60 transition-colors cursor-pointer flex items-center gap-2 whitespace-nowrap">
           <span>GitHub</span>
         </a>
-        <a href="https://linkedin.com/in/bryanvrgsc" target="_blank" rel="noopener noreferrer" className="px-3 py-1.5 hover:bg-white/5 rounded-md text-sm font-medium text-white/60 transition-colors cursor-pointer flex items-center gap-2">
+        <a href="https://linkedin.com/in/bryanvrgsc" target="_blank" rel="noopener noreferrer" className="px-3 py-1.5 hover:bg-white/5 rounded-md text-sm font-medium text-white/60 transition-colors cursor-pointer flex items-center gap-2 whitespace-nowrap">
           <span>LinkedIn</span>
         </a>
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 overflow-auto p-10 bg-gradient-to-b from-transparent to-black/20">
+      <div className="flex-1 overflow-auto p-4 md:p-10 bg-gradient-to-b from-transparent to-black/20">
         <div className="max-w-3xl mx-auto">
           {/* Header - Always visible */}
-          <div className="flex items-center gap-8 mb-12">
+          <div className="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-6 md:gap-8 mb-8 md:mb-12">
             <div className="relative group">
-              <div className="w-32 h-32 rounded-3xl bg-gradient-to-br from-orange-500 via-red-500 to-pink-500 flex items-center justify-center text-5xl font-black shadow-2xl ring-4 ring-white/10 group-hover:scale-105 transition-transform duration-500">
+              <div className="w-24 h-24 md:w-32 md:h-32 rounded-3xl bg-gradient-to-br from-orange-500 via-red-500 to-pink-500 flex items-center justify-center text-4xl md:text-5xl font-black shadow-2xl ring-4 ring-white/10 group-hover:scale-105 transition-transform duration-500">
                 BV
               </div>
-              <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-green-500 rounded-full border-4 border-[#1c1c1e] shadow-lg"></div>
+              <div className="absolute -bottom-1 -right-1 md:-bottom-2 md:-right-2 w-6 h-6 md:w-8 md:h-8 bg-green-500 rounded-full border-4 border-[#1c1c1e] shadow-lg"></div>
             </div>
             <div>
-              <h1 className="text-4xl font-extrabold tracking-tight mb-1">Bryan Alan Vargas Chávez</h1>
-              <p className="text-orange-400 text-lg font-medium">Software Engineer | Full Stack (iOS/Web) & Data Analyst</p>
-              <div className="flex items-center gap-3 mt-4 flex-wrap">
+              <h1 className="text-2xl md:text-4xl font-extrabold tracking-tight mb-1">Bryan Alan Vargas Chávez</h1>
+              <p className="text-orange-400 text-base md:text-lg font-medium">Software Engineer | Full Stack (iOS/Web) & Data Analyst</p>
+              <div className="flex items-center justify-center sm:justify-start gap-2 md:gap-3 mt-4 flex-wrap">
                 <div className="px-3 py-1 bg-white/5 border border-white/10 rounded-full text-xs text-white/40">📍 Cuautitlán Izcalli & Huixquilucan, MX</div>
                 <div className="px-3 py-1 bg-white/5 border border-white/10 rounded-full text-xs text-white/40">🌐 Open to Remote</div>
                 <div className="px-3 py-1 bg-green-500/20 border border-green-500/30 rounded-full text-xs text-green-400">💼 Disponible</div>
@@ -215,7 +215,7 @@ const ProfileApp = React.memo(() => {
 
               <section>
                 <h2 className="text-sm font-bold text-white/30 uppercase tracking-widest mb-4">Stack Tecnológico</h2>
-                <div className="grid grid-cols-2 gap-x-12 gap-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-6">
                   <div>
                     <div className="text-xs font-bold text-white/60 mb-2">Mobile (iOS)</div>
                     <div className="flex flex-wrap gap-2">
@@ -253,7 +253,7 @@ const ProfileApp = React.memo(() => {
 
               <section>
                 <h2 className="text-sm font-bold text-white/30 uppercase tracking-widest mb-4">Idiomas</h2>
-                <div className="flex gap-4">
+                <div className="flex flex-wrap gap-4">
                   <div className="bg-white/5 border border-white/10 rounded-lg px-4 py-2">
                     <span className="text-white font-medium">Español</span>
                     <span className="text-white/40 text-sm ml-2">Nativo</span>
@@ -282,20 +282,20 @@ const ProfileApp = React.memo(() => {
           )}
 
           {activeTab === 'experience' && (
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.3 }}
               className="relative pb-10"
             >
               <h2 className="text-2xl font-bold mb-8 pl-2">Experiencia Profesional</h2>
-              
+
               {/* Vertical Timeline Line */}
               <div className="absolute left-6 top-[70px] bottom-0 w-px bg-gradient-to-b from-white/20 via-white/10 to-transparent" />
 
               <div className="space-y-8">
                 {experiences.map((exp, index) => (
-                  <motion.div 
+                  <motion.div
                     key={exp.company}
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
@@ -311,7 +311,7 @@ const ProfileApp = React.memo(() => {
                     <div className="flex-1 p-5 bg-white/5 border border-white/10 rounded-xl hover:bg-white/[0.07] hover:border-white/20 transition-all duration-300 relative">
                       {/* Triangle Pointer */}
                       <div className="absolute top-6 -left-2 w-4 h-4 bg-white/5 border-l border-t border-white/10 transform -rotate-45 group-hover:bg-white/[0.07] group-hover:border-white/20 transition-colors rounded-tl-sm" />
-                      
+
                       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-3 gap-2">
                         <div>
                           <h3 className="text-lg font-bold text-white group-hover:text-orange-400 transition-colors">{exp.position}</h3>
@@ -328,7 +328,7 @@ const ProfileApp = React.memo(() => {
                           </p>
                         </div>
                       </div>
-                      
+
                       <ul className="space-y-2 mt-4">
                         {exp.highlights.map((h, i) => (
                           <li key={i} className="text-sm text-white/70 flex items-start gap-2 leading-relaxed">

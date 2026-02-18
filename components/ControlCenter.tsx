@@ -52,6 +52,7 @@ const ControlCenter = () => {
               value={brightness}
               onChange={(e) => setBrightness(parseInt(e.target.value))}
               className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+              aria-label="Brillo de pantalla"
             />
             <div
               className="h-full bg-white/40 transition-all duration-75"
@@ -70,6 +71,7 @@ const ControlCenter = () => {
               value={volume}
               onChange={(e) => setVolume(parseInt(e.target.value))}
               className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+              aria-label="Volumen del sistema"
             />
             <div
               className="h-full bg-white/40 transition-all duration-75"

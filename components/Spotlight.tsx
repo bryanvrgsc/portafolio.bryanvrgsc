@@ -14,12 +14,12 @@ interface SpotlightApp {
 }
 
 const SPOTLIGHT_APPS: SpotlightApp[] = [
-    { id: 'finder', iconSrc: '/icons/finder.png', label: 'Finder', keywords: ['archivos', 'files', 'carpetas', 'folders'] },
-    { id: 'profile', iconSrc: '/icons/profile.png', label: 'Perfil', keywords: ['about', 'cv', 'resume', 'información', 'contacto'] },
-    { id: 'browser', iconSrc: '/icons/safari.png', label: 'Safari', keywords: ['web', 'internet', 'navegador', 'browser'] },
-    { id: 'notes', iconSrc: '/icons/notes.png', label: 'Notas', keywords: ['notes', 'portafolio', 'bienvenido', 'welcome'] },
-    { id: 'terminal', iconSrc: '/icons/terminal.png', label: 'Terminal', keywords: ['console', 'shell', 'command', 'bash', 'zsh'] },
-    { id: 'about', iconSrc: '/icons/profile.png', label: 'Acerca de este Mac', keywords: ['system', 'info', 'mac', 'apple'] },
+    { id: 'finder', iconSrc: '/icons/finder.avif', label: 'Finder', keywords: ['archivos', 'files', 'carpetas', 'folders'] },
+    { id: 'profile', iconSrc: '/icons/profile.avif', label: 'Perfil', keywords: ['about', 'cv', 'resume', 'información', 'contacto'] },
+    { id: 'browser', iconSrc: '/icons/safari.avif', label: 'Safari', keywords: ['web', 'internet', 'navegador', 'browser'] },
+    { id: 'notes', iconSrc: '/icons/notes.avif', label: 'Notas', keywords: ['notes', 'portafolio', 'bienvenido', 'welcome'] },
+    { id: 'terminal', iconSrc: '/icons/terminal.avif', label: 'Terminal', keywords: ['console', 'shell', 'command', 'bash', 'zsh'] },
+    { id: 'about', iconSrc: '/icons/profile.avif', label: 'Acerca de este Mac', keywords: ['system', 'info', 'mac', 'apple'] },
 ];
 
 interface SpotlightProps {
@@ -105,6 +105,7 @@ const Spotlight: React.FC<SpotlightProps> = memo(({ isOpen, onClose, onLaunchApp
                         autoComplete="off"
                         autoCorrect="off"
                         spellCheck={false}
+                        aria-label="Búsqueda en Spotlight"
                     />
                 </div>
 

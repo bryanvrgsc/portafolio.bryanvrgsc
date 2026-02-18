@@ -41,7 +41,7 @@ const projects: Project[] = [
     description: "Arquitectura de software completa diseñada desde cero para gestión de gimnasios",
     icon: "💪",
     canEmbed: false,
-    screenshot: "/screenshots/gymapp.png",
+    screenshot: "/screenshots/gymapp.avif",
     highlights: ["iOS (SwiftUI, MVVM)", "Combine + Swift Concurrency", "Firebase/Auth0 Backend"]
   },
   {
@@ -50,7 +50,7 @@ const projects: Project[] = [
     description: "Solución de automatización para gestión de identidad compartida",
     icon: "🤖",
     canEmbed: false,
-    screenshot: "/screenshots/netflix.png",
+    screenshot: "/screenshots/netflix.avif",
     highlights: ["Node.js + Puppeteer", "IMAP/WhatsApp Integration", "WebSockets Real-time"]
   },
   {
@@ -59,7 +59,7 @@ const projects: Project[] = [
     description: "Sitio web corporativo de alto rendimiento para servicios de climatización",
     icon: "❄️",
     canEmbed: false,
-    screenshot: "/screenshots/refrigeracion.png",
+    screenshot: "/screenshots/refrigeracion.avif",
     highlights: ["Astro 5.0 + Tailwind 4.0", "SSG Optimizado", "UI/UX Moderna"]
   },
   {
@@ -68,7 +68,7 @@ const projects: Project[] = [
     description: "Landing page de marca personal de alto rendimiento y seguridad",
     icon: "🚀",
     canEmbed: false,
-    screenshot: "/screenshots/freelance.png",
+    screenshot: "/screenshots/freelance.avif",
     highlights: ["Cloudflare Pages + Astro", "CSP, HSTS Security", "Formspree + reCAPTCHA"]
   }
 ];
@@ -94,7 +94,7 @@ const experiences: Experience[] = [
     icon: "💻",
     url: "https://bryanvrgsc.vercel.app/",
     canEmbed: false,
-    screenshot: "/screenshots/freelance.png",
+    screenshot: "/screenshots/freelance.avif",
     highlights: [
       "Desarrollo de arquitecturas iOS (SwiftUI) y web de alto rendimiento",
       "Ingeniería de plataforma de gestión de gimnasios con backend Serverless",
@@ -124,7 +124,7 @@ const experiences: Experience[] = [
     icon: "🎓",
     url: "https://www.anahuac.mx/mexico/",
     canEmbed: false,
-    screenshot: "/screenshots/anahuac.png",
+    screenshot: "/screenshots/anahuac.avif",
     highlights: [
       "Traducción técnica y académica por más de 4 años",
       "Gestión de plazos estrictos en entorno académico de alto nivel"
@@ -152,7 +152,7 @@ const experiences: Experience[] = [
     icon: "💜",
     url: "https://acompana.org/",
     canEmbed: false,
-    screenshot: "/screenshots/acompana.png",
+    screenshot: "/screenshots/acompana.avif",
     highlights: [
       "Diseño de Data Warehouse consolidando 5 fuentes de datos",
       "Desarrollo de pipelines ETL para limpieza y transformación",
@@ -551,6 +551,7 @@ const BrowserApp = React.memo(() => {
             <button
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
               className={`p-1 px-1.5 hover:bg-white/10 rounded-md transition-colors flex items-center gap-0.5 ${isSidebarOpen ? 'bg-white/20 text-white' : 'text-white/70 hover:text-white'}`}
+              aria-label="Alternar barra lateral"
             >
               <PanelLeft size={16} />
               <ChevronDown size={10} className="mt-0.5" />
@@ -567,6 +568,7 @@ const BrowserApp = React.memo(() => {
             onClick={handleBack}
             disabled={activeTab.historyIndex === 0}
             className={`p-1 px-2 rounded-l-md transition-all ${activeTab.historyIndex > 0 ? 'text-white/70 hover:text-white hover:bg-white/10' : 'text-white/10'}`}
+            aria-label="Retroceder"
           >
             <ChevronLeft size={16} />
           </button>
@@ -575,6 +577,7 @@ const BrowserApp = React.memo(() => {
             onClick={handleForward}
             disabled={activeTab.historyIndex >= activeTab.history.length - 1}
             className={`p-1 px-2 rounded-r-md transition-all ${activeTab.historyIndex < activeTab.history.length - 1 ? 'text-white/70 hover:text-white hover:bg-white/10' : 'text-white/10'}`}
+            aria-label="Avanzar"
           >
             <ChevronRight size={16} />
           </button>
@@ -583,30 +586,33 @@ const BrowserApp = React.memo(() => {
         {/* Quick Actions Pill */}
         <div
           onPointerDown={(e) => e.stopPropagation()}
-          className="flex bg-white/10 rounded-lg p-0.5 border border-white/5 items-center gap-0.5"
+          className="hidden sm:flex bg-white/10 rounded-lg p-0.5 border border-white/5 items-center gap-0.5"
         >
           <button
             onClick={() => navigateTo("", false)}
             className="p-1 px-1.5 hover:bg-white/10 rounded-md transition-colors text-white/70 hover:text-white"
+            aria-label="Inicio"
           >
             <Home size={16} />
           </button>
           <button
             onClick={() => alert("Informe de privacidad: No se han detectado rastreadores.")}
-            className="p-1 px-1.5 hover:bg-white/10 rounded-md transition-colors text-white/70 hover:text-white"
+            className="hidden md:block p-1 px-1.5 hover:bg-white/10 rounded-md transition-colors text-white/70 hover:text-white"
+            aria-label="Informe de privacidad"
           >
             <Shield size={16} />
           </button>
           <button
             onClick={() => { navigateTo("", false); }}
             className="p-1 px-1.5 hover:bg-white/10 rounded-md transition-colors text-white/70 hover:text-white"
+            aria-label="Cuadrícula de sitios"
           >
             <LayoutGrid size={16} />
           </button>
         </div>
 
         {/* Center: Search Bar Pill */}
-        <div className="flex-1 flex justify-center min-w-[300px] px-2">
+        <div className="flex-1 flex justify-center min-w-0 sm:min-w-[300px] px-2">
           <form onSubmit={handleSearch} className="w-full">
             <div
               onPointerDown={(e) => e.stopPropagation()}
@@ -615,7 +621,7 @@ const BrowserApp = React.memo(() => {
               <AlignLeft
                 size={16}
                 onClick={() => setIsReaderMode(!isReaderMode)}
-                className={`cursor-pointer transition-colors ${isReaderMode ? 'text-orange-400' : 'text-white/40 hover:text-white/70'}`}
+                className={`hidden sm:block cursor-pointer transition-colors ${isReaderMode ? 'text-orange-400' : 'text-white/40 hover:text-white/70'}`}
               />
               <div className="flex-1 flex items-center justify-center gap-1.5">
                 <span className="text-white/30 text-[10px] mt-0.5">🔒</span>
@@ -625,14 +631,16 @@ const BrowserApp = React.memo(() => {
                   onChange={(e) => setInputValue(e.target.value)}
                   className="bg-transparent border-none outline-none w-full max-w-[200px] text-white/80 font-normal placeholder:text-white/30 text-center"
                   placeholder="Busca o introduce un sitio web"
+                  aria-label="Barra de direcciones"
                 />
               </div>
               <div className="flex items-center gap-2">
-                <Languages size={14} className="text-white/40 hover:text-white cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity" />
+                <Languages size={14} className="hidden md:block text-white/40 hover:text-white cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity" />
                 <RotateCw
                   size={14}
                   className="text-white/40 hover:text-white cursor-pointer"
                   onClick={() => updateActiveTab({ iframeSrc: activeTab.iframeSrc })}
+                  aria-label="Recargar página"
                 />
               </div>
             </div>
@@ -642,14 +650,15 @@ const BrowserApp = React.memo(() => {
         {/* User/Extensions Pill */}
         <div
           onPointerDown={(e) => e.stopPropagation()}
-          className="flex bg-white/10 rounded-lg p-0.5 border border-white/5 items-center gap-0.5"
+          className="hidden sm:flex bg-white/10 rounded-lg p-0.5 border border-white/5 items-center gap-0.5"
         >
-          <button className="p-1 px-1.5 hover:bg-white/10 rounded-md transition-colors text-white/70 hover:text-white">
+          <button className="hidden md:block p-1 px-1.5 hover:bg-white/10 rounded-md transition-colors text-white/70 hover:text-white">
             <Puzzle size={16} />
           </button>
           <button
             onClick={() => navigateTo("bryanvrgsc.dev/profile", false, true, "Perfil", undefined, "👤")}
             className={`p-1 px-1.5 hover:bg-white/10 rounded-md transition-colors ${activeTab.view === 'profile' ? 'bg-white/20 text-white' : 'text-white/70 hover:text-white'}`}
+            aria-label="Ir al perfil"
           >
             <User size={16} />
           </button>
@@ -658,10 +667,10 @@ const BrowserApp = React.memo(() => {
         {/* Typography Pill */}
         <div
           onPointerDown={(e) => e.stopPropagation()}
-          className="flex bg-white/10 rounded-lg p-0.5 border border-white/5 items-center px-1.5 gap-2"
+          className="hidden md:flex bg-white/10 rounded-lg p-0.5 border border-white/5 items-center px-1.5 gap-2"
         >
-          <button onClick={() => setFontSize(Math.max(80, fontSize - 10))} className="text-[10px] font-bold text-white/60 hover:text-white transition-colors">A</button>
-          <button onClick={() => setFontSize(Math.min(150, fontSize + 10))} className="text-[13px] font-bold text-white/80 hover:text-white transition-colors">A</button>
+          <button onClick={() => setFontSize(Math.max(80, fontSize - 10))} className="text-[10px] font-bold text-white/60 hover:text-white transition-colors" aria-label="Reducir tamaño de fuente">A</button>
+          <button onClick={() => setFontSize(Math.min(150, fontSize + 10))} className="text-[13px] font-bold text-white/80 hover:text-white transition-colors" aria-label="Aumentar tamaño de fuente">A</button>
         </div>
 
         {/* Share/Tabs Pill */}
@@ -671,19 +680,22 @@ const BrowserApp = React.memo(() => {
         >
           <button
             onClick={handleShare}
-            className="p-1 px-1.5 hover:bg-white/10 rounded-md transition-colors text-white/70 hover:text-white"
+            className="hidden sm:block p-1 px-1.5 hover:bg-white/10 rounded-md transition-colors text-white/70 hover:text-white"
+            aria-label="Compartir"
           >
             <Share size={16} />
           </button>
           <button
             onClick={createNewTab}
             className="p-1 px-1.5 hover:bg-white/10 rounded-md transition-colors text-white/70 hover:text-white"
+            aria-label="Nueva pestaña"
           >
             <Plus size={16} />
           </button>
           <button
             onClick={() => setShowTabOverview(!showTabOverview)}
             className={`p-1 px-1.5 rounded-md transition-colors flex items-center gap-0.5 ${showTabOverview ? 'bg-white/20 text-white' : 'text-white/70 hover:text-white hover:bg-white/10'}`}
+            aria-label="Vista de pestañas"
           >
             <Copy size={16} className="rotate-90 scale-x-[-1]" />
           </button>
@@ -898,26 +910,26 @@ const BrowserApp = React.memo(() => {
                   >🍎</motion.div>
                 </div>
 
-                <div className="relative z-20 flex h-full" onMouseMove={handleMouseMove}>
+                <div className="relative z-20 flex flex-col md:flex-row h-full" onMouseMove={handleMouseMove}>
                   {/* High-Fidelity Sidebar */}
-                  <div className="w-64 shrink-0 bg-[#0d1117]/80 backdrop-blur-xl border-r border-white/5 p-8 flex flex-col gap-10">
-                    <div className="space-y-6">
-                      <h3 className="text-[10px] font-bold uppercase tracking-[2px] text-white/30">Navegación</h3>
-                      <nav className="flex flex-col gap-2">
-                        <button className="flex items-center gap-3 px-4 py-3 rounded-xl bg-orange-500/10 border border-orange-500/30 text-white text-sm font-semibold shadow-[0_0_15px_rgba(249,115,22,0.2)] transition-all">
+                  <div className="w-full md:w-64 shrink-0 bg-[#0d1117]/80 backdrop-blur-xl border-b md:border-b-0 md:border-r border-white/5 p-4 md:p-8 flex flex-row md:flex-col gap-6 md:gap-10 overflow-x-auto no-scrollbar">
+                    <div className="flex md:flex-col gap-2 md:gap-6 min-w-max">
+                      <h3 className="hidden md:block text-[10px] font-bold uppercase tracking-[2px] text-white/30">Navegación</h3>
+                      <nav className="flex flex-row md:flex-col gap-2">
+                        <button className="flex items-center gap-3 px-4 py-2 md:py-3 rounded-xl bg-orange-500/10 border border-orange-500/30 text-white text-sm font-semibold shadow-[0_0_15px_rgba(249,115,22,0.2)] transition-all whitespace-nowrap">
                           <User size={16} className="text-orange-400" />
                           Información
                         </button>
                         <button
                           onClick={() => updateActiveTab({ view: 'experience', title: 'Experiencia', icon: '💻' })}
-                          className="flex items-center gap-3 px-4 py-3 rounded-xl text-white/40 text-sm font-medium hover:bg-white/5 hover:text-white transition-all"
+                          className="flex items-center gap-3 px-4 py-2 md:py-3 rounded-xl text-white/40 text-sm font-medium hover:bg-white/5 hover:text-white transition-all whitespace-nowrap"
                         >
                           <Briefcase size={16} />
                           Experiencia
                         </button>
                         <button
                           onClick={() => updateActiveTab({ view: 'projects', title: 'Proyectos', icon: '📂' })}
-                          className="flex items-center gap-3 px-4 py-3 rounded-xl text-white/40 text-sm font-medium hover:bg-white/5 hover:text-white transition-all"
+                          className="flex items-center gap-3 px-4 py-2 md:py-3 rounded-xl text-white/40 text-sm font-medium hover:bg-white/5 hover:text-white transition-all whitespace-nowrap"
                         >
                           <FolderCode size={16} />
                           Proyectos
@@ -925,14 +937,14 @@ const BrowserApp = React.memo(() => {
                       </nav>
                     </div>
 
-                    <div className="space-y-6">
-                      <h3 className="text-[10px] font-bold uppercase tracking-[2px] text-white/30">Social</h3>
-                      <nav className="flex flex-col gap-2">
+                    <div className="flex md:flex-col gap-2 md:gap-6 min-w-max">
+                      <h3 className="hidden md:block text-[10px] font-bold uppercase tracking-[2px] text-white/30">Social</h3>
+                      <nav className="flex flex-row md:flex-col gap-2">
                         {contactInfo.social.map(link => (
                           <button
                             key={link.name}
                             onClick={() => window.open(link.url, "_blank")}
-                            className="flex items-center gap-3 px-4 py-3 rounded-xl text-white/40 text-sm font-medium hover:bg-white/5 hover:text-white transition-all"
+                            className="flex items-center gap-3 px-4 py-2 md:py-3 rounded-xl text-white/40 text-sm font-medium hover:bg-white/5 hover:text-white transition-all whitespace-nowrap"
                           >
                             <span className="text-lg">{link.icon}</span>
                             {link.name}
@@ -943,18 +955,18 @@ const BrowserApp = React.memo(() => {
                   </div>
 
                   {/* Main Content Area */}
-                  <div className="flex-1 overflow-y-auto no-scrollbar p-12">
-                    <div className="max-w-4xl mx-auto space-y-12">
+                  <div className="flex-1 overflow-y-auto no-scrollbar p-6 md:p-12">
+                    <div className="max-w-4xl mx-auto space-y-8 md:space-y-12">
                       {/* Orange Neon Header Card */}
                       <motion.div
                         initial={{ y: 20, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
-                        className="relative group h-40"
+                        className="relative group h-auto md:h-40"
                       >
                         <div className="absolute inset-0 bg-orange-500/10 rounded-3xl blur-2xl group-hover:bg-orange-500/20 transition-all duration-500" />
-                        <div className="relative h-full bg-[#1a1c23]/80 backdrop-blur-xl rounded-3xl border border-white/10 p-8 flex items-center gap-8 shadow-[0_0_40px_rgba(249,115,22,0.1)]">
-                          <div className="w-20 h-20 bg-white rounded-2xl p-2 flex items-center justify-center shadow-inner overflow-hidden relative">
+                        <div className="relative h-full bg-[#1a1c23]/80 backdrop-blur-xl rounded-3xl border border-white/10 p-6 md:p-8 flex flex-col sm:flex-row items-center gap-6 md:gap-8 shadow-[0_0_40px_rgba(249,115,22,0.1)]">
+                          <div className="w-16 h-16 md:w-20 md:h-20 bg-white rounded-2xl p-2 flex items-center justify-center shadow-inner overflow-hidden relative shrink-0">
                             <Image
                               src={profileData.logo}
                               alt="Anahuac"
@@ -964,27 +976,27 @@ const BrowserApp = React.memo(() => {
                               unoptimized
                             />
                           </div>
-                          <div className="flex-1">
-                            <h1 className="text-2xl font-bold tracking-tight mb-2 leading-tight">
+                          <div className="flex-1 text-center sm:text-left">
+                            <h1 className="text-lg md:text-2xl font-bold tracking-tight mb-2 leading-tight">
                               <ScrambledText text={profileData.degree} delay={500} />
                             </h1>
-                            <div className="flex items-center gap-2 text-white/50 text-sm">
+                            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-2 text-white/50 text-[10px] md:text-sm">
                               <span><ScrambledText text={profileData.university} delay={1000} /></span>
-                              <span className="w-1 h-1 rounded-full bg-white/20" />
+                              <span className="hidden sm:block w-1 h-1 rounded-full bg-white/20" />
                               <span><ScrambledText text={profileData.location} delay={1500} /></span>
                             </div>
                           </div>
-                          <div className="text-right">
-                            <div className="text-orange-500 font-bold text-xl mb-1">{profileData.date}</div>
-                            <div className="text-white/30 text-[10px] uppercase font-bold tracking-wider">Cédula: {profileData.cedula}</div>
+                          <div className="text-center sm:text-right">
+                            <div className="text-orange-500 font-bold text-lg md:text-xl mb-1">{profileData.date}</div>
+                            <div className="text-white/30 text-[8px] md:text-[10px] uppercase font-bold tracking-wider">Cédula: {profileData.cedula}</div>
                           </div>
                         </div>
                       </motion.div>
 
                       {/* Categorized Tech Stack */}
-                      <div className="space-y-8">
+                      <div className="space-y-6 md:space-y-8">
                         <h2 className="text-[10px] font-bold uppercase tracking-[3px] text-white/30">Stack Tecnológico</h2>
-                        <div className="grid grid-cols-2 gap-x-12 gap-y-10">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-8 md:gap-y-10">
                           {techStack.map((category, idx) => (
                             <motion.div
                               key={category.category}
@@ -1020,7 +1032,7 @@ const BrowserApp = React.memo(() => {
                       </div>
 
                       {/* Idiomas & Contacto Bottom Sections */}
-                      <div className="grid grid-cols-2 gap-12 items-end pb-12">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-end pb-12">
                         <div className="space-y-6">
                           <h2 className="text-[10px] font-bold uppercase tracking-[3px] text-white/30">Idiomas</h2>
                           <div className="flex gap-4">
@@ -1038,22 +1050,22 @@ const BrowserApp = React.memo(() => {
 
                         <div className="space-y-6">
                           <h2 className="text-[10px] font-bold uppercase tracking-[3px] text-white/30">Contacto</h2>
-                          <div className="flex gap-4">
+                          <div className="flex flex-col sm:flex-row gap-4">
                             <motion.button
                               whileHover={{ scale: 1.02, backgroundColor: 'rgba(255,255,255,0.1)' }}
                               onClick={() => navigator.clipboard.writeText(contactInfo.email)}
-                              className="flex items-center gap-3 px-6 py-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md transition-all group"
+                              className="flex items-center gap-3 px-6 py-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md transition-all group w-full"
                             >
                               <div className="w-6 h-6 rounded bg-white/10 flex items-center justify-center text-xs group-hover:bg-orange-500 transition-colors">📧</div>
-                              <span className="text-sm font-medium text-white/60 group-hover:text-white transition-colors">{contactInfo.email}</span>
+                              <span className="text-xs md:text-sm font-medium text-white/60 group-hover:text-white transition-colors truncate">{contactInfo.email}</span>
                             </motion.button>
                             <motion.button
                               whileHover={{ scale: 1.02, backgroundColor: 'rgba(255,255,255,0.1)' }}
                               onClick={() => navigator.clipboard.writeText(contactInfo.phone)}
-                              className="flex items-center gap-3 px-6 py-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md transition-all group"
+                              className="flex items-center gap-3 px-6 py-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md transition-all group w-full"
                             >
                               <div className="w-6 h-6 rounded bg-white/10 flex items-center justify-center text-xs group-hover:bg-orange-500 transition-colors">📱</div>
-                              <span className="text-sm font-medium text-white/60 group-hover:text-white transition-colors">{contactInfo.phone}</span>
+                              <span className="text-xs md:text-sm font-medium text-white/60 group-hover:text-white transition-colors truncate">{contactInfo.phone}</span>
                             </motion.button>
                           </div>
                         </div>
@@ -1083,12 +1095,12 @@ const BrowserApp = React.memo(() => {
                     </button>
                   </div>
 
-                  <div className="mb-8">
-                    <h2 className={`text-4xl font-bold tracking-tight mb-2 ${isReaderMode ? 'text-black' : 'text-white'}`}>Proyectos</h2>
-                    <p className={isReaderMode ? 'text-black/60 text-lg' : 'text-white/40 text-lg'}>Haz clic en una tarjeta para visitar el repositorio.</p>
+                  <div className="mb-6 md:mb-8">
+                    <h2 className={`text-3xl md:text-4xl font-bold tracking-tight mb-2 ${isReaderMode ? 'text-black' : 'text-white'}`}>Proyectos</h2>
+                    <p className={isReaderMode ? 'text-black/60 text-base md:text-lg' : 'text-white/40 text-base md:text-lg'}>Haz clic en una tarjeta para visitar el repositorio.</p>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
                     {projects.map((project: Project) => (
                       <button
                         key={project.name}
@@ -1140,12 +1152,12 @@ const BrowserApp = React.memo(() => {
                     </button>
                   </div>
 
-                  <div className="mb-8">
-                    <h2 className={`text-4xl font-bold tracking-tight mb-2 ${isReaderMode ? 'text-black' : 'text-white'}`}>Experiencia</h2>
-                    <p className={isReaderMode ? 'text-black/60 text-lg' : 'text-white/40 text-lg'}>Haz clic en una empresa para visitar su sitio web.</p>
+                  <div className="mb-6 md:mb-8">
+                    <h2 className={`text-3xl md:text-4xl font-bold tracking-tight mb-2 ${isReaderMode ? 'text-black' : 'text-white'}`}>Experiencia</h2>
+                    <p className={isReaderMode ? 'text-black/60 text-base md:text-lg' : 'text-white/40 text-base md:text-lg'}>Haz clic en una empresa para visitar su sitio web.</p>
                   </div>
 
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
                     {experiences.map((exp: Experience) => (
                       <button
                         key={exp.company}
@@ -1202,10 +1214,10 @@ const BrowserApp = React.memo(() => {
                 </div>
                 {/* Barra inferior con botón */}
                 {!isReaderMode && (
-                  <div className="p-4 bg-[#2c2c2e] border-t border-white/10 flex items-center justify-between">
-                    <div>
+                  <div className="p-3 md:p-4 bg-[#2c2c2e] border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div className="text-center sm:text-left">
                       <h3 className="text-white font-semibold">{activeTab.url.split('/')[0]}</h3>
-                      <p className="text-white/40 text-sm">{activeTab.iframeSrc}</p>
+                      <p className="text-white/40 text-xs md:text-sm truncate max-w-[200px] sm:max-w-none">{activeTab.iframeSrc}</p>
                     </div>
                     <button
                       onClick={openInNewTab}
@@ -1243,10 +1255,10 @@ const BrowserApp = React.memo(() => {
                 </div>
                 {/* Barra inferior con botón */}
                 {!isReaderMode && (
-                  <div className="p-4 bg-[#2c2c2e] border-t border-white/10 flex items-center justify-between">
-                    <div>
+                  <div className="p-3 md:p-4 bg-[#2c2c2e] border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div className="text-center sm:text-left">
                       <h3 className="text-white font-semibold">{activeTab.blockedCompany}</h3>
-                      <p className="text-white/40 text-sm">{activeTab.blockedUrl}</p>
+                      <p className="text-white/40 text-xs md:text-sm truncate max-w-[200px] sm:max-w-none">{activeTab.blockedUrl}</p>
                     </div>
                     <button
                       onClick={openInNewTab}

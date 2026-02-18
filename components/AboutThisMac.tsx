@@ -9,7 +9,7 @@ const AboutThisMac = React.memo(() => {
       {/* Laptop Image */}
       <div className="mt-4 mb-4 w-full max-w-[260px] flex justify-center">
         <Image
-          src="/macbook_pro.png"
+          src="/macbook_pro.avif"
           alt="MacBook Pro"
           width={260}
           height={160}

@@ -44,7 +44,7 @@ const MenuItem = ({ id, label, children, isApple = false, align = 'left', isOpen
 
   return (
     <div className="relative h-full flex items-center">
-      <button onClick={() => onToggle(id)} className={`px-2 h-full flex items-center transition-colors rounded-md ${isOpen ? 'bg-white/20' : 'hover:bg-white/10'}`}>
+      <button onClick={() => onToggle(id)} className={`px-2 h-full flex items-center transition-colors rounded-md ${isOpen ? 'bg-white/20' : 'hover:bg-white/10'}`} aria-label={typeof label === 'string' ? label : id}>
         {isApple ? <AppleLogo size={18} /> : label}
       </button>
       <AnimatePresence>
@@ -100,7 +100,7 @@ const MenuBar: React.FC<MenuBarProps> = ({ activeApp, onAction, toggleSpotlight,
   return (
     <div ref={menuRef} className="h-8 w-full bg-white/10 backdrop-blur-xl border-b border-white/10 flex items-center justify-between px-2 text-white text-[13px] font-medium select-none h-full menu-bar-container">
       <div className="flex items-center h-full">
-        <MenuItem id="apple" label="apple" isApple isOpen={openMenu === 'apple'} onToggle={handleToggleMenu}>
+        <MenuItem id="apple" label="apple" isApple isOpen={openMenu === 'apple'} onToggle={handleToggleMenu} aria-label="Menú Apple">
           <DropdownItem label="Acerca de este Mac" onClick={() => onAction('about')} />
           <div className="h-[1px] bg-white/10 my-1" />
           <DropdownItem label="Reiniciar..." onClick={() => onAction('restart')} />
@@ -121,9 +121,9 @@ const MenuBar: React.FC<MenuBarProps> = ({ activeApp, onAction, toggleSpotlight,
         <MenuItem id="battery" label={<Battery size={14} className="rotate-90" />} align="right" isOpen={openMenu === 'battery'} onToggle={handleToggleMenu}>
           <div className="px-4 py-2 flex flex-col gap-1"><span className="font-bold text-white">Batería</span><span className="text-white/40 text-[11px]">85%</span></div>
         </MenuItem>
-        <button onClick={() => { toggleSpotlight(); setOpenMenu(null); setIsControlCenterOpen(false); setIsNotifOpen(false); }} className="p-1.5 hover:bg-white/10 rounded-md transition-colors search-toggle"><Search size={14} /></button>
-        <button onClick={() => { setIsControlCenterOpen(!isControlCenterOpen); setIsNotifOpen(false); setOpenMenu(null); }} className={`p-1.5 rounded-md transition-colors control-center-toggle ${isControlCenterOpen ? 'bg-white/20' : 'hover:bg-white/10'}`}><SlidersHorizontal size={14} /></button>
-        <button onClick={() => { setIsNotifOpen(!isNotifOpen); setIsControlCenterOpen(false); setOpenMenu(null); }} className={`flex items-center gap-2 px-2 rounded-md h-[80%] transition-colors notif-center-toggle ${isNotifOpen ? 'bg-white/20' : 'hover:bg-white/10'}`}><span>{formattedDate}</span><span>{formattedTime}</span></button>
+        <button onClick={() => { toggleSpotlight(); setOpenMenu(null); setIsControlCenterOpen(false); setIsNotifOpen(false); }} className="p-1.5 hover:bg-white/10 rounded-md transition-colors search-toggle" aria-label="Buscar"><Search size={14} /></button>
+        <button onClick={() => { setIsControlCenterOpen(!isControlCenterOpen); setIsNotifOpen(false); setOpenMenu(null); }} className={`p-1.5 rounded-md transition-colors control-center-toggle ${isControlCenterOpen ? 'bg-white/20' : 'hover:bg-white/10'}`} aria-label="Centro de control"><SlidersHorizontal size={14} /></button>
+        <button onClick={() => { setIsNotifOpen(!isNotifOpen); setIsControlCenterOpen(false); setOpenMenu(null); }} className={`flex items-center gap-2 px-2 rounded-md h-[80%] transition-colors notif-center-toggle ${isNotifOpen ? 'bg-white/20' : 'hover:bg-white/10'}`} aria-label="Notificaciones y fecha"><span>{formattedDate}</span><span>{formattedTime}</span></button>
       </div>
     </div>
   );

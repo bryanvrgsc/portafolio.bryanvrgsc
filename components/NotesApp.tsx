@@ -39,19 +39,19 @@ const NotesApp = React.memo(() => {
                 <div className="flex items-center gap-3">
                     {/* Toolbar Pill */}
                     <div className="flex items-center bg-[#2d2d2e] border border-white/[0.08] rounded-[10px] p-[2px] pointer-events-auto shadow-sm" onPointerDown={(e) => e.stopPropagation()}>
-                        <button className="px-3 py-1 hover:bg-white/[0.08] rounded-[8px] transition-colors text-[14px] font-semibold text-white/90">
+                        <button className="px-3 py-1 hover:bg-white/[0.08] rounded-[8px] transition-colors text-[14px] font-semibold text-white/90" aria-label="Opciones de formato">
                             Aa
                         </button>
                         <div className="w-[1px] h-3 bg-white/10 mx-0.5" />
-                        <button className="p-1.5 hover:bg-white/[0.08] rounded-[8px] transition-colors text-white/70">
+                        <button className="p-1.5 hover:bg-white/[0.08] rounded-[8px] transition-colors text-white/70" aria-label="Lista de tareas">
                             <ListChecks size={18} strokeWidth={2} />
                         </button>
                         <div className="w-[1px] h-3 bg-white/10 mx-0.5" />
-                        <button className="p-1.5 hover:bg-white/[0.08] rounded-[8px] transition-colors text-white/70">
+                        <button className="p-1.5 hover:bg-white/[0.08] rounded-[8px] transition-colors text-white/70" aria-label="Insertar tabla">
                             <TableIcon size={18} strokeWidth={2} />
                         </button>
                         <div className="w-[1px] h-3 bg-white/10 mx-0.5" />
-                        <button className="p-1.5 hover:bg-white/[0.08] rounded-[8px] transition-colors text-white/70">
+                        <button className="p-1.5 hover:bg-white/[0.08] rounded-[8px] transition-colors text-white/70" aria-label="Adjuntar archivo">
                             <Paperclip size={18} strokeWidth={2} />
                         </button>
                     </div>
@@ -60,6 +60,7 @@ const NotesApp = React.memo(() => {
                     <button
                         className="w-8 h-8 flex items-center justify-center hover:bg-white/[0.08] rounded-full text-white/30 hover:text-white/70 transition-colors pointer-events-auto border border-white/[0.05]"
                         onPointerDown={(e) => e.stopPropagation()}
+                        aria-label="Expandir"
                     >
                         <ChevronsRight size={18} />
                     </button>
