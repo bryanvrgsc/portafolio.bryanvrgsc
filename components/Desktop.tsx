@@ -275,7 +275,7 @@ const Desktop = React.memo(() => {
   }
 
   return (
-    <div className="relative h-screen w-full overflow-hidden select-none flex flex-col" onContextMenu={(e) => { e.preventDefault(); setContextMenu({ x: e.clientX, y: e.clientY }); }} onMouseDown={handleMouseDown} onMouseMove={handleMouseMove} onMouseUp={handleMouseUp}>
+    <div className="relative h-[100dvh] w-full overflow-hidden select-none flex flex-col" onContextMenu={(e) => { e.preventDefault(); setContextMenu({ x: e.clientX, y: e.clientY }); }} onMouseDown={handleMouseDown} onMouseMove={handleMouseMove} onMouseUp={handleMouseUp}>
       {/* Optimized Background Image */}
       <Image
         src={"/wallpaper.avif"}
@@ -289,7 +289,7 @@ const Desktop = React.memo(() => {
         sizes="100vw"
       />
 
-      <div className="h-8 w-full shrink-0 z-[800000]">
+      <div className="h-8 w-full shrink-0 z-[800000] mobile-menu-bar">
         <MenuBar activeApp={activeApp} onAction={handleSystemAction} toggleSpotlight={toggleSpotlight} closeSpotlight={() => setSpotlightOpen(false)} isControlCenterOpen={isControlCenterOpen} setIsControlCenterOpen={setIsControlCenterOpen} isNotifOpen={isNotifOpen} setIsNotifOpen={setIsNotifOpen} />
       </div>
       <AnimatePresence>{isControlCenterOpen && <ControlCenter />}</AnimatePresence>
