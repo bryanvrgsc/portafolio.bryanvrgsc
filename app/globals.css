@@ -1,59 +1,372 @@
 @import "tailwindcss";
 
 :root {
-  --background: #000000;
-  --foreground: #ededed;
+  --background: #050816;
+  --foreground: rgba(247, 249, 255, 0.94);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
 }
 
 body {
   color: var(--foreground);
-  background: var(--background);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background:
+    radial-gradient(circle at top, rgba(91, 123, 255, 0.18), transparent 28%),
+    radial-gradient(circle at 80% 15%, rgba(255, 161, 122, 0.14), transparent 24%),
+    #050816;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", sans-serif;
   overflow: hidden;
   user-select: none;
-  font-display: swap;
   scrollbar-gutter: stable;
 }
 
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+.tahoe-shell {
+  --tahoe-menubar-bg: rgba(26, 30, 43, 0.2);
+  --tahoe-dock-bg: rgba(35, 40, 56, 0.26);
+  --tahoe-window-bg: rgba(28, 33, 46, 0.56);
+  --tahoe-panel-bg: rgba(25, 29, 41, 0.66);
+  --tahoe-panel-bg-strong: rgba(24, 27, 38, 0.82);
+  --tahoe-menu-bg: rgba(22, 26, 38, 0.86);
+  --tahoe-sidebar-bg: rgba(21, 24, 34, 0.5);
+  --tahoe-toolbar-bg: rgba(255, 255, 255, 0.08);
+  --tahoe-highlight: rgba(255, 255, 255, 0.22);
+  --tahoe-highlight-soft: rgba(255, 255, 255, 0.08);
+  --tahoe-stroke: rgba(255, 255, 255, 0.18);
+  --tahoe-stroke-soft: rgba(255, 255, 255, 0.1);
+  --tahoe-hairline: rgba(255, 255, 255, 0.07);
+  --tahoe-shadow: 0 32px 80px rgba(7, 10, 20, 0.36), 0 12px 28px rgba(7, 10, 20, 0.28);
+  --tahoe-shadow-strong: 0 40px 120px rgba(7, 10, 20, 0.48), 0 16px 36px rgba(7, 10, 20, 0.36);
+  --tahoe-text-primary: rgba(250, 251, 255, 0.94);
+  --tahoe-text-secondary: rgba(225, 230, 246, 0.68);
+  --tahoe-text-tertiary: rgba(225, 230, 246, 0.48);
+  --tahoe-accent: rgba(76, 149, 255, 0.92);
+  --tahoe-accent-soft: rgba(76, 149, 255, 0.22);
+  --tahoe-selection-bg: rgba(86, 154, 255, 0.2);
+  --tahoe-selection-stroke: rgba(163, 203, 255, 0.52);
+  --tahoe-icon-shadow: drop-shadow(0 10px 18px rgba(11, 18, 34, 0.18));
+  --tahoe-wallpaper-dim: 0.9;
+  color: var(--tahoe-text-primary);
+  color-scheme: dark;
+  isolation: isolate;
+}
+
+.tahoe-shell[data-appearance="light"] {
+  --tahoe-menubar-bg: rgba(255, 255, 255, 0.16);
+  --tahoe-dock-bg: rgba(247, 249, 255, 0.26);
+  --tahoe-window-bg: rgba(246, 248, 252, 0.58);
+  --tahoe-panel-bg: rgba(248, 249, 253, 0.66);
+  --tahoe-panel-bg-strong: rgba(250, 251, 255, 0.78);
+  --tahoe-menu-bg: rgba(247, 249, 254, 0.86);
+  --tahoe-sidebar-bg: rgba(241, 244, 249, 0.56);
+  --tahoe-toolbar-bg: rgba(255, 255, 255, 0.42);
+  --tahoe-highlight: rgba(255, 255, 255, 0.7);
+  --tahoe-highlight-soft: rgba(255, 255, 255, 0.46);
+  --tahoe-stroke: rgba(255, 255, 255, 0.58);
+  --tahoe-stroke-soft: rgba(120, 133, 162, 0.16);
+  --tahoe-hairline: rgba(120, 133, 162, 0.14);
+  --tahoe-shadow: 0 28px 72px rgba(114, 126, 159, 0.2), 0 12px 28px rgba(114, 126, 159, 0.16);
+  --tahoe-shadow-strong: 0 40px 110px rgba(114, 126, 159, 0.26), 0 16px 36px rgba(114, 126, 159, 0.18);
+  --tahoe-text-primary: rgba(31, 37, 53, 0.94);
+  --tahoe-text-secondary: rgba(52, 61, 84, 0.66);
+  --tahoe-text-tertiary: rgba(52, 61, 84, 0.45);
+  --tahoe-accent: rgba(27, 120, 255, 0.92);
+  --tahoe-accent-soft: rgba(27, 120, 255, 0.16);
+  --tahoe-selection-bg: rgba(89, 152, 255, 0.16);
+  --tahoe-selection-stroke: rgba(62, 122, 255, 0.38);
+  --tahoe-icon-shadow: drop-shadow(0 8px 12px rgba(80, 95, 128, 0.14));
+  --tahoe-wallpaper-dim: 1.02;
+  color-scheme: light;
+}
+
+.tahoe-shell::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 22% 16%, rgba(255, 255, 255, 0.14), transparent 0 26%),
+    radial-gradient(circle at 78% 14%, rgba(111, 176, 255, 0.16), transparent 0 24%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.12), transparent 24%, transparent 76%, rgba(6, 8, 16, 0.08));
+  opacity: 0.85;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.tahoe-wallpaper {
+  filter: saturate(1.08) contrast(1.02) brightness(var(--tahoe-wallpaper-dim));
+}
+
+.tahoe-wallpaper-overlay {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at top, rgba(255, 255, 255, 0.18), transparent 0 34%),
+    radial-gradient(circle at 82% 12%, rgba(127, 159, 255, 0.18), transparent 0 26%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.08), transparent 24%, rgba(8, 12, 24, 0.12));
+  pointer-events: none;
+  z-index: 1;
+}
+
+.tahoe-menubar,
+.tahoe-glass-panel,
+.tahoe-glass-panel-strong,
+.tahoe-menu,
+.tahoe-dock,
+.tahoe-window,
+.tahoe-spotlight,
+.tahoe-context-menu {
+  backdrop-filter: blur(32px) saturate(180%);
+  -webkit-backdrop-filter: blur(32px) saturate(180%);
+}
+
+.tahoe-menubar {
+  background:
+    linear-gradient(180deg, var(--tahoe-highlight), transparent 80%),
+    var(--tahoe-menubar-bg);
+  border-bottom: 1px solid var(--tahoe-hairline);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22);
+}
+
+.tahoe-menubar-button {
+  color: var(--tahoe-text-primary);
+}
+
+.tahoe-menubar-button:hover,
+.tahoe-menubar-button[data-open="true"] {
+  background: var(--tahoe-toolbar-bg);
+}
+
+.tahoe-menu {
+  background:
+    linear-gradient(180deg, var(--tahoe-highlight), transparent 28%),
+    var(--tahoe-menu-bg);
+  border: 1px solid var(--tahoe-stroke);
+  box-shadow: var(--tahoe-shadow);
+}
+
+.tahoe-menu-separator {
+  background: var(--tahoe-hairline);
+}
+
+.tahoe-menu-item {
+  color: var(--tahoe-text-primary);
+}
+
+.tahoe-menu-item:hover {
+  background: var(--tahoe-accent);
+  color: white;
+}
+
+.tahoe-dock {
+  background:
+    linear-gradient(180deg, var(--tahoe-highlight), transparent 35%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.12), transparent 80%),
+    var(--tahoe-dock-bg);
+  border: 1px solid var(--tahoe-stroke);
+  box-shadow: var(--tahoe-shadow);
+}
+
+.tahoe-dock::after {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  border-radius: inherit;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  pointer-events: none;
+}
+
+.tahoe-dock-tooltip {
+  background: var(--tahoe-menu-bg);
+  color: var(--tahoe-text-primary);
+  border: 1px solid var(--tahoe-stroke-soft);
+  box-shadow: var(--tahoe-shadow);
+}
+
+.tahoe-dock-indicator {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(255, 255, 255, 0.68));
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.55);
+}
+
+.tahoe-window {
+  background:
+    linear-gradient(180deg, var(--tahoe-highlight), transparent 26%),
+    var(--tahoe-window-bg);
+  border: 1px solid var(--tahoe-stroke);
+  box-shadow: var(--tahoe-shadow);
+}
+
+.tahoe-window[data-active="true"] {
+  box-shadow: var(--tahoe-shadow-strong);
+}
+
+.tahoe-window[data-active="false"] {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.08), transparent 24%),
+    var(--tahoe-panel-bg);
+  filter: saturate(0.92);
+}
+
+.tahoe-window-content {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), transparent 16%);
+  contain: layout paint style;
+}
+
+.tahoe-window[data-interacting="true"] {
+  will-change: transform, width, height, top, left;
+}
+
+.tahoe-window[data-interacting="true"] .tahoe-window-content {
+  pointer-events: none;
+}
+
+.tahoe-titlebar {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.1), transparent 86%),
+    rgba(255, 255, 255, 0.02);
+  border-bottom: 1px solid var(--tahoe-hairline);
+}
+
+.tahoe-titlebar-integrated {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), transparent 72%);
+}
+
+.tahoe-title {
+  color: var(--tahoe-text-secondary);
+}
+
+.tahoe-traffic-light {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 0 0 0.5px rgba(0, 0, 0, 0.16);
+}
+
+.tahoe-glass-panel {
+  background:
+    linear-gradient(180deg, var(--tahoe-highlight), transparent 30%),
+    var(--tahoe-panel-bg);
+  border: 1px solid var(--tahoe-stroke);
+  box-shadow: var(--tahoe-shadow);
+}
+
+.tahoe-glass-panel-strong {
+  background:
+    linear-gradient(180deg, var(--tahoe-highlight), transparent 24%),
+    var(--tahoe-panel-bg-strong);
+  border: 1px solid var(--tahoe-stroke);
+  box-shadow: var(--tahoe-shadow);
+}
+
+.tahoe-card {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--tahoe-stroke-soft);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+.tahoe-spotlight {
+  background:
+    linear-gradient(180deg, var(--tahoe-highlight), transparent 24%),
+    var(--tahoe-panel-bg-strong);
+  border: 1px solid var(--tahoe-stroke);
+  box-shadow: var(--tahoe-shadow-strong);
+}
+
+.tahoe-spotlight-result:hover,
+.tahoe-spotlight-result[data-active="true"] {
+  background: var(--tahoe-accent-soft);
+}
+
+.tahoe-context-menu {
+  background:
+    linear-gradient(180deg, var(--tahoe-highlight), transparent 24%),
+    var(--tahoe-menu-bg);
+  border: 1px solid var(--tahoe-stroke);
+  box-shadow: var(--tahoe-shadow);
+}
+
+.tahoe-context-menu-item:hover {
+  background: var(--tahoe-accent);
+  color: white;
+}
+
+.tahoe-selection {
+  background: var(--tahoe-selection-bg);
+  border: 1px solid var(--tahoe-selection-stroke);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+}
+
+.tahoe-desktop-icon {
+  border: 1px solid transparent;
+}
+
+.tahoe-desktop-icon:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: var(--tahoe-stroke-soft);
+  backdrop-filter: blur(14px) saturate(160%);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+}
+
+.tahoe-desktop-icon[data-selected="true"] {
+  background: var(--tahoe-selection-bg);
+  border-color: var(--tahoe-selection-stroke);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14);
+}
+
+.tahoe-desktop-label {
+  color: rgba(255, 255, 255, 0.94);
+  text-shadow: 0 1px 4px rgba(6, 10, 18, 0.32);
+}
+
+.tahoe-desktop-icon-image {
+  filter: var(--tahoe-icon-shadow);
+}
+
+.tahoe-slider-track {
+  background: rgba(255, 255, 255, 0.12);
+  box-shadow: inset 0 1px 2px rgba(7, 10, 20, 0.12);
+}
+
+.tahoe-slider-fill {
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.9), rgba(178, 210, 255, 0.94));
+}
+
+.tahoe-boot-shell {
+  background:
+    radial-gradient(circle at top, rgba(102, 143, 255, 0.16), transparent 30%),
+    radial-gradient(circle at 76% 18%, rgba(255, 174, 116, 0.14), transparent 24%),
+    #050816;
+}
+
+.tahoe-snap-indicator {
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid var(--tahoe-stroke);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(28px) saturate(160%);
+  -webkit-backdrop-filter: blur(28px) saturate(160%);
+}
+
 @layer utilities {
-  .macos-wallpaper {
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-  }
-
-  .backdrop-blur-xl {
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-  }
-
-  .backdrop-blur-2xl {
-    backdrop-filter: blur(40px);
-    -webkit-backdrop-filter: blur(40px);
-  }
-
-  .backdrop-blur-3xl {
-    backdrop-filter: blur(60px);
-    -webkit-backdrop-filter: blur(60px);
-  }
-
-  /* Optimización de animaciones */
   .gpu-accelerated {
     transform: translateZ(0);
     will-change: transform;
   }
 
-  /* Force static positioning on mobile to prevent JS hydration jumps (CLS) */
   @media (max-width: 768px) {
     .mobile-window {
       top: 40px !important;
-      /* MenuBar height + margin */
       left: 10px !important;
       width: calc(100vw - 20px) !important;
       height: calc(100dvh - 140px) !important;
-      /* Viewport - Menu - Dock */
       transform: none !important;
-      /* Override framer-motion transform if needed */
     }
   }
 }

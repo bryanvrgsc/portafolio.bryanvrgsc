@@ -1,59 +1,82 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect, useMemo, useCallback } from 'react';
+import { Appearance, resolveTahoeAppearance, TAHOE_APPEARANCE_QUERY } from '@/lib/tahoe-theme';
 
 interface SystemContextType {
-    brightness: number;
-    setBrightness: (value: number) => void;
-    volume: number;
-    setVolume: (value: number) => void;
+  appearance: Appearance;
+  brightness: number;
+  setBrightness: (value: number) => void;
+  volume: number;
+  setVolume: (value: number) => void;
 }
 
 const SystemContext = createContext<SystemContextType | undefined>(undefined);
 
 export const SystemProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [brightness, setBrightnessState] = useState(100);
-    const [volume, setVolumeState] = useState(50);
-    const [isInitialized, setIsInitialized] = useState(false);
+  const [appearance, setAppearance] = useState<Appearance>(() => {
+    if (typeof window === 'undefined') {
+      return 'dark';
+    }
 
-    // Load from localStorage on mount (solo una vez)
-    useEffect(() => {
-        const savedBrightness = localStorage.getItem('system_brightness');
-        const savedVolume = localStorage.getItem('system_volume');
+    return resolveTahoeAppearance(window.matchMedia(TAHOE_APPEARANCE_QUERY).matches);
+  });
+  const [brightness, setBrightnessState] = useState(() => {
+    if (typeof window === 'undefined') {
+      return 100;
+    }
 
-        // eslint-disable-next-line react-hooks/set-state-in-effect
-        if (savedBrightness) setBrightnessState(parseInt(savedBrightness));
-        // eslint-disable-next-line react-hooks/set-state-in-effect
-        if (savedVolume) setVolumeState(parseInt(savedVolume));
-        setIsInitialized(true);
-    }, []);
+    const savedBrightness = localStorage.getItem('system_brightness');
+    return savedBrightness ? parseInt(savedBrightness, 10) : 100;
+  });
+  const [volume, setVolumeState] = useState(() => {
+    if (typeof window === 'undefined') {
+      return 50;
+    }
 
-    const setBrightness = useCallback((value: number) => {
-        setBrightnessState(value);
-        if (isInitialized) {
-            localStorage.setItem('system_brightness', value.toString());
-        }
-    }, [isInitialized]);
+    const savedVolume = localStorage.getItem('system_volume');
+    return savedVolume ? parseInt(savedVolume, 10) : 50;
+  });
 
-    const setVolume = useCallback((value: number) => {
-        setVolumeState(value);
-        if (isInitialized) {
-            localStorage.setItem('system_volume', value.toString());
-        }
-    }, [isInitialized]);
+  useEffect(() => {
+    const mediaQuery = window.matchMedia(TAHOE_APPEARANCE_QUERY);
+    const syncAppearance = (matches: boolean) => setAppearance(resolveTahoeAppearance(matches));
+    const handleAppearanceChange = (event: MediaQueryListEvent) => syncAppearance(event.matches);
 
-    const value = useMemo(() => ({
-        brightness,
-        setBrightness,
-        volume,
-        setVolume
-    }), [brightness, setBrightness, volume, setVolume]);
+    mediaQuery.addEventListener('change', handleAppearanceChange);
 
-    return (
-        <SystemContext.Provider value={value}>
-            {children}
-        </SystemContext.Provider>
-    );
+    return () => {
+      mediaQuery.removeEventListener('change', handleAppearanceChange);
+    };
+  }, []);
+
+  const setBrightness = useCallback((value: number) => {
+    setBrightnessState(value);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('system_brightness', value.toString());
+    }
+  }, []);
+
+  const setVolume = useCallback((value: number) => {
+    setVolumeState(value);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('system_volume', value.toString());
+    }
+  }, []);
+
+  const value = useMemo(() => ({
+    appearance,
+    brightness,
+    setBrightness,
+    volume,
+    setVolume,
+  }), [appearance, brightness, setBrightness, volume, setVolume]);
+
+  return (
+    <SystemContext.Provider value={value}>
+      {children}
+    </SystemContext.Provider>
+  );
 };
 
 export const useSystem = () => {
