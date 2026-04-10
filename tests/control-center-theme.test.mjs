@@ -55,11 +55,14 @@ test('system context exposes theme mode controls and persisted storage key usage
   assert.match(systemContext, /SYSTEM_THEME_MODE_STORAGE_KEY/);
   assert.match(systemContext, /resolveAppearanceForThemeMode/);
   assert.match(systemContext, /getNextThemeMode/);
+  assert.match(systemContext, /useEffect\(\(\) => \{\s*if \(typeof window !== 'undefined'\) \{\s*localStorage\.setItem\(SYSTEM_THEME_MODE_STORAGE_KEY, themeMode\);/s);
+  assert.match(systemContext, /const setThemeMode = useCallback\(\(value: ThemeMode\) => \{\s*setThemeModeState\(value\);\s*\}, \[\]\);/s);
+  assert.match(systemContext, /const cycleThemeMode = useCallback\(\(\) => \{\s*setThemeModeState\(\(currentMode\) => getNextThemeMode\(currentMode\)\);\s*\}, \[\]\);/s);
 });
 
 test('desktop continues to consume the effective appearance from system context', () => {
   const desktop = read('components/Desktop.tsx');
 
-  assert.match(desktop, /const \{ appearance, brightness \} = useSystem\(\);/);
+  assert.match(desktop, /const\s+\{[\s\S]*\bappearance\b[\s\S]*\}\s*=\s*useSystem\(\);/);
   assert.match(desktop, /data-appearance=\{appearance\}/);
 });

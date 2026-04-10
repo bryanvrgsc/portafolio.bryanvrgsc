@@ -72,23 +72,18 @@ export const SystemProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     };
   }, []);
 
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(SYSTEM_THEME_MODE_STORAGE_KEY, themeMode);
+    }
+  }, [themeMode]);
+
   const setThemeMode = useCallback((value: ThemeMode) => {
     setThemeModeState(value);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem(SYSTEM_THEME_MODE_STORAGE_KEY, value);
-    }
   }, []);
 
   const cycleThemeMode = useCallback(() => {
-    setThemeModeState((currentMode) => {
-      const nextMode = getNextThemeMode(currentMode);
-
-      if (typeof window !== 'undefined') {
-        localStorage.setItem(SYSTEM_THEME_MODE_STORAGE_KEY, nextMode);
-      }
-
-      return nextMode;
-    });
+    setThemeModeState((currentMode) => getNextThemeMode(currentMode));
   }, []);
 
   const setBrightness = useCallback((value: number) => {
@@ -129,9 +124,9 @@ export const SystemProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 };
 
 export const useSystem = () => {
-    const context = useContext(SystemContext);
-    if (context === undefined) {
-        throw new Error('useSystem must be used within a SystemProvider');
-    }
-    return context;
+  const context = useContext(SystemContext);
+  if (context === undefined) {
+    throw new Error('useSystem must be used within a SystemProvider');
+  }
+  return context;
 };
