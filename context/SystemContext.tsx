@@ -1,10 +1,21 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect, useMemo, useCallback } from 'react';
-import { Appearance, resolveTahoeAppearance, TAHOE_APPEARANCE_QUERY } from '@/lib/tahoe-theme';
+import {
+  Appearance,
+  ThemeMode,
+  getNextThemeMode,
+  resolveAppearanceForThemeMode,
+  resolveStoredThemeMode,
+  SYSTEM_THEME_MODE_STORAGE_KEY,
+  TAHOE_APPEARANCE_QUERY,
+} from '@/lib/tahoe-theme';
 
 interface SystemContextType {
   appearance: Appearance;
+  themeMode: ThemeMode;
+  setThemeMode: (value: ThemeMode) => void;
+  cycleThemeMode: () => void;
   brightness: number;
   setBrightness: (value: number) => void;
   volume: number;
@@ -14,13 +25,22 @@ interface SystemContextType {
 const SystemContext = createContext<SystemContextType | undefined>(undefined);
 
 export const SystemProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [appearance, setAppearance] = useState<Appearance>(() => {
+  const getSystemPreference = () => {
     if (typeof window === 'undefined') {
-      return 'dark';
+      return true;
     }
 
-    return resolveTahoeAppearance(window.matchMedia(TAHOE_APPEARANCE_QUERY).matches);
+    return window.matchMedia(TAHOE_APPEARANCE_QUERY).matches;
+  };
+
+  const [themeMode, setThemeModeState] = useState<ThemeMode>(() => {
+    if (typeof window === 'undefined') {
+      return 'system';
+    }
+
+    return resolveStoredThemeMode(localStorage.getItem(SYSTEM_THEME_MODE_STORAGE_KEY));
   });
+  const [prefersDark, setPrefersDark] = useState<boolean>(getSystemPreference);
   const [brightness, setBrightnessState] = useState(() => {
     if (typeof window === 'undefined') {
       return 100;
@@ -40,14 +60,35 @@ export const SystemProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   useEffect(() => {
     const mediaQuery = window.matchMedia(TAHOE_APPEARANCE_QUERY);
-    const syncAppearance = (matches: boolean) => setAppearance(resolveTahoeAppearance(matches));
-    const handleAppearanceChange = (event: MediaQueryListEvent) => syncAppearance(event.matches);
+    const syncPreference = (matches: boolean) => setPrefersDark(matches);
+    const handleAppearanceChange = (event: MediaQueryListEvent) => syncPreference(event.matches);
+
+    syncPreference(mediaQuery.matches);
 
     mediaQuery.addEventListener('change', handleAppearanceChange);
 
     return () => {
       mediaQuery.removeEventListener('change', handleAppearanceChange);
     };
+  }, []);
+
+  const setThemeMode = useCallback((value: ThemeMode) => {
+    setThemeModeState(value);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(SYSTEM_THEME_MODE_STORAGE_KEY, value);
+    }
+  }, []);
+
+  const cycleThemeMode = useCallback(() => {
+    setThemeModeState((currentMode) => {
+      const nextMode = getNextThemeMode(currentMode);
+
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(SYSTEM_THEME_MODE_STORAGE_KEY, nextMode);
+      }
+
+      return nextMode;
+    });
   }, []);
 
   const setBrightness = useCallback((value: number) => {
@@ -64,13 +105,21 @@ export const SystemProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     }
   }, []);
 
+  const appearance = useMemo(
+    () => resolveAppearanceForThemeMode(themeMode, prefersDark),
+    [themeMode, prefersDark]
+  );
+
   const value = useMemo(() => ({
     appearance,
+    themeMode,
+    setThemeMode,
+    cycleThemeMode,
     brightness,
     setBrightness,
     volume,
     setVolume,
-  }), [appearance, brightness, setBrightness, volume, setVolume]);
+  }), [appearance, themeMode, setThemeMode, cycleThemeMode, brightness, setBrightness, volume, setVolume]);
 
   return (
     <SystemContext.Provider value={value}>

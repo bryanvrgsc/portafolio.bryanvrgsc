@@ -3,8 +3,10 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { ModuleKind, ScriptTarget, transpileModule } from 'typescript';
 
+const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
+
 const loadThemeModule = async () => {
-  const source = readFileSync(new URL('../lib/tahoe-theme.ts', import.meta.url), 'utf8');
+  const source = read('lib/tahoe-theme.ts');
   const { outputText } = transpileModule(source, {
     compilerOptions: {
       module: ModuleKind.ESNext,
@@ -42,4 +44,22 @@ test('normalizes invalid persisted theme modes back to system', async () => {
   assert.equal(resolveStoredThemeMode('system'), 'system');
   assert.equal(resolveStoredThemeMode('sepia'), 'system');
   assert.equal(resolveStoredThemeMode(null), 'system');
+});
+
+test('system context exposes theme mode controls and persisted storage key usage', () => {
+  const systemContext = read('context/SystemContext.tsx');
+
+  assert.match(systemContext, /themeMode: ThemeMode/);
+  assert.match(systemContext, /setThemeMode: \(value: ThemeMode\) => void/);
+  assert.match(systemContext, /cycleThemeMode: \(\) => void/);
+  assert.match(systemContext, /SYSTEM_THEME_MODE_STORAGE_KEY/);
+  assert.match(systemContext, /resolveAppearanceForThemeMode/);
+  assert.match(systemContext, /getNextThemeMode/);
+});
+
+test('desktop continues to consume the effective appearance from system context', () => {
+  const desktop = read('components/Desktop.tsx');
+
+  assert.match(desktop, /const \{ appearance, brightness \} = useSystem\(\);/);
+  assert.match(desktop, /data-appearance=\{appearance\}/);
 });
