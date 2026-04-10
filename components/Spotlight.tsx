@@ -23,12 +23,11 @@ const SPOTLIGHT_APPS: SpotlightApp[] = [
 ];
 
 interface SpotlightProps {
-    isOpen: boolean;
     onClose: () => void;
     onLaunchApp: (id: AppId) => void;
 }
 
-const Spotlight: React.FC<SpotlightProps> = memo(({ isOpen, onClose, onLaunchApp }) => {
+const Spotlight: React.FC<SpotlightProps> = memo(({ onClose, onLaunchApp }) => {
     const [query, setQuery] = useState('');
     const [selectedIndex, setSelectedIndex] = useState(0);
     const inputRef = useRef<HTMLInputElement>(null);
@@ -45,16 +44,9 @@ const Spotlight: React.FC<SpotlightProps> = memo(({ isOpen, onClose, onLaunchApp
         });
 
     useEffect(() => {
-        if (isOpen) {
-            setQuery('');
-            setSelectedIndex(0);
-            setTimeout(() => inputRef.current?.focus(), 50);
-        }
-    }, [isOpen]);
-
-    useEffect(() => {
-        setSelectedIndex(0);
-    }, [query]);
+        const timer = setTimeout(() => inputRef.current?.focus(), 50);
+        return () => clearTimeout(timer);
+    }, []);
 
     const handleKeyDown = (e: React.KeyboardEvent) => {
         if (e.key === 'ArrowDown') {
@@ -80,28 +72,30 @@ const Spotlight: React.FC<SpotlightProps> = memo(({ isOpen, onClose, onLaunchApp
         onClose();
     };
 
-    if (!isOpen) return null;
-
     return (
         <div className="fixed inset-0 z-[1000000] flex items-start justify-center pt-[15vh] pointer-events-none">
             <motion.div
                 initial={{ opacity: 0, scale: 0.95, y: -20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95, y: -20 }}
-                className="spotlight-container w-[600px] bg-[#1c1c1e]/80 backdrop-blur-3xl border border-white/20 rounded-xl shadow-2xl overflow-hidden pointer-events-auto"
+                className="tahoe-spotlight spotlight-container w-[640px] max-w-[calc(100vw-32px)] rounded-[1.75rem] overflow-hidden pointer-events-auto"
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* Search Input */}
-                <div className="flex items-center px-4 h-14 gap-3 border-b border-white/10">
-                    <Search size={24} className="text-white/40 shrink-0" />
+                <div className="flex items-center px-5 h-16 gap-3 border-b" style={{ borderColor: 'var(--tahoe-hairline)' }}>
+                    <Search size={22} className="shrink-0" style={{ color: 'var(--tahoe-text-secondary)' }} />
                     <input
                         ref={inputRef}
                         type="text"
                         value={query}
-                        onChange={(e) => setQuery(e.target.value)}
+                        onChange={(e) => {
+                            setQuery(e.target.value);
+                            setSelectedIndex(0);
+                        }}
                         onKeyDown={handleKeyDown}
                         placeholder="Búsqueda en Spotlight"
-                        className="bg-transparent border-none outline-none text-xl w-full text-white font-light placeholder:text-white/40"
+                        className="bg-transparent border-none outline-none text-[1.35rem] w-full font-light"
+                        style={{ color: 'var(--tahoe-text-primary)' }}
                         autoComplete="off"
                         autoCorrect="off"
                         spellCheck={false}
@@ -111,16 +105,16 @@ const Spotlight: React.FC<SpotlightProps> = memo(({ isOpen, onClose, onLaunchApp
 
                 {/* Results */}
                 {filteredApps.length > 0 && (
-                    <div className="max-h-[400px] overflow-y-auto py-2">
-                        <div className="px-4 py-1 text-[11px] text-white/40 uppercase tracking-wider font-medium">
+                    <div className="max-h-[420px] overflow-y-auto py-2">
+                        <div className="px-5 py-1 text-[11px] uppercase tracking-[0.24em] font-semibold" style={{ color: 'var(--tahoe-text-tertiary)' }}>
                             Aplicaciones
                         </div>
                         {filteredApps.map((app, index) => (
                             <button
                                 key={app.id}
                                 onClick={() => handleAppClick(app.id)}
-                                className={`w-full flex items-center gap-3 px-4 py-2 transition-colors ${index === selectedIndex ? 'bg-blue-500/80' : 'hover:bg-white/10'
-                                    }`}
+                                data-active={index === selectedIndex}
+                                className="tahoe-spotlight-result w-full flex items-center gap-3 px-5 py-2.5 transition-colors"
                             >
                                 <div className="w-8 h-8 relative shrink-0">
                                     <Image
@@ -131,7 +125,7 @@ const Spotlight: React.FC<SpotlightProps> = memo(({ isOpen, onClose, onLaunchApp
                                         sizes="32px"
                                     />
                                 </div>
-                                <span className="text-white text-[15px] font-medium">{app.label}</span>
+                                <span className="text-[15px] font-medium" style={{ color: 'var(--tahoe-text-primary)' }}>{app.label}</span>
                             </button>
                         ))}
                     </div>
@@ -139,8 +133,8 @@ const Spotlight: React.FC<SpotlightProps> = memo(({ isOpen, onClose, onLaunchApp
 
                 {/* No Results */}
                 {filteredApps.length === 0 && query.trim() !== '' && (
-                    <div className="px-4 py-8 text-center text-white/40">
-                        No se encontraron resultados para "{query}"
+                    <div className="px-4 py-8 text-center" style={{ color: 'var(--tahoe-text-secondary)' }}>
+                        No se encontraron resultados para &quot;{query}&quot;
                     </div>
                 )}
             </motion.div>

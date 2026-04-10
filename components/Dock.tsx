@@ -2,8 +2,9 @@
 
 import React, { useCallback, useRef, useEffect, memo } from 'react';
 import { motion, useMotionValue, useSpring, useTransform, MotionValue } from 'framer-motion';
-import { AppId } from './Desktop';
 import Image from 'next/image';
+import { AppId } from './Desktop';
+import { cn } from '@/lib/utils';
 
 interface DockProps {
   onLaunch: (id: AppId, path?: string) => void;
@@ -19,6 +20,7 @@ interface DockIconProps {
   mouseX: MotionValue<number>;
   isOpen: boolean;
   isMinimized: boolean;
+  isActive: boolean;
   baseSize: number;
   maxSize: number;
   priority?: boolean;
@@ -39,67 +41,72 @@ const DockIcon = memo(({
   mouseX,
   isOpen,
   isMinimized,
+  isActive,
   baseSize,
   maxSize,
-  priority = false
+  priority = false,
 }: DockIconProps) => {
   const ref = useRef<HTMLButtonElement>(null);
 
-  // Calcular distancia al cursor
-  const distance = useTransform(mouseX, (val) => {
-    if (!ref.current || val === Infinity) return Infinity;
+  const distance = useTransform(mouseX, (value) => {
+    if (!ref.current || value === Infinity) {
+      return Infinity;
+    }
+
     const bounds = ref.current.getBoundingClientRect();
     const centerX = bounds.left + bounds.width / 2;
-    return val - centerX;
+    return value - centerX;
   });
 
   const size = useTransform(distance, (dist) => {
-    if (dist === Infinity) return baseSize;
+    if (dist === Infinity) {
+      return baseSize;
+    }
+
     const absDist = Math.abs(dist);
-    // Rango de influencia de 150px
-    if (absDist > 150) return baseSize;
-    // Curva gaussiana suave
+    if (absDist > 150) {
+      return baseSize;
+    }
+
     const scale = Math.exp(-Math.pow(absDist / 60, 2));
     return baseSize + (maxSize - baseSize) * scale;
   });
 
   const sizeSpring = useSpring(size, {
     mass: 0.1,
-    stiffness: 150,
-    damping: 12
+    stiffness: 160,
+    damping: 14,
   });
 
   return (
     <motion.button
       ref={ref}
-      style={{
-        width: sizeSpring,
-        height: sizeSpring,
-      }}
+      style={{ width: sizeSpring, height: sizeSpring }}
       onClick={onClick}
       title={label}
       aria-label={`Abrir ${label}`}
-      className="relative cursor-pointer flex-shrink-0 group mx-1 outline-none w-[var(--dock-base)] h-[var(--dock-base)]"
+      className="relative cursor-pointer flex-shrink-0 group mx-[3px] outline-none w-[var(--dock-base)] h-[var(--dock-base)]"
     >
-      {/* Icono */}
       <Image
         src={iconSrc}
         alt={label}
         fill
-        className={`object-cover transition-opacity ${isMinimized ? 'opacity-50' : 'opacity-100'}`}
+        className={cn(
+          'object-cover transition-all duration-200',
+          isMinimized ? 'opacity-55 scale-[0.96]' : 'opacity-100',
+          isActive && 'drop-shadow-[0_10px_18px_rgba(255,255,255,0.18)]'
+        )}
         draggable={false}
         sizes={`${maxSize}px`}
         priority={priority}
       />
 
-      {/* Tooltip */}
-      <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-black/80 backdrop-blur-md px-3 py-1 rounded-md text-white text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">
+      <div className="tahoe-dock-tooltip absolute -top-9 left-1/2 -translate-x-1/2 px-3 py-1 rounded-xl text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">
         {label}
       </div>
 
-      {/* Indicador de app abierta */}
       {isOpen && (
-        <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-white rounded-full" />
+        <div className="tahoe-dock-indicator absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full" />
       )}
     </motion.button>
   );
@@ -110,58 +117,57 @@ DockIcon.displayName = 'DockIcon';
 const Dock: React.FC<DockProps> = ({ onLaunch, activeApp, minimizedApps, openApps }) => {
   const mouseX = useMotionValue(Infinity);
   const dockRef = useRef<HTMLDivElement>(null);
-
-  // Mantener tamaños de referencia para la lógica JS
-  const [iconSize, setIconSize] = React.useState({ base: 80, max: 140 });
+  const [iconSize, setIconSize] = React.useState({ base: 76, max: 132 });
 
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth < 640) {
-        setIconSize({ base: 56, max: 96 });
+        setIconSize({ base: 56, max: 94 });
       } else {
-        setIconSize({ base: 80, max: 140 });
+        setIconSize({ base: 76, max: 132 });
       }
     };
+
     handleResize();
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const handleMouseMove = useCallback((e: React.MouseEvent) => {
-    mouseX.set(e.clientX);
+  const handleMouseMove = useCallback((event: React.MouseEvent) => {
+    mouseX.set(event.clientX);
   }, [mouseX]);
 
   const handleMouseLeave = useCallback(() => {
     mouseX.set(Infinity);
   }, [mouseX]);
 
-  // Padding dinámico para las esquinas
-  const paddingX = useTransform(mouseX, (x) => {
-    if (!dockRef.current || x === Infinity) return 12;
+  const paddingX = useTransform(mouseX, (value) => {
+    if (!dockRef.current || value === Infinity) {
+      return 14;
+    }
+
     const rect = dockRef.current.getBoundingClientRect();
-    const distFromLeft = x - rect.left;
-    const distFromRight = rect.right - x;
+    const distFromLeft = value - rect.left;
+    const distFromRight = rect.right - value;
     const minDist = Math.min(distFromLeft, distFromRight);
 
-    if (minDist < 0 || minDist > 100) return 12;
-    // Expandir padding cuando está cerca de los bordes
-    const extra = 24 * Math.exp(-Math.pow(minDist / 40, 2));
-    return 12 + extra;
+    if (minDist < 0 || minDist > 100) {
+      return 14;
+    }
+
+    const extra = 18 * Math.exp(-Math.pow(minDist / 40, 2));
+    return 14 + extra;
   });
 
   const paddingSpring = useSpring(paddingX, {
     mass: 0.1,
     stiffness: 150,
-    damping: 12
+    damping: 12,
   });
 
   return (
-    <div className="fixed bottom-2 left-1/2 -translate-x-1/2 z-[2000] dock-container">
-      {/* Contenedor exterior para permitir overflow de iconos */}
-      <div
-        className="relative [--dock-base:56px] [--dock-max:96px] sm:[--dock-base:80px] sm:[--dock-max:140px]"
-      >
-        {/* Fondo del dock con altura vinculada a la variable CSS */}
+    <div className="fixed bottom-2.5 left-1/2 -translate-x-1/2 z-[2000] dock-container">
+      <div className="relative [--dock-base:56px] [--dock-max:94px] sm:[--dock-base:76px] sm:[--dock-max:132px]">
         <motion.div
           ref={dockRef}
           onMouseMove={handleMouseMove}
@@ -169,19 +175,18 @@ const Dock: React.FC<DockProps> = ({ onLaunch, activeApp, minimizedApps, openApp
           style={{
             paddingLeft: paddingSpring,
             paddingRight: paddingSpring,
-            height: 'calc(var(--dock-base) + 8px)'
+            height: 'calc(var(--dock-base) + 14px)',
           }}
-          className="absolute bottom-0 left-0 right-0 bg-white/20 backdrop-blur-2xl border border-white/30 rounded-2xl shadow-2xl pointer-events-auto transition-all duration-300"
+          className="tahoe-dock absolute bottom-0 left-0 right-0 rounded-[1.75rem] pointer-events-auto transition-all duration-300"
         />
-        {/* Contenedor de iconos */}
         <motion.div
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
           style={{
             paddingLeft: paddingSpring,
-            paddingRight: paddingSpring
+            paddingRight: paddingSpring,
           }}
-          className="relative flex items-end pb-2 pt-10"
+          className="relative flex items-end pb-3 pt-8"
         >
           {DOCK_APPS.map((app, index) => (
             <DockIcon
@@ -192,9 +197,10 @@ const Dock: React.FC<DockProps> = ({ onLaunch, activeApp, minimizedApps, openApp
               mouseX={mouseX}
               isOpen={openApps.includes(app.id)}
               isMinimized={minimizedApps.includes(app.id)}
+              isActive={activeApp === app.id}
               baseSize={iconSize.base}
               maxSize={iconSize.max}
-              priority={true}
+              priority
             />
           ))}
         </motion.div>
