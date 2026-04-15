@@ -46,6 +46,11 @@ select {
   --tahoe-app-sidebar-surface: rgba(27, 31, 43, 0.58);
   --tahoe-app-overlay-surface: rgba(20, 24, 34, 0.94);
   --tahoe-app-statusbar-surface: rgba(34, 38, 49, 0.9);
+  --tahoe-control-surface: rgba(255, 255, 255, 0.08);
+  --tahoe-control-surface-hover: rgba(255, 255, 255, 0.14);
+  --tahoe-content-card-surface: rgba(255, 255, 255, 0.07);
+  --tahoe-terminal-surface: rgba(10, 13, 20, 0.92);
+  --tahoe-terminal-border: rgba(255, 255, 255, 0.1);
   --tahoe-window-bg: var(--tahoe-window-surface);
   --tahoe-panel-bg: rgba(25, 29, 41, 0.66);
   --tahoe-panel-bg-strong: rgba(24, 27, 38, 0.82);
@@ -86,6 +91,11 @@ select {
   --tahoe-app-sidebar-surface: rgba(224, 230, 241, 0.62);
   --tahoe-app-overlay-surface: rgba(246, 249, 254, 0.92);
   --tahoe-app-statusbar-surface: rgba(231, 236, 245, 0.84);
+  --tahoe-control-surface: rgba(255, 255, 255, 0.58);
+  --tahoe-control-surface-hover: rgba(255, 255, 255, 0.76);
+  --tahoe-content-card-surface: rgba(255, 255, 255, 0.72);
+  --tahoe-terminal-surface: rgba(244, 247, 252, 0.94);
+  --tahoe-terminal-border: rgba(120, 133, 162, 0.18);
   --tahoe-window-bg: var(--tahoe-window-surface);
   --tahoe-panel-bg: rgba(248, 249, 253, 0.66);
   --tahoe-panel-bg-strong: rgba(250, 251, 255, 0.78);
@@ -299,6 +309,86 @@ select {
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.05), transparent 100%),
     var(--tahoe-app-statusbar-surface);
+}
+
+.tahoe-control-cluster {
+  background: var(--tahoe-control-surface);
+  border: 1px solid var(--tahoe-stroke-soft);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+.tahoe-control-button {
+  color: var(--tahoe-text-secondary);
+  transition: background 140ms ease, color 140ms ease, border-color 140ms ease;
+}
+
+.tahoe-control-button:hover {
+  background: var(--tahoe-control-surface-hover);
+  color: var(--tahoe-text-primary);
+}
+
+.tahoe-control-button[data-active="true"] {
+  background: color-mix(in srgb, var(--tahoe-accent) 18%, var(--tahoe-control-surface));
+  color: var(--tahoe-text-primary);
+}
+
+.tahoe-search-field {
+  background: color-mix(in srgb, var(--tahoe-control-surface) 88%, transparent);
+  border: 1px solid var(--tahoe-stroke-soft);
+  color: var(--tahoe-text-primary);
+}
+
+.tahoe-search-field::placeholder {
+  color: var(--tahoe-text-tertiary);
+}
+
+.tahoe-sidebar-section-title {
+  color: var(--tahoe-text-tertiary);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.tahoe-sidebar-row {
+  color: var(--tahoe-text-secondary);
+  transition: background 140ms ease, color 140ms ease;
+}
+
+.tahoe-sidebar-row:hover {
+  background: color-mix(in srgb, var(--tahoe-control-surface) 72%, transparent);
+  color: var(--tahoe-text-primary);
+}
+
+.tahoe-sidebar-row[data-active="true"] {
+  background: color-mix(in srgb, var(--tahoe-accent) 16%, var(--tahoe-control-surface));
+  color: var(--tahoe-text-primary);
+}
+
+.tahoe-content-card {
+  background: var(--tahoe-content-card-surface);
+  border: 1px solid var(--tahoe-stroke-soft);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.tahoe-status-separator {
+  color: var(--tahoe-text-tertiary);
+}
+
+.tahoe-terminal-shell {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent 22%),
+    var(--tahoe-terminal-surface);
+  border: 1px solid var(--tahoe-terminal-border);
+  color: var(--tahoe-text-primary);
+}
+
+.tahoe-terminal-input {
+  color: var(--tahoe-text-primary);
+  caret-color: var(--tahoe-text-primary);
+}
+
+.tahoe-terminal-badge {
+  border: 1px solid var(--tahoe-stroke-soft);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
 .tahoe-titlebar {
