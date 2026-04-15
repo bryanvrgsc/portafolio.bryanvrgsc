@@ -260,6 +260,9 @@ const FinderApp = React.memo(({ initialPath, onOpenFile }: FinderProps) => {
     return baseItems;
   }, [contextMenu, fs, currentFolder.id, addFolder, deleteFile, navigateTo]);
 
+  const isSidebarItemActive = (item: SidebarItem) =>
+    currentFolder.id === item.id || (item.id === 'desktop' && currentFolder.id === null);
+
   const sidebarSections: SidebarSection[] = [
     {
       title: 'Recientes',
@@ -309,7 +312,7 @@ const FinderApp = React.memo(({ initialPath, onOpenFile }: FinderProps) => {
   );
 
   return (
-    <div className="flex flex-col h-full bg-[#1c1c1e] text-white overflow-hidden select-none" onClick={() => setContextMenu(null)}>
+    <div className="tahoe-app-surface flex h-full flex-col overflow-hidden select-none" onClick={() => setContextMenu(null)}>
       <AnimatePresence>
         {contextMenu && (
           <ContextMenu
@@ -323,37 +326,75 @@ const FinderApp = React.memo(({ initialPath, onOpenFile }: FinderProps) => {
 
       {/* Integrated Title Bar Area */}
       <div
-        className="h-12 flex items-center justify-between px-4 shrink-0 cursor-grab active:cursor-grabbing"
+        className="tahoe-app-toolbar flex h-12 shrink-0 items-center justify-between px-4 cursor-grab active:cursor-grabbing"
         onPointerDown={(e) => dragControls?.start(e)}
       >
         <div className="flex items-center gap-4 md:gap-20 ml-2">
-          <div className="flex gap-1 ml-0 md:ml-16 transform scale-90">
-            <button onPointerDown={(e) => e.stopPropagation()} onClick={goBack} disabled={historyIndex === 0} className={`p-1 rounded transition-colors ${historyIndex === 0 ? 'text-white/20' : 'hover:bg-white/5 text-white/40 hover:text-white'}`} aria-label="Retroceder"><ChevronLeft size={20} /></button>
-            <button onPointerDown={(e) => e.stopPropagation()} onClick={goForward} disabled={historyIndex === history.length - 1} className={`p-1 rounded transition-colors ${historyIndex === history.length - 1 ? 'text-white/20' : 'hover:bg-white/5 text-white/40 hover:text-white'}`} aria-label="Avanzar"><ChevronRight size={20} /></button>
+          <div className="tahoe-control-cluster flex items-center gap-0.5 rounded-full p-0.5 ml-0 md:ml-16">
+            <button
+              type="button"
+              onPointerDown={(e) => e.stopPropagation()}
+              onClick={goBack}
+              disabled={historyIndex === 0}
+              className="tahoe-control-button flex h-7 w-7 items-center justify-center rounded-full disabled:cursor-not-allowed disabled:opacity-40"
+              aria-label="Retroceder"
+            >
+              <ChevronLeft size={18} />
+            </button>
+            <button
+              type="button"
+              onPointerDown={(e) => e.stopPropagation()}
+              onClick={goForward}
+              disabled={historyIndex === history.length - 1}
+              className="tahoe-control-button flex h-7 w-7 items-center justify-center rounded-full disabled:cursor-not-allowed disabled:opacity-40"
+              aria-label="Avanzar"
+            >
+              <ChevronRight size={18} />
+            </button>
           </div>
-          <span className="text-[13px] font-bold text-white/90">{currentFolder.name}</span>
+          <span className="text-[13px] font-semibold tracking-tight text-[color:var(--tahoe-text-primary)]">
+            {currentFolder.name}
+          </span>
         </div>
 
-        <div className="flex items-center gap-1.5 transform scale-95 origin-right mr-1" onPointerDown={(e) => e.stopPropagation()}>
-          <div className="hidden sm:flex items-center bg-white/[0.08] rounded-md px-2 py-1 gap-1 border border-white/5 hover:bg-white/[0.12] cursor-default transition-colors" role="button" aria-label="Opciones de visualización cuadrícula">
-            <LayoutGrid size={15} className="text-white/70" />
-            <ChevronDown size={10} className="text-white/40" />
+        <div className="flex items-center gap-2 transform scale-95 origin-right mr-1" onPointerDown={(e) => e.stopPropagation()}>
+          <div className="tahoe-control-cluster hidden sm:flex items-center gap-0.5 rounded-full p-0.5">
+            <button
+              type="button"
+              className="tahoe-control-button flex h-7 items-center gap-1.5 rounded-full px-2.5 text-[12px] font-medium"
+              aria-label="Opciones de visualización cuadrícula"
+            >
+              <LayoutGrid size={14} />
+              <ChevronDown size={10} className="opacity-60" />
+            </button>
+            <button
+              type="button"
+              className="tahoe-control-button flex h-7 items-center gap-1.5 rounded-full px-2.5 text-[12px] font-medium"
+              aria-label="Opciones de visualización lista"
+            >
+              <List size={14} />
+              <ChevronDown size={10} className="opacity-60" />
+            </button>
           </div>
-          <div className="hidden sm:flex items-center bg-white/[0.08] rounded-md px-2 py-1 gap-1 border border-white/5 hover:bg-white/[0.12] cursor-default transition-colors" role="button" aria-label="Opciones de visualización lista">
-            <List size={15} className="text-white/70" />
-            <ChevronDown size={10} className="text-white/40" />
+          <div className="tahoe-control-cluster hidden md:flex items-center gap-0.5 rounded-full p-0.5">
+            <button type="button" className="tahoe-control-button flex h-7 w-7 items-center justify-center rounded-full" aria-label="Compartir">
+              <Share size={16} />
+            </button>
+            <button type="button" className="tahoe-control-button flex h-7 w-7 items-center justify-center rounded-full" aria-label="Editar etiquetas">
+              <Tag size={16} />
+            </button>
+            <button type="button" className="tahoe-control-button flex h-7 w-7 items-center justify-center rounded-full" aria-label="Más opciones">
+              <MoreHorizontal size={16} />
+            </button>
           </div>
-          <button className="hidden md:block p-2 hover:bg-white/[0.08] rounded text-white/70" aria-label="Compartir"><Share size={18} /></button>
-          <button className="hidden md:block p-2 hover:bg-white/[0.08] rounded text-white/70" aria-label="Editar etiquetas"><Tag size={18} /></button>
-          <button className="p-2 hover:bg-white/[0.08] rounded text-white/70" aria-label="Más opciones"><MoreHorizontal size={18} /></button>
           <div className="relative ml-1 group/search">
-            <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-white/30 group-focus-within/search:text-white/60 transition-colors" />
+            <Search size={14} className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-[color:var(--tahoe-text-tertiary)] transition-colors group-focus-within/search:text-[color:var(--tahoe-text-primary)]" />
             <input
               type="text"
               placeholder="Buscar"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="bg-white/[0.05] border border-white/5 rounded-md py-1 pl-8 pr-2 text-[12px] outline-none focus:bg-white/[0.1] transition-all w-24 sm:w-32 focus:w-48"
+              className="tahoe-search-field h-8 w-28 rounded-full py-1 pl-8 pr-3 text-[12px] outline-none transition-all focus:w-48 sm:w-32"
               aria-label="Buscar archivos"
             />
           </div>
@@ -361,12 +402,15 @@ const FinderApp = React.memo(({ initialPath, onOpenFile }: FinderProps) => {
       </div>
 
       {/* Secondary Tab Bar (Pill) */}
-      <div className="h-10 px-4 flex items-center shrink-0">
-        <div className="flex-1 bg-black/30 rounded-lg border border-white/[0.08] h-7 flex items-center justify-center relative group">
-          <span className="text-[11px] font-medium text-white/70">{currentFolder.name}</span>
+      <div className="tahoe-app-toolbar flex h-10 shrink-0 items-center px-4">
+        <div className="tahoe-control-cluster relative flex h-8 flex-1 items-center justify-center rounded-full px-4">
+          <span className="max-w-[70%] truncate text-[11px] font-medium tracking-tight text-[color:var(--tahoe-text-secondary)]">
+            {currentFolder.name}
+          </span>
           <button
+            type="button"
             onClick={handleCreateFolder}
-            className="absolute right-1 w-5 h-5 flex items-center justify-center rounded-md hover:bg-white/10 text-white/40 transition-colors"
+            className="tahoe-control-button absolute right-1 flex h-6 w-6 items-center justify-center rounded-full"
             aria-label="Nueva carpeta"
           >
             <Plus size={14} />
@@ -376,34 +420,51 @@ const FinderApp = React.memo(({ initialPath, onOpenFile }: FinderProps) => {
 
       <div className="flex flex-1 overflow-hidden">
         {/* Sidebar */}
-        <div className="hidden md:flex w-[220px] bg-white/[0.03] backdrop-blur-3xl border-r border-black/20 p-3 pt-4 flex-col gap-4 overflow-y-auto shrink-0 text-[13px]">
+        <div className="tahoe-app-sidebar hidden w-[220px] shrink-0 flex-col gap-4 overflow-y-auto border-r border-[color:var(--tahoe-hairline)] p-3 pt-4 text-[13px] md:flex">
           {sidebarSections.map((section, idx) => (
             <div key={idx} className="flex flex-col">
               {!section.hideTitle && (
-                <div className="text-[11px] font-semibold text-white/30 px-3 mb-1.5">{section.title}</div>
+                <div className="tahoe-sidebar-section-title px-3 mb-1.5 text-[11px] font-semibold">
+                  {section.title}
+                </div>
               )}
               {section.items.map(item => (
                 <button
                   key={item.id}
+                  type="button"
                   onClick={() => handleSidebarClick(item)}
+                  data-active={isSidebarItemActive(item) ? 'true' : undefined}
                   className={cn(
-                    "flex items-center justify-between px-3 py-1 rounded-[6px] group transition-all",
-                    (currentFolder.id === item.id || (item.id === 'desktop' && currentFolder.id === null))
-                      ? "bg-[#fabd2e] text-black shadow-sm font-medium"
-                      : "hover:bg-white/[0.05] text-white/80"
+                    "tahoe-sidebar-row flex items-center justify-between rounded-[8px] px-3 py-1.5 group transition-all",
+                    isSidebarItemActive(item) ? "font-medium" : "font-normal"
                   )}
                 >
                   <div className="flex items-center gap-2.5">
                     <span className={cn(
                       "transition-colors",
-                      (currentFolder.id === item.id || (item.id === 'desktop' && currentFolder.id === null)) ? "text-black/80" : "text-[#0096ff]"
+                      isSidebarItemActive(item)
+                        ? "text-[color:var(--tahoe-text-primary)]"
+                        : "text-[color:var(--tahoe-accent)]"
                     )}>{item.icon}</span>
                     <span className="truncate">{item.name}</span>
                   </div>
                   {/* Status/Badge */}
                   <div className="flex items-center gap-1.5">
-                    {item.cloud && <Cloud size={12} className={cn((currentFolder.id === item.id || (item.id === 'desktop' && currentFolder.id === null)) ? "text-black/40" : "text-white/20")} />}
-                    {item.badge && <span className="text-[10px] opacity-40 font-bold">{item.badge}</span>}
+                    {item.cloud && (
+                      <Cloud
+                        size={12}
+                        className={cn(
+                          isSidebarItemActive(item)
+                            ? "text-[color:var(--tahoe-text-tertiary)]"
+                            : "text-[color:var(--tahoe-text-tertiary)] opacity-80"
+                        )}
+                      />
+                    )}
+                    {item.badge && (
+                      <span className="text-[10px] font-semibold text-[color:var(--tahoe-text-tertiary)]">
+                        {item.badge}
+                      </span>
+                    )}
                   </div>
                 </button>
               ))}
@@ -413,16 +474,20 @@ const FinderApp = React.memo(({ initialPath, onOpenFile }: FinderProps) => {
 
         {/* Workspace */}
         <div
-          className="flex-1 flex flex-col bg-[#1c1c1c]/95 relative"
+          className="tahoe-app-panel relative flex flex-1 flex-col"
           onClick={() => setSelectedIds([])}
           onContextMenu={(e) => handleContextMenu(e)}
         >
           {/* Grid Area */}
           <div className="flex-1 p-4 md:p-8 pt-4 overflow-auto scrollbar-hide">
             {currentFiles.length === 0 ? (
-              <div className="h-full flex flex-col items-center justify-center text-white/20 gap-4">
-                <Folder size={64} strokeWidth={1} />
-                <span className="text-sm font-medium">Esta carpeta está vacía</span>
+              <div className="flex h-full items-center justify-center">
+                <div className="tahoe-content-card flex flex-col items-center justify-center gap-4 rounded-3xl px-8 py-10 text-center">
+                  <Folder size={64} strokeWidth={1.25} className="text-[color:var(--tahoe-text-tertiary)]" />
+                  <span className="text-sm font-medium text-[color:var(--tahoe-text-secondary)]">
+                    Esta carpeta está vacía
+                  </span>
+                </div>
               </div>
             ) : (
               <div className="grid grid-cols-[repeat(auto-fill,minmax(80px,1fr))] md:grid-cols-[repeat(auto-fill,minmax(110px,1fr))] gap-x-4 md:gap-x-6 gap-y-6 md:gap-y-10 content-start">
@@ -444,8 +509,10 @@ const FinderApp = React.memo(({ initialPath, onOpenFile }: FinderProps) => {
                     }}
                     onContextMenu={(e) => handleContextMenu(e, file.id)}
                     className={cn(
-                      "flex flex-col items-center gap-2 group cursor-default p-2 rounded-md transition-all border border-transparent",
-                      selectedIds.includes(file.id) ? "bg-white/10 border-white/5" : "hover:bg-white/5"
+                      "flex flex-col items-center gap-2 group cursor-default rounded-2xl p-2.5 transition-all",
+                      selectedIds.includes(file.id)
+                        ? "tahoe-content-card"
+                        : "hover:bg-[color:var(--tahoe-control-surface)]"
                     )}
                   >
                     <div className="mb-1 transform scale-105">
@@ -470,8 +537,10 @@ const FinderApp = React.memo(({ initialPath, onOpenFile }: FinderProps) => {
                     </div>
                     <div className="flex items-center gap-1 max-w-[100px] mt-0.5">
                       <span className={cn(
-                        "text-[11.5px] text-center leading-[1.2] line-clamp-2 drop-shadow-sm font-medium tracking-tight px-1.5 py-0.5 rounded",
-                        selectedIds.includes(file.id) ? "bg-blue-600 text-white" : "text-white/95"
+                        "text-[11.5px] text-center leading-[1.2] line-clamp-2 font-medium tracking-tight px-1.5 py-0.5 rounded",
+                        selectedIds.includes(file.id)
+                          ? "text-[color:var(--tahoe-text-primary)]"
+                          : "text-[color:var(--tahoe-text-secondary)]"
                       )}>
                         {file.name}
                       </span>
@@ -483,25 +552,26 @@ const FinderApp = React.memo(({ initialPath, onOpenFile }: FinderProps) => {
           </div>
 
           {/* Bottom Breadcrumbs */}
-          <div className="h-7 border-t border-white/[0.08] flex items-center px-4 gap-2 text-[10px] text-white/40 bg-[#252528] shrink-0 font-medium overflow-hidden">
-            <div className="hidden sm:flex items-center gap-1.5 opacity-60 hover:opacity-100 transition-opacity cursor-default">
+          <div className="tahoe-app-statusbar flex h-7 shrink-0 items-center gap-2 overflow-hidden border-t border-[color:var(--tahoe-hairline)] px-4 text-[10px] font-medium text-[color:var(--tahoe-text-tertiary)]">
+            <div className="hidden sm:flex items-center gap-1.5 opacity-80 hover:opacity-100 transition-opacity cursor-default">
               <span className="text-[12px]">💾</span> Macintosh HD
             </div>
-            <span className="hidden sm:inline text-white/10 font-light">›</span>
-            <div className="hidden sm:flex items-center gap-1.5 opacity-60 hover:opacity-100 transition-opacity cursor-default">
+            <span className="hidden sm:inline tahoe-status-separator font-light">›</span>
+            <div className="hidden sm:flex items-center gap-1.5 opacity-80 hover:opacity-100 transition-opacity cursor-default">
               <span className="text-[12px]">📂</span> Usuarios
             </div>
 
             {breadcrumbs.map((crumb, idx) => (
               <React.Fragment key={idx}>
-                <span className="text-white/10 font-light">›</span>
+                <span className="tahoe-status-separator font-light">›</span>
                 <button
+                  type="button"
                   onClick={() => navigateTo(crumb.id, crumb.name)}
                   className={cn(
-                    "flex items-center px-1.5 py-0.5 rounded transition-colors gap-1.5 outline-none",
+                    "flex items-center gap-1.5 rounded px-1.5 py-0.5 outline-none transition-colors",
                     idx === breadcrumbs.length - 1
-                      ? "text-[#fabd2e] font-bold"
-                      : "hover:bg-white/5 text-white/50"
+                      ? "font-semibold text-[color:var(--tahoe-text-primary)]"
+                      : "text-[color:var(--tahoe-text-secondary)] hover:bg-[color:var(--tahoe-control-surface)]"
                   )}
                 >
                   <span className="text-[12px] opacity-80">
@@ -514,16 +584,18 @@ const FinderApp = React.memo(({ initialPath, onOpenFile }: FinderProps) => {
           </div>
 
           {/* Status Bar */}
-          <div className="h-9 border-t border-black/40 flex items-center justify-center px-4 relative bg-[#252528] shrink-0">
-            <span className="text-[11.5px] text-white/50 font-medium tracking-tight truncate px-2">{currentFiles.length} elementos, 34.49 GB disponible(s)</span>
+          <div className="tahoe-app-statusbar relative flex h-9 shrink-0 items-center justify-center border-t border-[color:var(--tahoe-hairline)] px-4">
+            <span className="truncate px-2 text-[11.5px] font-medium tracking-tight text-[color:var(--tahoe-text-secondary)]">
+              {currentFiles.length} elementos, 34.49 GB disponible(s)
+            </span>
             <div className="hidden sm:flex absolute right-5 items-center gap-4 group">
               <div className="relative w-28 h-5 flex items-center">
-                <div className="absolute left-0 w-[4px] h-[1px] bg-white/20" />
-                <div className="w-full h-[1.5px] bg-[#1c1c1e] mx-2 relative overflow-hidden rounded-full border border-white/5 shadow-inner">
-                  <div className="absolute left-0 top-0 bottom-0 w-[85%] bg-[#fabd2e]/80" />
+                <div className="absolute left-0 w-[4px] h-[1px] bg-[color:var(--tahoe-hairline)]" />
+                <div className="w-full h-[1.5px] bg-[color:var(--tahoe-stroke-soft)] mx-2 relative overflow-hidden rounded-full border border-[color:var(--tahoe-hairline)] shadow-inner">
+                  <div className="absolute left-0 top-0 bottom-0 w-[85%] bg-[color:var(--tahoe-accent)] opacity-80" />
                 </div>
-                <div className="absolute right-[12px] top-[14%] w-3.5 h-3.5 bg-white rounded-full shadow-[0_1px_3px_rgba(0,0,0,0.5)] border border-black/10 transition-transform active:scale-90" />
-                <div className="absolute right-0 w-[4px] h-[1px] bg-white/40" />
+                <div className="absolute right-[12px] top-[14%] w-3.5 h-3.5 rounded-full border border-[color:var(--tahoe-hairline)] bg-[color:var(--tahoe-window-content-surface)] shadow-[0_1px_3px_rgba(0,0,0,0.25)] transition-transform active:scale-90" />
+                <div className="absolute right-0 w-[4px] h-[1px] bg-[color:var(--tahoe-text-tertiary)] opacity-70" />
               </div>
             </div>
           </div>

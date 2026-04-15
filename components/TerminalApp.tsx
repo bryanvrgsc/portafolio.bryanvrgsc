@@ -3,7 +3,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Home, Check, Clock } from 'lucide-react';
 import { useFileSystem, VFile } from '@/context/FileSystemContext';
-import { cn } from '@/lib/utils';
 
 interface TerminalAppProps {
   onOpenFile?: (file: VFile) => void;
@@ -21,6 +20,25 @@ const getTime = () => {
   return new Date().toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' }).toLowerCase();
 };
 
+const terminalBadgeNeutralBackground = 'color-mix(in srgb, var(--tahoe-control-surface) 92%, transparent)';
+const terminalBadgeAccentBackground = 'color-mix(in srgb, var(--tahoe-accent) 18%, var(--tahoe-control-surface))';
+const terminalBadgeSoftBackground = 'var(--tahoe-control-surface)';
+
+const terminalBadgeNeutralStyle: React.CSSProperties = {
+  background: terminalBadgeNeutralBackground,
+  color: 'var(--tahoe-text-secondary)',
+};
+
+const terminalBadgeAccentStyle: React.CSSProperties = {
+  background: terminalBadgeAccentBackground,
+  color: 'var(--tahoe-text-primary)',
+};
+
+const terminalBadgeSoftStyle: React.CSSProperties = {
+  background: terminalBadgeSoftBackground,
+  color: 'var(--tahoe-text-secondary)',
+};
+
 const AppleLogo = () => (
   <svg viewBox="0 0 384 512" className="w-3 h-3 fill-current">
     <path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 46.9 86.7 82.8 119.5 23.3 21.6 51.1 46.9 82.2 3.9 30.8-43.9 66.7-43.9 96.1 3.9 30.6 47.5 59.4 18.3 83.3-15.6 15.6-21.9 31.9-50 31.9-50-6.1-9.4-44.4-38.3-46.7-104.4zm-48.9-152.8c19.7-21.4 33.1-50.6 28.1-80.8-23.9 3.6-50.6 18.3-69.4 41.7-16.7 20-32.8 52.8-27.5 81.7 25.8 2.2 51.4-18.9 68.8-42.6z" />
@@ -29,15 +47,27 @@ const AppleLogo = () => (
 
 const LeftPrompt = ({ path }: { path: string }) => (
   <div className="flex items-center font-bold text-[11px] h-6 select-none shrink-0">
-    <div className="bg-[#9ca3af] text-black px-2 h-full flex items-center rounded-l-md relative z-20">
-      <AppleLogo />
-      <div className="absolute right-[-12px] top-0 h-0 w-0 border-y-[12px] border-y-transparent border-l-[12px] border-l-[#9ca3af] z-20" />
-    </div>
-    <div className="bg-[#3b82f6] text-white pl-4 pr-2 h-full flex items-center relative ml-[0px] z-10">
-      <Home size={12} className="mr-1" />
-      <span>{path}</span>
-      <div className="absolute right-[-12px] top-0 h-0 w-0 border-y-[12px] border-y-transparent border-l-[12px] border-l-[#3b82f6]" />
-    </div>
+      <div
+        className="tahoe-terminal-badge px-2 h-full flex items-center rounded-l-md relative z-20"
+        style={terminalBadgeNeutralStyle}
+      >
+        <AppleLogo />
+        <div
+          className="absolute right-[-12px] top-0 h-0 w-0 border-y-[12px] border-y-transparent border-l-[12px] z-20"
+          style={{ borderLeftColor: terminalBadgeNeutralBackground }}
+        />
+      </div>
+      <div
+        className="tahoe-terminal-badge pl-4 pr-2 h-full flex items-center relative ml-[0px] z-10"
+        style={terminalBadgeAccentStyle}
+      >
+        <Home size={12} className="mr-1" />
+        <span>{path}</span>
+        <div
+          className="absolute right-[-12px] top-0 h-0 w-0 border-y-[12px] border-y-transparent border-l-[12px]"
+          style={{ borderLeftColor: terminalBadgeAccentBackground }}
+        />
+      </div>
   </div>
 );
 
@@ -45,10 +75,16 @@ const RightPrompt = ({ timestamp }: { timestamp?: string }) => {
   const time = timestamp || getTime();
   return (
     <div className="flex items-center font-bold text-[11px] h-6 select-none ml-auto shrink-0 gap-1 opacity-90">
-      <div className="bg-[#1e293b] text-green-500 px-2 h-full flex items-center rounded-l-full relative">
+      <div
+        className="tahoe-terminal-badge px-2 h-full flex items-center rounded-l-full relative"
+        style={terminalBadgeSoftStyle}
+      >
         <Check size={12} />
       </div>
-      <div className="bg-[#d1d5db] text-black px-3 h-full flex items-center rounded-r-full relative -ml-1">
+      <div
+        className="tahoe-terminal-badge px-3 h-full flex items-center rounded-r-full relative -ml-1"
+        style={terminalBadgeNeutralStyle}
+      >
         <span className="mr-1">{time}</span>
         <Clock size={12} />
       </div>
@@ -131,10 +167,11 @@ const TerminalApp = React.memo(({ onOpenFile, onOpenFolder }: TerminalAppProps) 
           response = (
             <div className="flex flex-wrap gap-x-4">
               {files.map(f => (
-                <span key={f.id} className={cn(
-                  "font-bold",
-                  f.type === 'folder' ? "text-blue-400" : "text-white"
-                )}>
+                <span
+                  key={f.id}
+                  className="font-bold"
+                  style={{ color: f.type === 'folder' ? 'var(--tahoe-accent)' : 'var(--tahoe-text-primary)' }}
+                >
                   {f.name}{f.type === 'folder' ? '/' : ''}
                 </span>
               ))}
@@ -278,7 +315,7 @@ const TerminalApp = React.memo(({ onOpenFile, onOpenFolder }: TerminalAppProps) 
 
   return (
     <div
-      className="h-full bg-[#1c1c1e] text-white font-mono text-[13px] p-2 overflow-auto leading-normal selection:bg-white/20"
+      className="tahoe-app-surface tahoe-terminal-shell h-full overflow-auto p-2 font-mono text-[13px] leading-normal"
       style={{ fontFamily: "MesloLGS NF, Menlo, Monaco, 'Courier New', monospace" }}
       onClick={() => document.getElementById('term-input')?.focus()}
     >
@@ -304,7 +341,7 @@ const TerminalApp = React.memo(({ onOpenFile, onOpenFolder }: TerminalAppProps) 
               id="term-input"
               autoFocus
               autoComplete="off"
-              className="bg-transparent border-none outline-none text-white w-full min-w-[10px] caret-white"
+              className="tahoe-terminal-input bg-transparent border-none outline-none w-full min-w-[10px]"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}

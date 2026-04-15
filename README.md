@@ -59,7 +59,7 @@ Spotlight and Control Center.
 ### Prerequisites
 
 - Node.js 18+ installed on your machine.
-- npm, pnpm, or yarn.
+- npm.
 
 ### Installation
 
@@ -74,10 +74,6 @@ Spotlight and Control Center.
 
    ```bash
    npm install
-   # or
-   pnpm install
-   # or
-   yarn install
    ```
 
 3. Run the development server:

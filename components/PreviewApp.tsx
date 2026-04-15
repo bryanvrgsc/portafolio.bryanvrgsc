@@ -47,7 +47,7 @@ export const PreviewToolbar: React.FC<{ file: VFile }> = ({ file }) => {
 const PreviewApp: React.FC<PreviewAppProps> = ({ file }) => {
   if (!file || !file.content) {
     return (
-      <div className="flex items-center justify-center h-full w-full bg-[#1e1e1e] text-gray-500 flex-col gap-2">
+      <div className="tahoe-app-surface flex h-full w-full flex-col items-center justify-center gap-2 text-gray-500">
         <span className="text-4xl">📄</span>
         <p>No file selected</p>
       </div>
@@ -58,7 +58,7 @@ const PreviewApp: React.FC<PreviewAppProps> = ({ file }) => {
   const isImage = /\.(png|jpg|jpeg|svg|gif|webp)$/i.test(file.name);
 
   return (
-    <div className="h-full w-full bg-[#1e1e1e] flex flex-col">
+    <div className="tahoe-app-surface flex h-full w-full flex-col">
       <div className="flex-1 overflow-hidden relative flex items-center justify-center">
         {isPdf && (
           <iframe
