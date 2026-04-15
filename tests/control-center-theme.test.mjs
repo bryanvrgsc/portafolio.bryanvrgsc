@@ -372,3 +372,13 @@ test('desktop window apps consume the adaptive Tahoe app surface classes', () =>
   assert.match(read('components/PreviewApp.tsx'), /tahoe-app-surface/);
   assert.match(read('components/AboutThisMac.tsx'), /tahoe-app-surface/);
 });
+
+test('profile app consumes Tahoe adaptive surfaces and tokenized copy colors', () => {
+  const profileApp = read('components/ProfileApp.tsx');
+
+  assert.match(profileApp, /tahoe-app-surface/);
+  assert.match(profileApp, /tahoe-app-sidebar/);
+  assert.match(profileApp, /tahoe-app-panel/);
+  assert.match(profileApp, /var\(--tahoe-text-secondary\)/);
+  assert.match(profileApp, /var\(--tahoe-text-tertiary\)/);
+});

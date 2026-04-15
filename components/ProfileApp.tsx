@@ -141,42 +141,114 @@ const projects: Project[] = [
 
 const ProfileApp = React.memo(() => {
   const [activeTab, setActiveTab] = useState<'info' | 'experience' | 'projects'>('info');
+  const sectionLabelStyle: React.CSSProperties = { color: 'var(--tahoe-text-tertiary)' };
+  const secondaryTextStyle: React.CSSProperties = { color: 'var(--tahoe-text-secondary)' };
+  const mutedTextStyle: React.CSSProperties = { color: 'var(--tahoe-text-tertiary)' };
+  const surfaceCardStyle: React.CSSProperties = {
+    background: 'var(--tahoe-toolbar-bg)',
+    border: '1px solid var(--tahoe-stroke-soft)',
+  };
+  const sidebarLinkStyle: React.CSSProperties = { color: 'var(--tahoe-text-secondary)' };
+  const pillStyle: React.CSSProperties = {
+    background: 'var(--tahoe-toolbar-bg)',
+    border: '1px solid var(--tahoe-stroke-soft)',
+    color: 'var(--tahoe-text-secondary)',
+  };
+  const techPillStyle: React.CSSProperties = {
+    background: 'var(--tahoe-toolbar-bg)',
+    border: '1px solid var(--tahoe-stroke-soft)',
+    color: 'var(--tahoe-text-primary)',
+  };
+  const timelineStyle: React.CSSProperties = {
+    background: 'linear-gradient(180deg, var(--tahoe-stroke), var(--tahoe-hairline), transparent)',
+  };
+  const timelineNodeStyle: React.CSSProperties = {
+    background: 'var(--tahoe-toolbar-bg)',
+    border: '1px solid var(--tahoe-stroke)',
+  };
+  const pointerStyle: React.CSSProperties = {
+    background: 'var(--tahoe-toolbar-bg)',
+    borderLeft: '1px solid var(--tahoe-stroke-soft)',
+    borderTop: '1px solid var(--tahoe-stroke-soft)',
+  };
 
   return (
-    <div className="flex flex-col md:flex-row h-full text-white overflow-hidden">
+    <div className="tahoe-app-surface flex h-full flex-col overflow-hidden md:flex-row">
       {/* Sidebar */}
-      <div className="w-full md:w-48 bg-black/20 backdrop-blur-md border-b md:border-b-0 md:border-r border-white/5 p-4 flex flex-row md:flex-col gap-2 overflow-x-auto no-scrollbar">
-        <div className="hidden md:block text-[11px] font-bold text-white/30 px-2 mb-2 uppercase tracking-wider">Navegación</div>
-        <button onClick={() => setActiveTab('info')} className={`px-3 py-1.5 rounded-md text-sm font-medium text-left transition-colors whitespace-nowrap ${activeTab === 'info' ? 'bg-blue-500' : 'hover:bg-white/5 text-white/60'}`}>Información</button>
-        <button onClick={() => setActiveTab('experience')} className={`px-3 py-1.5 rounded-md text-sm font-medium text-left transition-colors whitespace-nowrap ${activeTab === 'experience' ? 'bg-blue-500' : 'hover:bg-white/5 text-white/60'}`}>Experiencia</button>
-        <button onClick={() => setActiveTab('projects')} className={`px-3 py-1.5 rounded-md text-sm font-medium text-left transition-colors whitespace-nowrap ${activeTab === 'projects' ? 'bg-blue-500' : 'hover:bg-white/5 text-white/60'}`}>Proyectos</button>
+      <div
+        className="tahoe-app-sidebar flex w-full shrink-0 flex-row gap-2 overflow-x-auto border-b p-4 no-scrollbar md:w-52 md:flex-col md:border-b-0 md:border-r"
+        style={{ borderColor: 'var(--tahoe-hairline)' }}
+      >
+        <div className="mb-2 hidden px-2 text-[11px] font-bold uppercase tracking-wider md:block" style={sectionLabelStyle}>Navegación</div>
+        <button
+          onClick={() => setActiveTab('info')}
+          className={`rounded-xl px-3 py-1.5 text-left text-sm font-medium transition-colors whitespace-nowrap ${
+            activeTab === 'info' ? 'bg-blue-500 text-white shadow-[0_12px_28px_rgba(59,130,246,0.24)]' : 'hover:bg-white/10 hover:text-[var(--tahoe-text-primary)]'
+          }`}
+          style={activeTab === 'info' ? undefined : sidebarLinkStyle}
+        >
+          Información
+        </button>
+        <button
+          onClick={() => setActiveTab('experience')}
+          className={`rounded-xl px-3 py-1.5 text-left text-sm font-medium transition-colors whitespace-nowrap ${
+            activeTab === 'experience' ? 'bg-blue-500 text-white shadow-[0_12px_28px_rgba(59,130,246,0.24)]' : 'hover:bg-white/10 hover:text-[var(--tahoe-text-primary)]'
+          }`}
+          style={activeTab === 'experience' ? undefined : sidebarLinkStyle}
+        >
+          Experiencia
+        </button>
+        <button
+          onClick={() => setActiveTab('projects')}
+          className={`rounded-xl px-3 py-1.5 text-left text-sm font-medium transition-colors whitespace-nowrap ${
+            activeTab === 'projects' ? 'bg-blue-500 text-white shadow-[0_12px_28px_rgba(59,130,246,0.24)]' : 'hover:bg-white/10 hover:text-[var(--tahoe-text-primary)]'
+          }`}
+          style={activeTab === 'projects' ? undefined : sidebarLinkStyle}
+        >
+          Proyectos
+        </button>
 
-        <div className="hidden md:block mt-8 text-[11px] font-bold text-white/30 px-2 mb-2 uppercase tracking-wider">Social</div>
-        <a href="https://github.com/bryanvrgsc" target="_blank" rel="noopener noreferrer" className="px-3 py-1.5 hover:bg-white/5 rounded-md text-sm font-medium text-white/60 transition-colors cursor-pointer flex items-center gap-2 whitespace-nowrap">
+        <div className="mt-8 mb-2 hidden px-2 text-[11px] font-bold uppercase tracking-wider md:block" style={sectionLabelStyle}>Social</div>
+        <a
+          href="https://github.com/bryanvrgsc"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex cursor-pointer items-center gap-2 rounded-xl px-3 py-1.5 text-sm font-medium transition-colors whitespace-nowrap hover:bg-white/10 hover:text-[var(--tahoe-text-primary)]"
+          style={sidebarLinkStyle}
+        >
           <span>GitHub</span>
         </a>
-        <a href="https://linkedin.com/in/bryanvrgsc" target="_blank" rel="noopener noreferrer" className="px-3 py-1.5 hover:bg-white/5 rounded-md text-sm font-medium text-white/60 transition-colors cursor-pointer flex items-center gap-2 whitespace-nowrap">
+        <a
+          href="https://linkedin.com/in/bryanvrgsc"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex cursor-pointer items-center gap-2 rounded-xl px-3 py-1.5 text-sm font-medium transition-colors whitespace-nowrap hover:bg-white/10 hover:text-[var(--tahoe-text-primary)]"
+          style={sidebarLinkStyle}
+        >
           <span>LinkedIn</span>
         </a>
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 overflow-auto p-4 md:p-10 bg-gradient-to-b from-transparent to-black/20">
-        <div className="max-w-3xl mx-auto">
+      <div className="tahoe-app-panel flex-1 overflow-auto">
+        <div className="mx-auto max-w-4xl p-4 md:p-10">
           {/* Header - Always visible */}
           <div className="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-6 md:gap-8 mb-8 md:mb-12">
             <div className="relative group">
               <div className="w-24 h-24 md:w-32 md:h-32 rounded-3xl bg-gradient-to-br from-orange-500 via-red-500 to-pink-500 flex items-center justify-center text-4xl md:text-5xl font-black shadow-2xl ring-4 ring-white/10 group-hover:scale-105 transition-transform duration-500">
                 BV
               </div>
-              <div className="absolute -bottom-1 -right-1 md:-bottom-2 md:-right-2 w-6 h-6 md:w-8 md:h-8 bg-green-500 rounded-full border-4 border-[#1c1c1e] shadow-lg"></div>
+              <div
+                className="absolute -right-1 -bottom-1 h-6 w-6 rounded-full bg-green-500 shadow-lg md:-right-2 md:-bottom-2 md:h-8 md:w-8"
+                style={{ border: '4px solid var(--tahoe-app-panel-surface)' }}
+              />
             </div>
             <div>
               <h1 className="text-2xl md:text-4xl font-extrabold tracking-tight mb-1">Bryan Alan Vargas Chávez</h1>
               <p className="text-orange-400 text-base md:text-lg font-medium">Software Engineer | Full Stack (iOS/Web) & Data Analyst</p>
               <div className="flex items-center justify-center sm:justify-start gap-2 md:gap-3 mt-4 flex-wrap">
-                <div className="px-3 py-1 bg-white/5 border border-white/10 rounded-full text-xs text-white/40">📍 Cuautitlán Izcalli & Huixquilucan, MX</div>
-                <div className="px-3 py-1 bg-white/5 border border-white/10 rounded-full text-xs text-white/40">🌐 Open to Remote</div>
+                <div className="rounded-full border px-3 py-1 text-xs" style={pillStyle}>📍 Cuautitlán Izcalli & Huixquilucan, MX</div>
+                <div className="rounded-full border px-3 py-1 text-xs" style={pillStyle}>🌐 Open to Remote</div>
                 <div className="px-3 py-1 bg-green-500/20 border border-green-500/30 rounded-full text-xs text-green-400">💼 Disponible</div>
               </div>
             </div>
@@ -186,15 +258,15 @@ const ProfileApp = React.memo(() => {
           {activeTab === 'info' && (
             <div className="grid grid-cols-1 gap-10">
               <section>
-                <h2 className="text-sm font-bold text-white/30 uppercase tracking-widest mb-4">Perfil</h2>
-                <p className="text-white/80 leading-relaxed text-base">
-                  Ingeniero en Sistemas especializado en <span className="text-white font-semibold">Desarrollo de Software</span> y <span className="text-white font-semibold">Análisis de Datos</span> con enfoque en la transformación digital y eficiencia operativa. Especializado en el diseño de arquitecturas escalables, implementación de soluciones Cloud/Web y construcción de Data Warehouses para la toma de decisiones estratégicas. Trayectoria probada en la gestión integral de proyectos tecnológicos y soporte especializado en entornos corporativos internacionales, destacando por la capacidad de traducir requerimientos complejos en soluciones técnicas robustas, seguras y de alto rendimiento.
+                <h2 className="mb-4 text-sm font-bold uppercase tracking-widest" style={sectionLabelStyle}>Perfil</h2>
+                <p className="text-base leading-relaxed" style={secondaryTextStyle}>
+                  Ingeniero en Sistemas especializado en <span style={{ color: 'var(--tahoe-text-primary)' }} className="font-semibold">Desarrollo de Software</span> y <span style={{ color: 'var(--tahoe-text-primary)' }} className="font-semibold">Análisis de Datos</span> con enfoque en la transformación digital y eficiencia operativa. Especializado en el diseño de arquitecturas escalables, implementación de soluciones Cloud/Web y construcción de Data Warehouses para la toma de decisiones estratégicas. Trayectoria probada en la gestión integral de proyectos tecnológicos y soporte especializado en entornos corporativos internacionales, destacando por la capacidad de traducir requerimientos complejos en soluciones técnicas robustas, seguras y de alto rendimiento.
                 </p>
               </section>
 
               <section>
-                <h2 className="text-sm font-bold text-white/30 uppercase tracking-widest mb-4">Educación</h2>
-                <div className="bg-white/5 border border-white/10 rounded-xl p-4">
+                <h2 className="mb-4 text-sm font-bold uppercase tracking-widest" style={sectionLabelStyle}>Educación</h2>
+                <div className="rounded-2xl p-4" style={surfaceCardStyle}>
                   <div className="flex gap-4 items-start">
                     <div className="relative w-16 h-16 bg-white rounded-xl flex items-center justify-center p-2 flex-shrink-0">
                       <Image
@@ -207,13 +279,13 @@ const ProfileApp = React.memo(() => {
                     </div>
                     <div className="flex-1 flex justify-between items-start">
                       <div>
-                        <h3 className="text-white font-semibold">Lic. Ingeniería en Sistemas y Tecnologías de la Información</h3>
-                        <p className="text-white/60 text-sm">Universidad Anáhuac - Campus Norte</p>
-                        <p className="text-white/40 text-xs mt-1">Huixquilucan, México</p>
+                        <h3 className="font-semibold">Lic. Ingeniería en Sistemas y Tecnologías de la Información</h3>
+                        <p className="text-sm" style={secondaryTextStyle}>Universidad Anáhuac - Campus Norte</p>
+                        <p className="mt-1 text-xs" style={mutedTextStyle}>Huixquilucan, México</p>
                       </div>
                       <div className="text-right">
                         <span className="text-orange-400 text-sm font-medium">Dic 2024</span>
-                        <p className="text-white/40 text-xs mt-1">Cédula: 14635537</p>
+                        <p className="mt-1 text-xs" style={mutedTextStyle}>Cédula: 14635537</p>
                       </div>
                     </div>
                   </div>
@@ -221,37 +293,37 @@ const ProfileApp = React.memo(() => {
               </section>
 
               <section>
-                <h2 className="text-sm font-bold text-white/30 uppercase tracking-widest mb-4">Stack Tecnológico</h2>
+                <h2 className="mb-4 text-sm font-bold uppercase tracking-widest" style={sectionLabelStyle}>Stack Tecnológico</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-6">
                   <div>
-                    <div className="text-xs font-bold text-white/60 mb-2">Mobile (iOS)</div>
+                    <div className="mb-2 text-xs font-bold" style={secondaryTextStyle}>Mobile (iOS)</div>
                     <div className="flex flex-wrap gap-2">
                       {['Swift', 'SwiftUI', 'Combine', 'Core Data', 'XCTest'].map(s => (
-                        <span key={s} className="text-sm text-white/90 bg-white/5 px-2 py-0.5 rounded">{s}</span>
+                        <span key={s} className="rounded-md border px-2 py-0.5 text-sm" style={techPillStyle}>{s}</span>
                       ))}
                     </div>
                   </div>
                   <div>
-                    <div className="text-xs font-bold text-white/60 mb-2">Web</div>
+                    <div className="mb-2 text-xs font-bold" style={secondaryTextStyle}>Web</div>
                     <div className="flex flex-wrap gap-2">
                       {['Astro', 'Tailwind', 'TypeScript', 'Next.js', 'Node.js'].map(s => (
-                        <span key={s} className="text-sm text-white/90 bg-white/5 px-2 py-0.5 rounded">{s}</span>
+                        <span key={s} className="rounded-md border px-2 py-0.5 text-sm" style={techPillStyle}>{s}</span>
                       ))}
                     </div>
                   </div>
                   <div>
-                    <div className="text-xs font-bold text-white/60 mb-2">Backend & Cloud</div>
+                    <div className="mb-2 text-xs font-bold" style={secondaryTextStyle}>Backend & Cloud</div>
                     <div className="flex flex-wrap gap-2">
                       {['Firebase', 'Auth0', 'Cloudflare', 'Vercel', 'REST APIs'].map(s => (
-                        <span key={s} className="text-sm text-white/90 bg-white/5 px-2 py-0.5 rounded">{s}</span>
+                        <span key={s} className="rounded-md border px-2 py-0.5 text-sm" style={techPillStyle}>{s}</span>
                       ))}
                     </div>
                   </div>
                   <div>
-                    <div className="text-xs font-bold text-white/60 mb-2">Data & Analytics</div>
+                    <div className="mb-2 text-xs font-bold" style={secondaryTextStyle}>Data & Analytics</div>
                     <div className="flex flex-wrap gap-2">
                       {['PostgreSQL', 'MySQL', 'MongoDB', 'Python', 'Power BI'].map(s => (
-                        <span key={s} className="text-sm text-white/90 bg-white/5 px-2 py-0.5 rounded">{s}</span>
+                        <span key={s} className="rounded-md border px-2 py-0.5 text-sm" style={techPillStyle}>{s}</span>
                       ))}
                     </div>
                   </div>
@@ -259,29 +331,29 @@ const ProfileApp = React.memo(() => {
               </section>
 
               <section>
-                <h2 className="text-sm font-bold text-white/30 uppercase tracking-widest mb-4">Idiomas</h2>
+                <h2 className="mb-4 text-sm font-bold uppercase tracking-widest" style={sectionLabelStyle}>Idiomas</h2>
                 <div className="flex flex-wrap gap-4">
-                  <div className="bg-white/5 border border-white/10 rounded-lg px-4 py-2">
-                    <span className="text-white font-medium">Español</span>
-                    <span className="text-white/40 text-sm ml-2">Nativo</span>
+                  <div className="rounded-lg border px-4 py-2" style={surfaceCardStyle}>
+                    <span className="font-medium">Español</span>
+                    <span className="ml-2 text-sm" style={mutedTextStyle}>Nativo</span>
                   </div>
-                  <div className="bg-white/5 border border-white/10 rounded-lg px-4 py-2">
-                    <span className="text-white font-medium">Inglés</span>
-                    <span className="text-white/40 text-sm ml-2">Avanzado</span>
+                  <div className="rounded-lg border px-4 py-2" style={surfaceCardStyle}>
+                    <span className="font-medium">Inglés</span>
+                    <span className="ml-2 text-sm" style={mutedTextStyle}>Avanzado</span>
                   </div>
                 </div>
               </section>
 
               <section>
-                <h2 className="text-sm font-bold text-white/30 uppercase tracking-widest mb-4">Contacto</h2>
+                <h2 className="mb-4 text-sm font-bold uppercase tracking-widest" style={sectionLabelStyle}>Contacto</h2>
                 <div className="flex flex-wrap gap-4">
-                  <a href="mailto:bryanvrgsc@gmail.com" className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-lg px-4 py-2 hover:bg-white/10 transition-colors">
+                  <a href="mailto:bryanvrgsc@gmail.com" className="flex items-center gap-2 rounded-lg border px-4 py-2 transition-colors hover:bg-white/10" style={surfaceCardStyle}>
                     <span>📧</span>
-                    <span className="text-white/80">bryanvrgsc@gmail.com</span>
+                    <span style={secondaryTextStyle}>bryanvrgsc@gmail.com</span>
                   </a>
-                  <a href="tel:+12533687369" className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-lg px-4 py-2 hover:bg-white/10 transition-colors">
+                  <a href="tel:+12533687369" className="flex items-center gap-2 rounded-lg border px-4 py-2 transition-colors hover:bg-white/10" style={surfaceCardStyle}>
                     <span>📱</span>
-                    <span className="text-white/80">+1 253 368 7369</span>
+                    <span style={secondaryTextStyle}>+1 253 368 7369</span>
                   </a>
                 </div>
               </section>
@@ -298,7 +370,7 @@ const ProfileApp = React.memo(() => {
               <h2 className="text-2xl font-bold mb-8 pl-2">Experiencia Profesional</h2>
 
               {/* Vertical Timeline Line */}
-              <div className="absolute left-6 top-[70px] bottom-0 w-px bg-gradient-to-b from-white/20 via-white/10 to-transparent" />
+              <div className="absolute left-6 top-[70px] bottom-0 w-px" style={timelineStyle} />
 
               <div className="space-y-8">
                 {experiences.map((exp, index) => (
@@ -310,26 +382,32 @@ const ProfileApp = React.memo(() => {
                     className="relative flex gap-6 group"
                   >
                     {/* Timeline Node/Icon */}
-                    <div className="relative z-10 w-12 h-12 bg-[#2a2a2a] border border-white/20 rounded-full flex items-center justify-center text-2xl shrink-0 shadow-lg group-hover:border-orange-500/50 group-hover:shadow-orange-500/20 transition-all duration-300">
+                    <div
+                      className="relative z-10 flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-2xl shadow-lg transition-all duration-300 group-hover:border-orange-500/50 group-hover:shadow-orange-500/20"
+                      style={timelineNodeStyle}
+                    >
                       {exp.icon}
                     </div>
 
                     {/* Content Card */}
-                    <div className="flex-1 p-5 bg-white/5 border border-white/10 rounded-xl hover:bg-white/[0.07] hover:border-white/20 transition-all duration-300 relative">
+                    <div
+                      className="relative flex-1 rounded-2xl p-5 transition-all duration-300 hover:bg-white/[0.07] hover:border-white/20"
+                      style={surfaceCardStyle}
+                    >
                       {/* Triangle Pointer */}
-                      <div className="absolute top-6 -left-2 w-4 h-4 bg-white/5 border-l border-t border-white/10 transform -rotate-45 group-hover:bg-white/[0.07] group-hover:border-white/20 transition-colors rounded-tl-sm" />
+                      <div className="absolute top-6 -left-2 h-4 w-4 -rotate-45 rounded-tl-sm transition-colors" style={pointerStyle} />
 
                       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-3 gap-2">
                         <div>
-                          <h3 className="text-lg font-bold text-white group-hover:text-orange-400 transition-colors">{exp.position}</h3>
+                          <h3 className="text-lg font-bold transition-colors group-hover:text-orange-400">{exp.position}</h3>
                           <p className="text-orange-400 font-medium text-sm sm:text-base">{exp.company}</p>
                         </div>
                         <div className="text-left sm:text-right">
-                          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/5 border border-white/5 text-xs font-medium text-white/70 mb-1">
+                          <div className="mb-1 inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs font-medium" style={pillStyle}>
                             <span>📅</span>
                             {exp.period}
                           </div>
-                          <p className="text-white/40 text-xs flex items-center gap-1 sm:justify-end">
+                          <p className="flex items-center gap-1 text-xs sm:justify-end" style={mutedTextStyle}>
                             <span>📍</span>
                             {exp.location}
                           </p>
@@ -338,7 +416,7 @@ const ProfileApp = React.memo(() => {
 
                       <ul className="space-y-2 mt-4">
                         {exp.highlights.map((h, i) => (
-                          <li key={i} className="text-sm text-white/70 flex items-start gap-2 leading-relaxed">
+                          <li key={i} className="flex items-start gap-2 text-sm leading-relaxed" style={secondaryTextStyle}>
                             <span className="text-orange-400/70 mt-1.5 w-1.5 h-1.5 rounded-full bg-orange-400/70 shrink-0" />
                             <span>{h}</span>
                           </li>
@@ -357,23 +435,24 @@ const ProfileApp = React.memo(() => {
               {projects.map((project) => (
                 <div
                   key={project.name}
-                  className="p-5 bg-white/5 border border-white/10 rounded-xl hover:bg-white/[0.07] transition-colors"
+                  className="rounded-2xl p-5 transition-colors hover:bg-white/[0.07]"
+                  style={surfaceCardStyle}
                 >
                   <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center text-2xl flex-shrink-0">
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border text-2xl" style={surfaceCardStyle}>
                       {project.icon}
                     </div>
                     <div className="flex-1">
                       <div className="mb-3">
-                        <h3 className="text-lg font-bold text-white mb-1">{project.name}</h3>
-                        <p className="text-white/60 text-sm mb-2">{project.description}</p>
+                        <h3 className="mb-1 text-lg font-bold">{project.name}</h3>
+                        <p className="mb-2 text-sm" style={secondaryTextStyle}>{project.description}</p>
                         <a href={project.url} target="_blank" rel="noopener noreferrer" className="text-orange-400 hover:text-orange-300 text-xs font-mono">
                           {project.url.replace('https://', '')} →
                         </a>
                       </div>
                       <ul className="space-y-2">
                         {project.highlights.map((h, i) => (
-                          <li key={i} className="text-sm text-white/70 flex items-start gap-2 leading-relaxed">
+                          <li key={i} className="flex items-start gap-2 text-sm leading-relaxed" style={secondaryTextStyle}>
                             <span className="text-orange-400 mt-0.5">•</span>
                             <span>{h}</span>
                           </li>
