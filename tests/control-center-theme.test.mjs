@@ -345,6 +345,58 @@ test('globals define window-specific theme surface tokens that windows consume f
   assert.match(globals, /var\(--tahoe-window-titlebar-surface\)/);
 });
 
+test('globals define Tahoe chrome utilities for desktop app windows', () => {
+  const globals = read('app/globals.css');
+
+  assert.match(globals, /\.tahoe-control-cluster/);
+  assert.match(globals, /\.tahoe-control-button/);
+  assert.match(globals, /\.tahoe-search-field/);
+  assert.match(globals, /\.tahoe-sidebar-section-title/);
+  assert.match(globals, /\.tahoe-sidebar-row/);
+  assert.match(globals, /\.tahoe-content-card/);
+  assert.match(globals, /\.tahoe-terminal-shell/);
+  assert.match(globals, /--tahoe-control-surface:/);
+  assert.match(globals, /--tahoe-content-card-surface:/);
+  assert.match(globals, /--tahoe-terminal-surface:/);
+});
+
+test('finder consumes Tahoe chrome utilities instead of dark-only shell styling', () => {
+  const finder = read('components/FinderApp.tsx');
+
+  assert.match(finder, /tahoe-control-cluster/);
+  assert.match(finder, /tahoe-search-field/);
+  assert.match(finder, /tahoe-sidebar-row/);
+  assert.match(finder, /tahoe-content-card/);
+});
+
+test('safari consumes Tahoe chrome utilities across header sidebar and content states', () => {
+  const safari = read('components/BrowserApp.tsx');
+
+  assert.match(safari, /tahoe-control-cluster/);
+  assert.match(safari, /tahoe-control-button/);
+  assert.match(safari, /tahoe-search-field/);
+  assert.match(safari, /tahoe-sidebar-row/);
+  assert.match(safari, /tahoe-content-card/);
+});
+
+test('notes consumes Tahoe chrome utilities and tokenized copy colors', () => {
+  const notes = read('components/NotesApp.tsx');
+
+  assert.match(notes, /tahoe-control-cluster/);
+  assert.match(notes, /tahoe-content-card/);
+  assert.match(notes, /var\\(--tahoe-text-secondary\\)/);
+  assert.match(notes, /var\\(--tahoe-text-tertiary\\)/);
+});
+
+test('terminal consumes Tahoe terminal shell utilities and tokenized input colors', () => {
+  const terminal = read('components/TerminalApp.tsx');
+
+  assert.match(terminal, /tahoe-terminal-shell/);
+  assert.match(terminal, /tahoe-terminal-input/);
+  assert.match(terminal, /tahoe-terminal-badge/);
+  assert.match(terminal, /var\\(--tahoe-text-primary\\)/);
+});
+
 test('globals define adaptive app chrome surface classes for light-mode window content', () => {
   const globals = read('app/globals.css');
 
