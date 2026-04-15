@@ -328,6 +328,15 @@ select {
     color: var(--tahoe-text-primary);
   }
 
+  .tahoe-control-button:focus-visible {
+    outline: none;
+    background: color-mix(in srgb, var(--tahoe-accent-soft) 34%, var(--tahoe-control-surface));
+    box-shadow:
+      0 0 0 1px color-mix(in srgb, var(--tahoe-accent) 58%, var(--tahoe-stroke-soft)),
+      0 0 0 4px color-mix(in srgb, var(--tahoe-accent-soft) 74%, transparent);
+    color: var(--tahoe-text-primary);
+  }
+
   .tahoe-control-button[data-active="true"] {
     background: color-mix(in srgb, var(--tahoe-accent) 18%, var(--tahoe-control-surface));
     color: var(--tahoe-text-primary);
@@ -343,6 +352,16 @@ select {
     color: var(--tahoe-text-tertiary);
   }
 
+  .tahoe-search-field:focus-visible,
+  .tahoe-search-field:focus-within {
+    outline: none;
+    border-color: color-mix(in srgb, var(--tahoe-accent) 42%, var(--tahoe-stroke-soft));
+    box-shadow:
+      0 0 0 1px color-mix(in srgb, var(--tahoe-accent) 54%, var(--tahoe-stroke-soft)),
+      0 0 0 4px color-mix(in srgb, var(--tahoe-accent-soft) 72%, transparent),
+      inset 0 1px 0 rgba(255, 255, 255, 0.14);
+  }
+
   .tahoe-sidebar-section-title {
     color: var(--tahoe-text-tertiary);
     letter-spacing: 0.08em;
@@ -356,6 +375,15 @@ select {
 
   .tahoe-sidebar-row:hover {
     background: color-mix(in srgb, var(--tahoe-control-surface) 72%, transparent);
+    color: var(--tahoe-text-primary);
+  }
+
+  .tahoe-sidebar-row:focus-visible {
+    outline: none;
+    background: color-mix(in srgb, var(--tahoe-accent-soft) 32%, var(--tahoe-control-surface));
+    box-shadow:
+      0 0 0 1px color-mix(in srgb, var(--tahoe-accent) 52%, var(--tahoe-stroke-soft)),
+      0 0 0 4px color-mix(in srgb, var(--tahoe-accent-soft) 70%, transparent);
     color: var(--tahoe-text-primary);
   }
 
@@ -385,6 +413,14 @@ select {
   .tahoe-terminal-input {
     color: var(--tahoe-text-primary);
     caret-color: var(--tahoe-text-primary);
+  }
+
+  .tahoe-terminal-input:focus-visible {
+    outline: none;
+    border-radius: 10px;
+    box-shadow:
+      0 0 0 1px color-mix(in srgb, var(--tahoe-accent) 56%, var(--tahoe-terminal-border)),
+      0 0 0 4px color-mix(in srgb, var(--tahoe-accent-soft) 68%, transparent);
   }
 
   .tahoe-terminal-badge {

@@ -365,6 +365,15 @@ const BrowserApp = React.memo(() => {
   const activeTab = tabs.find(t => t.id === activeTabId) || tabs[0];
   const tahoeTextPrimaryStyle = { color: 'var(--tahoe-text-primary)' };
   const tahoeTextSecondaryStyle = { color: 'var(--tahoe-text-secondary)' };
+  const tahoeTextTertiaryStyle = { color: 'var(--tahoe-text-tertiary)' };
+  const tahoeHairlineStyle = { borderColor: 'var(--tahoe-hairline)' };
+  const tahoeChipSurfaceStyle = {
+    background: 'color-mix(in srgb, var(--tahoe-control-surface) 90%, transparent)',
+    borderColor: 'var(--tahoe-stroke-soft)',
+  };
+  const tahoePreviewSurfaceStyle = {
+    background: 'color-mix(in srgb, var(--tahoe-app-panel-surface) 78%, transparent)',
+  };
 
   const updateActiveTab = (updates: Partial<Tab>) => {
     setTabs(prev => prev.map(t => t.id === activeTabId ? { ...t, ...updates } : t));
@@ -732,7 +741,7 @@ const BrowserApp = React.memo(() => {
               {/* Tab Background (Pill Style) */}
               <div className={`absolute inset-0 rounded-lg transition-all duration-200 ${activeTabId === tab.id
                 ? 'tahoe-content-card shadow-[0_1px_3px_rgba(0,0,0,0.18)]'
-                : 'hover:bg-white/5'
+                : 'tahoe-content-card opacity-0 group-hover:opacity-100'
                 }`} />
 
               <div className="relative flex items-center w-full min-w-0">
@@ -843,13 +852,13 @@ const BrowserApp = React.memo(() => {
         <div className="flex-1 overflow-hidden">
           <div style={{ fontSize: `${fontSize}%` }} className={`h-full ${isReaderMode ? 'tahoe-content-card transition-colors duration-500' : ''}`}>
             {activeTab.view === 'profile' && (
-              <div className="h-full relative overflow-hidden bg-[#0a0c10] text-white font-sans selection:bg-orange-500/30">
+              <div className="tahoe-app-panel h-full relative overflow-hidden font-sans selection:bg-orange-500/30" style={tahoeTextPrimaryStyle}>
                 {/* Background Wireframe Mesh - Desktop Only */}
                 <div className="hidden md:block absolute inset-0 z-0 opacity-20 pointer-events-none overflow-hidden">
                   <svg width="100%" height="100%" viewBox="0 0 1000 1000" preserveAspectRatio="none">
                     <defs>
                       <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-                        <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="0.5" />
+                        <path d="M 40 0 L 0 0 0 40" fill="none" stroke="var(--tahoe-hairline)" strokeWidth="0.5" />
                       </pattern>
                       <radialGradient id="mouseGradient" cx="50%" cy="50%" r="50%">
                         <stop offset="0%" stopColor="rgba(249,115,22,0.15)" />
@@ -907,10 +916,10 @@ const BrowserApp = React.memo(() => {
                     animate={{ y: [0, 25, 0], rotate: [0, -8, 0] }}
                     transition={{ duration: 7, repeat: Infinity, ease: "easeInOut", delay: 1 }}
                     style={{ x: nodeX, y: nodeY }}
-                    className="absolute bottom-[5%] right-[25%] w-28 h-28 bg-white/5 backdrop-blur-xl rounded-2xl border border-white/20 flex flex-col items-center justify-center shadow-[0_0_40px_rgba(255,255,255,0.05)]"
+                    className="absolute bottom-[5%] right-[25%] w-28 h-28 tahoe-content-card backdrop-blur-xl rounded-2xl flex flex-col items-center justify-center shadow-[0_0_40px_rgba(255,255,255,0.05)]"
                   >
                     <div className="text-3xl font-bold flex items-baseline gap-0.5">n<span className="text-green-500 text-xs">de</span></div>
-                    <div className="text-[8px] bg-green-500 px-1 rounded text-black font-bold">JS</div>
+                    <div className="text-[8px] bg-green-500 px-1 rounded font-bold" style={{ color: 'rgb(7 18 10)' }}>JS</div>
                   </motion.div>
                   <motion.div
                     animate={{ y: [0, -15, 0], rotate: [0, 10, 0] }}
@@ -932,24 +941,27 @@ const BrowserApp = React.memo(() => {
 
                 <div className="relative z-20 flex flex-col md:flex-row h-full" onMouseMove={handleMouseMove}>
                   {/* High-Fidelity Sidebar */}
-                  <div className="w-full md:w-64 shrink-0 bg-[#0d1117]/80 backdrop-blur-xl border-b md:border-b-0 md:border-r border-white/5 p-4 md:p-8 flex flex-row md:flex-col gap-6 md:gap-10 overflow-x-auto no-scrollbar">
+                  <div className="tahoe-app-sidebar w-full md:w-64 shrink-0 border-b md:border-b-0 md:border-r p-4 md:p-8 flex flex-row md:flex-col gap-6 md:gap-10 overflow-x-auto no-scrollbar" style={tahoeHairlineStyle}>
                     <div className="flex md:flex-col gap-2 md:gap-6 min-w-max">
-                      <h3 className="hidden md:block text-[10px] font-bold uppercase tracking-[2px] text-white/30">Navegación</h3>
+                      <h3 className="hidden md:block tahoe-sidebar-section-title text-[10px] font-bold tracking-[2px]">Navegación</h3>
                       <nav className="flex flex-row md:flex-col gap-2">
-                        <button className="flex items-center gap-3 px-4 py-2 md:py-3 rounded-xl bg-orange-500/10 border border-orange-500/30 text-white text-sm font-semibold shadow-[0_0_15px_rgba(249,115,22,0.2)] transition-all whitespace-nowrap">
+                        <button
+                          data-active={activeTab.view === 'profile'}
+                          className="tahoe-sidebar-row flex items-center gap-3 px-4 py-2 md:py-3 rounded-xl text-sm font-semibold shadow-[0_0_15px_rgba(249,115,22,0.2)] transition-all whitespace-nowrap"
+                        >
                           <User size={16} className="text-orange-400" />
                           Información
                         </button>
                         <button
                           onClick={() => updateActiveTab({ view: 'experience', title: 'Experiencia', icon: '💻' })}
-                          className="flex items-center gap-3 px-4 py-2 md:py-3 rounded-xl text-white/40 text-sm font-medium hover:bg-white/5 hover:text-white transition-all whitespace-nowrap"
+                          className="tahoe-sidebar-row flex items-center gap-3 px-4 py-2 md:py-3 rounded-xl text-sm font-medium transition-all whitespace-nowrap"
                         >
                           <Briefcase size={16} />
                           Experiencia
                         </button>
                         <button
                           onClick={() => updateActiveTab({ view: 'projects', title: 'Proyectos', icon: '📂' })}
-                          className="flex items-center gap-3 px-4 py-2 md:py-3 rounded-xl text-white/40 text-sm font-medium hover:bg-white/5 hover:text-white transition-all whitespace-nowrap"
+                          className="tahoe-sidebar-row flex items-center gap-3 px-4 py-2 md:py-3 rounded-xl text-sm font-medium transition-all whitespace-nowrap"
                         >
                           <FolderCode size={16} />
                           Proyectos
@@ -958,13 +970,13 @@ const BrowserApp = React.memo(() => {
                     </div>
 
                     <div className="flex md:flex-col gap-2 md:gap-6 min-w-max">
-                      <h3 className="hidden md:block text-[10px] font-bold uppercase tracking-[2px] text-white/30">Social</h3>
+                      <h3 className="hidden md:block tahoe-sidebar-section-title text-[10px] font-bold tracking-[2px]">Social</h3>
                       <nav className="flex flex-row md:flex-col gap-2">
                         {contactInfo.social.map(link => (
                           <button
                             key={link.name}
                             onClick={() => window.open(link.url, "_blank")}
-                            className="flex items-center gap-3 px-4 py-2 md:py-3 rounded-xl text-white/40 text-sm font-medium hover:bg-white/5 hover:text-white transition-all whitespace-nowrap"
+                            className="tahoe-sidebar-row flex items-center gap-3 px-4 py-2 md:py-3 rounded-xl text-sm font-medium transition-all whitespace-nowrap"
                           >
                             <span className="text-lg">{link.icon}</span>
                             {link.name}
@@ -985,7 +997,7 @@ const BrowserApp = React.memo(() => {
                         className="relative group h-auto md:h-40"
                       >
                         <div className="absolute inset-0 bg-orange-500/10 rounded-3xl blur-2xl group-hover:bg-orange-500/20 transition-all duration-500" />
-                        <div className="relative h-full bg-[#1a1c23]/80 backdrop-blur-xl rounded-3xl border border-white/10 p-6 md:p-8 flex flex-col sm:flex-row items-center gap-6 md:gap-8 shadow-[0_0_40px_rgba(249,115,22,0.1)]">
+                        <div className="relative h-full tahoe-content-card backdrop-blur-xl rounded-3xl p-6 md:p-8 flex flex-col sm:flex-row items-center gap-6 md:gap-8 shadow-[0_0_40px_rgba(249,115,22,0.1)]">
                           <div className="w-16 h-16 md:w-20 md:h-20 bg-white rounded-2xl p-2 flex items-center justify-center shadow-inner overflow-hidden relative shrink-0">
                             <Image
                               src={profileData.logo}
@@ -1000,22 +1012,22 @@ const BrowserApp = React.memo(() => {
                             <h1 className="text-lg md:text-2xl font-bold tracking-tight mb-2 leading-tight">
                               <ScrambledText text={profileData.degree} delay={500} />
                             </h1>
-                            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-2 text-white/50 text-[10px] md:text-sm">
+                            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-2 text-[10px] md:text-sm" style={tahoeTextSecondaryStyle}>
                               <span><ScrambledText text={profileData.university} delay={1000} /></span>
-                              <span className="hidden sm:block w-1 h-1 rounded-full bg-white/20" />
+                              <span className="hidden sm:block w-1 h-1 rounded-full" style={{ backgroundColor: 'var(--tahoe-text-tertiary)' }} />
                               <span><ScrambledText text={profileData.location} delay={1500} /></span>
                             </div>
                           </div>
                           <div className="text-center sm:text-right">
                             <div className="text-orange-500 font-bold text-lg md:text-xl mb-1">{profileData.date}</div>
-                            <div className="text-white/30 text-[8px] md:text-[10px] uppercase font-bold tracking-wider">Cédula: {profileData.cedula}</div>
+                            <div className="text-[8px] md:text-[10px] uppercase font-bold tracking-wider" style={tahoeTextTertiaryStyle}>Cédula: {profileData.cedula}</div>
                           </div>
                         </div>
                       </motion.div>
 
                       {/* Categorized Tech Stack */}
                       <div className="space-y-6 md:space-y-8">
-                        <h2 className="text-[10px] font-bold uppercase tracking-[3px] text-white/30">Stack Tecnológico</h2>
+                        <h2 className="text-[10px] font-bold uppercase tracking-[3px]" style={tahoeTextTertiaryStyle}>Stack Tecnológico</h2>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-8 md:gap-y-10">
                           {techStack.map((category, idx) => (
                             <motion.div
@@ -1025,21 +1037,22 @@ const BrowserApp = React.memo(() => {
                               transition={{ delay: 0.2 + (idx * 0.1) }}
                               className="space-y-4"
                             >
-                              <h4 className="text-white/60 text-xs font-semibold">{category.category}</h4>
+                              <h4 className="text-xs font-semibold" style={tahoeTextSecondaryStyle}>{category.category}</h4>
                               <div className="flex flex-wrap gap-2">
                                 {category.items.map(item => (
                                   <motion.div
                                     key={item.name}
-                                    whileHover={{ scale: 1.05, borderColor: '#f97316', backgroundColor: 'rgba(249,115,22,0.1)' }}
-                                    className="px-3 py-1.5 rounded-full bg-white/5 border border-white/10 flex flex-col gap-1 cursor-default transition-all shadow-[0_1px_3px_rgba(0,0,0,0.2)] group/tag overflow-hidden relative"
+                                    whileHover={{ scale: 1.05, borderColor: '#f97316', backgroundColor: 'color-mix(in srgb, var(--tahoe-accent-soft) 48%, var(--tahoe-content-card-surface))' }}
+                                    className="px-3 py-1.5 rounded-full tahoe-content-card flex flex-col gap-1 cursor-default transition-all shadow-[0_1px_3px_rgba(0,0,0,0.2)] group/tag overflow-hidden relative"
                                   >
                                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover/tag:translate-x-full transition-transform duration-700 pointer-events-none" />
-                                    <span className="text-xs font-semibold text-white/80 group-hover/tag:text-white transition-colors relative z-10">{item.name}</span>
+                                    <span className="text-xs font-semibold transition-colors relative z-10" style={tahoeTextPrimaryStyle}>{item.name}</span>
                                     <div className="flex gap-0.5 relative z-10">
                                       {[1, 2, 3, 4, 5].map(dot => (
                                         <div
                                           key={dot}
-                                          className={`w-1 h-1 rounded-full transition-all duration-500 ${dot <= item.level ? 'bg-orange-500 shadow-[0_0_8px_rgba(249,115,22,1)] scale-110' : 'bg-white/10 group-hover/tag:bg-white/20'}`}
+                                          className={`w-1 h-1 rounded-full transition-all duration-500 ${dot <= item.level ? 'bg-orange-500 shadow-[0_0_8px_rgba(249,115,22,1)] scale-110' : ''}`}
+                                          style={dot <= item.level ? undefined : { background: 'color-mix(in srgb, var(--tahoe-text-tertiary) 28%, transparent)' }}
                                         />
                                       ))}
                                     </div>
@@ -1054,38 +1067,44 @@ const BrowserApp = React.memo(() => {
                       {/* Idiomas & Contacto Bottom Sections */}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-end pb-12">
                         <div className="space-y-6">
-                          <h2 className="text-[10px] font-bold uppercase tracking-[3px] text-white/30">Idiomas</h2>
+                          <h2 className="text-[10px] font-bold uppercase tracking-[3px]" style={tahoeTextTertiaryStyle}>Idiomas</h2>
                           <div className="flex gap-4">
                             {languages.map(lang => (
                               <div
                                 key={lang.name}
-                                className={`flex items-baseline gap-2 px-6 py-4 rounded-2xl border backdrop-blur-md transition-all ${lang.name === 'Inglés' ? 'bg-orange-500/10 border-orange-500/40 shadow-[0_0_20px_rgba(249,115,22,0.1)]' : 'bg-white/5 border-white/10'}`}
+                                className={`flex items-baseline gap-2 px-6 py-4 rounded-2xl border backdrop-blur-md transition-all ${lang.name === 'Inglés' ? 'shadow-[0_0_20px_rgba(249,115,22,0.1)]' : 'tahoe-content-card'}`}
+                                style={lang.name === 'Inglés'
+                                  ? {
+                                    background: 'color-mix(in srgb, var(--tahoe-accent-soft) 56%, var(--tahoe-content-card-surface))',
+                                    borderColor: 'color-mix(in srgb, var(--tahoe-accent) 30%, var(--tahoe-stroke-soft))',
+                                  }
+                                  : undefined}
                               >
                                 <span className="text-sm font-bold">{lang.name}</span>
-                                <span className="text-[10px] text-white/40 font-medium">{lang.level}</span>
+                                <span className="text-[10px] font-medium" style={tahoeTextSecondaryStyle}>{lang.level}</span>
                               </div>
                             ))}
                           </div>
                         </div>
 
                         <div className="space-y-6">
-                          <h2 className="text-[10px] font-bold uppercase tracking-[3px] text-white/30">Contacto</h2>
+                          <h2 className="text-[10px] font-bold uppercase tracking-[3px]" style={tahoeTextTertiaryStyle}>Contacto</h2>
                           <div className="flex flex-col sm:flex-row gap-4">
                             <motion.button
-                              whileHover={{ scale: 1.02, backgroundColor: 'rgba(255,255,255,0.1)' }}
+                              whileHover={{ scale: 1.02, backgroundColor: 'color-mix(in srgb, var(--tahoe-accent-soft) 52%, var(--tahoe-content-card-surface))' }}
                               onClick={() => navigator.clipboard.writeText(contactInfo.email)}
-                              className="flex items-center gap-3 px-6 py-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md transition-all group w-full"
+                              className="flex items-center gap-3 px-6 py-4 rounded-2xl tahoe-content-card backdrop-blur-md transition-all group w-full"
                             >
-                              <div className="w-6 h-6 rounded bg-white/10 flex items-center justify-center text-xs group-hover:bg-orange-500 transition-colors">📧</div>
-                              <span className="text-xs md:text-sm font-medium text-white/60 group-hover:text-white transition-colors truncate">{contactInfo.email}</span>
+                              <div className="w-6 h-6 rounded flex items-center justify-center text-xs group-hover:bg-orange-500 transition-colors" style={tahoeChipSurfaceStyle}>📧</div>
+                              <span className="text-xs md:text-sm font-medium transition-colors truncate" style={tahoeTextSecondaryStyle}>{contactInfo.email}</span>
                             </motion.button>
                             <motion.button
-                              whileHover={{ scale: 1.02, backgroundColor: 'rgba(255,255,255,0.1)' }}
+                              whileHover={{ scale: 1.02, backgroundColor: 'color-mix(in srgb, var(--tahoe-accent-soft) 52%, var(--tahoe-content-card-surface))' }}
                               onClick={() => navigator.clipboard.writeText(contactInfo.phone)}
-                              className="flex items-center gap-3 px-6 py-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md transition-all group w-full"
+                              className="flex items-center gap-3 px-6 py-4 rounded-2xl tahoe-content-card backdrop-blur-md transition-all group w-full"
                             >
-                              <div className="w-6 h-6 rounded bg-white/10 flex items-center justify-center text-xs group-hover:bg-orange-500 transition-colors">📱</div>
-                              <span className="text-xs md:text-sm font-medium text-white/60 group-hover:text-white transition-colors truncate">{contactInfo.phone}</span>
+                              <div className="w-6 h-6 rounded flex items-center justify-center text-xs group-hover:bg-orange-500 transition-colors" style={tahoeChipSurfaceStyle}>📱</div>
+                              <span className="text-xs md:text-sm font-medium transition-colors truncate" style={tahoeTextSecondaryStyle}>{contactInfo.phone}</span>
                             </motion.button>
                           </div>
                         </div>
@@ -1097,27 +1116,31 @@ const BrowserApp = React.memo(() => {
             )}
 
             {activeTab.view === 'projects' && (
-              <div className="h-full p-10 overflow-auto">
+              <div className="tahoe-app-panel h-full p-10 overflow-auto">
                 <div className="max-w-4xl mx-auto">
                   {/* Tabs */}
                   <div className="flex gap-4 mb-8">
-                    <button
-                      onClick={() => updateActiveTab({ view: 'experience', title: 'Experiencia', icon: '💻' })}
-                      className="px-4 py-2 rounded-lg font-medium transition-colors bg-white/5 text-white/60 hover:bg-white/10"
-                    >
-                      Experiencia
-                    </button>
-                    <button
-                      onClick={() => updateActiveTab({ view: 'projects', title: 'Proyectos', icon: '📂' })}
-                      className="px-4 py-2 rounded-lg font-medium transition-colors bg-orange-500 text-white shadow-lg shadow-orange-500/20"
-                    >
-                      Proyectos
-                    </button>
+                    <div className="tahoe-control-cluster flex items-center gap-1 rounded-2xl p-1">
+                      <button
+                        onClick={() => updateActiveTab({ view: 'experience', title: 'Experiencia', icon: '💻' })}
+                        data-active={false}
+                        className="tahoe-control-button rounded-xl px-4 py-2 font-medium transition-colors"
+                      >
+                        Experiencia
+                      </button>
+                      <button
+                        onClick={() => updateActiveTab({ view: 'projects', title: 'Proyectos', icon: '📂' })}
+                        data-active={true}
+                        className="tahoe-control-button rounded-xl px-4 py-2 font-medium transition-colors"
+                      >
+                        Proyectos
+                      </button>
+                    </div>
                   </div>
 
                   <div className="mb-6 md:mb-8">
-                    <h2 className={`text-3xl md:text-4xl font-bold tracking-tight mb-2 ${isReaderMode ? 'text-black' : 'text-white'}`}>Proyectos</h2>
-                    <p className={isReaderMode ? 'text-black/60 text-base md:text-lg' : 'text-white/40 text-base md:text-lg'}>Haz clic en una tarjeta para visitar el repositorio.</p>
+                    <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-2" style={tahoeTextPrimaryStyle}>Proyectos</h2>
+                    <p className="text-base md:text-lg" style={tahoeTextSecondaryStyle}>Haz clic en una tarjeta para visitar el repositorio.</p>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
@@ -1125,11 +1148,11 @@ const BrowserApp = React.memo(() => {
                       <button
                         key={project.name}
                         onClick={() => navigateTo(project.url, true, project.canEmbed, project.name, project.screenshot, project.icon)}
-                        className={`group p-1 bg-gradient-to-br from-white/10 to-transparent rounded-2xl transition-all hover:from-orange-500/20 text-left w-full ${isReaderMode ? 'from-black/10' : ''}`}
+                        className="group rounded-2xl transition-all text-left w-full"
                       >
-                        <div className={`h-full p-0 backdrop-blur-md rounded-[15px] border border-white/5 flex flex-col overflow-hidden ${isReaderMode ? 'bg-white border-black/5' : 'bg-[#212123]/90'}`}>
+                        <div className="h-full p-0 tahoe-content-card backdrop-blur-md rounded-[15px] flex flex-col overflow-hidden">
                           {/* Project Preview with reserved space */}
-                          <div className="aspect-video relative w-full overflow-hidden bg-black/20 shrink-0">
+                          <div className="aspect-video relative w-full overflow-hidden shrink-0" style={tahoePreviewSurfaceStyle}>
                             {project.screenshot ? (
                               <Image
                                 src={project.screenshot}
@@ -1143,24 +1166,27 @@ const BrowserApp = React.memo(() => {
                                 {project.icon}
                               </div>
                             )}
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60" />
+                            <div
+                              className="absolute inset-0 opacity-70"
+                              style={{ background: 'linear-gradient(180deg, transparent 0%, color-mix(in srgb, var(--tahoe-app-panel-surface) 76%, transparent) 100%)' }}
+                            />
                           </div>
 
                           <div className="p-6 flex flex-col flex-1">
                             <div className="flex items-center justify-between mb-4">
-                              <div className="w-10 h-10 bg-white/5 rounded-xl flex items-center justify-center text-xl group-hover:scale-110 group-hover:bg-white/10 transition-all duration-300">
+                              <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl group-hover:scale-110 transition-all duration-300 tahoe-content-card" style={tahoeChipSurfaceStyle}>
                                 {project.icon}
                               </div>
-                              <div className="bg-white/5 px-3 py-1 rounded-full text-[10px] text-white/40 font-mono">
+                              <div className="px-3 py-1 rounded-full text-[10px] font-mono border" style={{ ...tahoeChipSurfaceStyle, ...tahoeTextSecondaryStyle }}>
                                 github.com
                               </div>
                             </div>
                             <div>
-                              <h3 className={`text-xl font-bold group-hover:text-orange-400 transition-colors mb-2 ${isReaderMode ? 'text-black' : 'text-white'}`}>{project.name}</h3>
-                              <p className={`text-sm leading-relaxed mb-3 ${isReaderMode ? 'text-black/60' : 'text-white/50'}`}>{project.description}</p>
+                              <h3 className="text-xl font-bold group-hover:text-orange-400 transition-colors mb-2" style={tahoeTextPrimaryStyle}>{project.name}</h3>
+                              <p className="text-sm leading-relaxed mb-3" style={tahoeTextSecondaryStyle}>{project.description}</p>
                               <div className="flex flex-wrap gap-2">
                                 {project.highlights.map((h: string) => (
-                                  <span key={h} className="text-xs bg-white/5 text-white/60 px-2 py-1 rounded">{h}</span>
+                                  <span key={h} className="text-xs px-2 py-1 rounded border" style={{ ...tahoeChipSurfaceStyle, ...tahoeTextSecondaryStyle }}>{h}</span>
                                 ))}
                               </div>
                             </div>
@@ -1174,27 +1200,31 @@ const BrowserApp = React.memo(() => {
             )}
 
             {activeTab.view === 'experience' && (
-              <div className="h-full p-10 overflow-auto">
+              <div className="tahoe-app-panel h-full p-10 overflow-auto">
                 <div className="max-w-4xl mx-auto">
                   {/* Tabs */}
                   <div className="flex gap-4 mb-8">
-                    <button
-                      onClick={() => updateActiveTab({ view: 'experience', title: 'Experiencia', icon: '💻' })}
-                      className="px-4 py-2 rounded-lg font-medium transition-colors bg-orange-500 text-white shadow-lg shadow-orange-500/20"
-                    >
-                      Experiencia
-                    </button>
-                    <button
-                      onClick={() => updateActiveTab({ view: 'projects', title: 'Proyectos', icon: '📂' })}
-                      className="px-4 py-2 rounded-lg font-medium transition-colors bg-white/5 text-white/60 hover:bg-white/10"
-                    >
-                      Proyectos
-                    </button>
+                    <div className="tahoe-control-cluster flex items-center gap-1 rounded-2xl p-1">
+                      <button
+                        onClick={() => updateActiveTab({ view: 'experience', title: 'Experiencia', icon: '💻' })}
+                        data-active={true}
+                        className="tahoe-control-button rounded-xl px-4 py-2 font-medium transition-colors"
+                      >
+                        Experiencia
+                      </button>
+                      <button
+                        onClick={() => updateActiveTab({ view: 'projects', title: 'Proyectos', icon: '📂' })}
+                        data-active={false}
+                        className="tahoe-control-button rounded-xl px-4 py-2 font-medium transition-colors"
+                      >
+                        Proyectos
+                      </button>
+                    </div>
                   </div>
 
                   <div className="mb-6 md:mb-8">
-                    <h2 className={`text-3xl md:text-4xl font-bold tracking-tight mb-2 ${isReaderMode ? 'text-black' : 'text-white'}`}>Experiencia</h2>
-                    <p className={isReaderMode ? 'text-black/60 text-base md:text-lg' : 'text-white/40 text-base md:text-lg'}>Haz clic en una empresa para visitar su sitio web.</p>
+                    <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-2" style={tahoeTextPrimaryStyle}>Experiencia</h2>
+                    <p className="text-base md:text-lg" style={tahoeTextSecondaryStyle}>Haz clic en una empresa para visitar su sitio web.</p>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
@@ -1202,11 +1232,11 @@ const BrowserApp = React.memo(() => {
                       <button
                         key={exp.company}
                         onClick={() => navigateTo(exp.url, true, exp.canEmbed, exp.company, exp.screenshot, typeof exp.icon === 'string' ? exp.icon : undefined)}
-                        className={`group p-1 bg-gradient-to-br from-white/10 to-transparent rounded-2xl transition-all hover:from-orange-500/20 text-left w-full ${isReaderMode ? 'from-black/10' : ''}`}
+                        className="group rounded-2xl transition-all text-left w-full"
                       >
-                        <div className={`h-full p-0 backdrop-blur-md rounded-[15px] border border-white/5 flex flex-col overflow-hidden ${isReaderMode ? 'bg-white border-black/5 shadow-sm' : 'bg-[#212123]/90'}`}>
+                        <div className="h-full p-0 tahoe-content-card backdrop-blur-md rounded-[15px] flex flex-col overflow-hidden">
                           {/* Experience Preview with reserved space */}
-                          <div className="aspect-video relative w-full overflow-hidden bg-black/20 shrink-0">
+                          <div className="aspect-video relative w-full overflow-hidden shrink-0" style={tahoePreviewSurfaceStyle}>
                             {exp.screenshot ? (
                               <Image
                                 src={exp.screenshot}
@@ -1220,18 +1250,21 @@ const BrowserApp = React.memo(() => {
                                 {exp.icon}
                               </div>
                             )}
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60" />
+                            <div
+                              className="absolute inset-0 opacity-70"
+                              style={{ background: 'linear-gradient(180deg, transparent 0%, color-mix(in srgb, var(--tahoe-app-panel-surface) 76%, transparent) 100%)' }}
+                            />
                           </div>
 
                           <div className="p-6 flex flex-col items-center text-center">
-                            <div className="w-14 h-14 bg-white/5 rounded-2xl flex items-center justify-center text-3xl group-hover:scale-110 group-hover:bg-white/10 transition-all duration-300 shadow-inner mb-4">
+                            <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-3xl group-hover:scale-110 transition-all duration-300 shadow-inner mb-4 tahoe-content-card" style={tahoeChipSurfaceStyle}>
                               {exp.icon}
                             </div>
                             <div>
-                              <h3 className={`text-lg font-bold group-hover:text-orange-400 transition-colors mb-1 ${isReaderMode ? 'text-black' : 'text-white'}`}>{exp.company}</h3>
+                              <h3 className="text-lg font-bold group-hover:text-orange-400 transition-colors mb-1" style={tahoeTextPrimaryStyle}>{exp.company}</h3>
                               <p className="text-xs text-orange-400/80 font-medium mb-2">{exp.position}</p>
-                              <p className={`text-xs ${isReaderMode ? 'text-black/40' : 'text-white/40'}`}>{exp.period}</p>
-                              <p className={`text-xs ${isReaderMode ? 'text-black/30' : 'text-white/30'}`}>{exp.location}</p>
+                              <p className="text-xs" style={tahoeTextSecondaryStyle}>{exp.period}</p>
+                              <p className="text-xs" style={tahoeTextTertiaryStyle}>{exp.location}</p>
                             </div>
                           </div>
                         </div>
@@ -1306,7 +1339,7 @@ const BrowserApp = React.memo(() => {
                   ) : (
                     <div className="w-full h-full flex items-center justify-center tahoe-app-panel">
                       <div className="text-center">
-                        <div className="w-24 h-24 bg-white/5 rounded-3xl flex items-center justify-center text-5xl mx-auto mb-6">
+                        <div className="w-24 h-24 tahoe-content-card rounded-3xl flex items-center justify-center text-5xl mx-auto mb-6" style={tahoeChipSurfaceStyle}>
                           🔒
                         </div>
                         <h2 className="text-2xl font-bold mb-2" style={tahoeTextPrimaryStyle}>{activeTab.blockedCompany}</h2>
