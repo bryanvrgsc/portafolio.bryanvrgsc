@@ -363,6 +363,8 @@ const BrowserApp = React.memo(() => {
   const [inputValue, setInputValue] = useState(tabs[0].url);
 
   const activeTab = tabs.find(t => t.id === activeTabId) || tabs[0];
+  const tahoeTextPrimaryStyle = { color: 'var(--tahoe-text-primary)' };
+  const tahoeTextSecondaryStyle = { color: 'var(--tahoe-text-secondary)' };
 
   const updateActiveTab = (updates: Partial<Tab>) => {
     setTabs(prev => prev.map(t => t.id === activeTabId ? { ...t, ...updates } : t));
@@ -541,7 +543,7 @@ const BrowserApp = React.memo(() => {
 
   return (
     <div className="tahoe-app-surface flex h-full flex-col">
-      {/* Safari Modern Unified Header - Pixel Perfect Refinement */}
+      {/* Safari Modern Unified Header - Tahoe Fidelity */}
       <div
         onPointerDown={(e) => dragControls?.start(e)}
         className="tahoe-app-toolbar flex h-[52px] shrink-0 items-center gap-2 px-3 cursor-default"
@@ -551,11 +553,12 @@ const BrowserApp = React.memo(() => {
           <div className="w-[68px]" /> {/* Space for traffic lights */}
           <div
             onPointerDown={(e) => e.stopPropagation()}
-            className="flex bg-white/10 rounded-lg p-0.5 border border-white/5 items-center"
+            className="tahoe-control-cluster flex items-center rounded-xl p-1"
           >
             <button
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className={`p-1 px-1.5 hover:bg-white/10 rounded-md transition-colors flex items-center gap-0.5 ${isSidebarOpen ? 'bg-white/20 text-white' : 'text-white/70 hover:text-white'}`}
+              data-active={isSidebarOpen}
+              className="tahoe-control-button flex items-center gap-0.5 rounded-lg px-2 py-1"
               aria-label="Alternar barra lateral"
             >
               <PanelLeft size={16} />
@@ -567,21 +570,22 @@ const BrowserApp = React.memo(() => {
         {/* Navigation Pill */}
         <div
           onPointerDown={(e) => e.stopPropagation()}
-          className="flex bg-white/10 rounded-lg p-0.5 border border-white/5 items-center"
+          className="tahoe-control-cluster flex items-center rounded-xl p-1"
         >
           <button
             onClick={handleBack}
             disabled={activeTab.historyIndex === 0}
-            className={`p-1 px-2 rounded-l-md transition-all ${activeTab.historyIndex > 0 ? 'text-white/70 hover:text-white hover:bg-white/10' : 'text-white/10'}`}
+            data-active={activeTab.historyIndex > 0}
+            className="tahoe-control-button rounded-lg px-2 py-1"
             aria-label="Retroceder"
           >
             <ChevronLeft size={16} />
           </button>
-          <div className="w-[1px] h-4 bg-white/10 mx-0.5" />
           <button
             onClick={handleForward}
             disabled={activeTab.historyIndex >= activeTab.history.length - 1}
-            className={`p-1 px-2 rounded-r-md transition-all ${activeTab.historyIndex < activeTab.history.length - 1 ? 'text-white/70 hover:text-white hover:bg-white/10' : 'text-white/10'}`}
+            data-active={activeTab.historyIndex < activeTab.history.length - 1}
+            className="tahoe-control-button rounded-lg px-2 py-1"
             aria-label="Avanzar"
           >
             <ChevronRight size={16} />
@@ -591,25 +595,26 @@ const BrowserApp = React.memo(() => {
         {/* Quick Actions Pill */}
         <div
           onPointerDown={(e) => e.stopPropagation()}
-          className="hidden sm:flex bg-white/10 rounded-lg p-0.5 border border-white/5 items-center gap-0.5"
+          className="hidden sm:flex tahoe-control-cluster items-center gap-0.5 rounded-xl p-1"
         >
           <button
             onClick={() => navigateTo("", false)}
-            className="p-1 px-1.5 hover:bg-white/10 rounded-md transition-colors text-white/70 hover:text-white"
+            data-active={activeTab.view === 'experience' || activeTab.view === 'projects'}
+            className="tahoe-control-button rounded-lg px-2 py-1"
             aria-label="Inicio"
           >
             <Home size={16} />
           </button>
           <button
             onClick={() => alert("Informe de privacidad: No se han detectado rastreadores.")}
-            className="hidden md:block p-1 px-1.5 hover:bg-white/10 rounded-md transition-colors text-white/70 hover:text-white"
+            className="hidden md:block tahoe-control-button rounded-lg px-2 py-1"
             aria-label="Informe de privacidad"
           >
             <Shield size={16} />
           </button>
           <button
             onClick={() => { navigateTo("", false); }}
-            className="p-1 px-1.5 hover:bg-white/10 rounded-md transition-colors text-white/70 hover:text-white"
+            className="tahoe-control-button rounded-lg px-2 py-1"
             aria-label="Cuadrícula de sitios"
           >
             <LayoutGrid size={16} />
@@ -621,29 +626,32 @@ const BrowserApp = React.memo(() => {
           <form onSubmit={handleSearch} className="w-full">
             <div
               onPointerDown={(e) => e.stopPropagation()}
-              className={`h-[32px] bg-white/10 hover:bg-white/15 transition-colors rounded-lg flex items-center px-3 gap-3 border border-white/5 text-[13px] group shadow-inner ${isReaderMode ? 'ring-1 ring-orange-500/50' : ''}`}
+              className={`tahoe-search-field h-[34px] rounded-xl flex items-center px-3 gap-3 text-[13px] group shadow-inner ${isReaderMode ? 'ring-1 ring-orange-500/50' : ''}`}
             >
               <AlignLeft
                 size={16}
                 onClick={() => setIsReaderMode(!isReaderMode)}
-                className={`hidden sm:block cursor-pointer transition-colors ${isReaderMode ? 'text-orange-400' : 'text-white/40 hover:text-white/70'}`}
+                className="hidden sm:block cursor-pointer transition-colors"
+                style={isReaderMode ? { color: 'rgb(251 146 60)' } : { color: 'var(--tahoe-text-tertiary)' }}
               />
               <div className="flex-1 flex items-center justify-center gap-1.5">
-                <span className="text-white/30 text-[10px] mt-0.5">🔒</span>
+                <span className="text-[10px] mt-0.5" style={{ color: 'var(--tahoe-text-tertiary)' }}>🔒</span>
                 <input
                   type="text"
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
-                  className="bg-transparent border-none outline-none w-full max-w-[200px] text-white/80 font-normal placeholder:text-white/30 text-center"
+                  className="bg-transparent border-none outline-none w-full max-w-[220px] font-normal text-center"
+                  style={{ color: 'var(--tahoe-text-primary)' }}
                   placeholder="Busca o introduce un sitio web"
                   aria-label="Barra de direcciones"
                 />
               </div>
               <div className="flex items-center gap-2">
-                <Languages size={14} className="hidden md:block text-white/40 hover:text-white cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity" />
+                <Languages size={14} className="hidden md:block cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity" style={{ color: 'var(--tahoe-text-tertiary)' }} />
                 <RotateCw
                   size={14}
-                  className="text-white/40 hover:text-white cursor-pointer"
+                  className="cursor-pointer"
+                  style={{ color: 'var(--tahoe-text-tertiary)' }}
                   onClick={() => updateActiveTab({ iframeSrc: activeTab.iframeSrc })}
                   aria-label="Recargar página"
                 />
@@ -655,14 +663,15 @@ const BrowserApp = React.memo(() => {
         {/* User/Extensions Pill */}
         <div
           onPointerDown={(e) => e.stopPropagation()}
-          className="hidden sm:flex bg-white/10 rounded-lg p-0.5 border border-white/5 items-center gap-0.5"
+          className="hidden sm:flex tahoe-control-cluster items-center gap-0.5 rounded-xl p-1"
         >
-          <button className="hidden md:block p-1 px-1.5 hover:bg-white/10 rounded-md transition-colors text-white/70 hover:text-white">
+          <button className="hidden md:block tahoe-control-button rounded-lg px-2 py-1">
             <Puzzle size={16} />
           </button>
           <button
             onClick={() => navigateTo("bryanvrgsc.dev/profile", false, true, "Perfil", undefined, "👤")}
-            className={`p-1 px-1.5 hover:bg-white/10 rounded-md transition-colors ${activeTab.view === 'profile' ? 'bg-white/20 text-white' : 'text-white/70 hover:text-white'}`}
+            data-active={activeTab.view === 'profile'}
+            className="tahoe-control-button rounded-lg px-2 py-1"
             aria-label="Ir al perfil"
           >
             <User size={16} />
@@ -672,34 +681,35 @@ const BrowserApp = React.memo(() => {
         {/* Typography Pill */}
         <div
           onPointerDown={(e) => e.stopPropagation()}
-          className="hidden md:flex bg-white/10 rounded-lg p-0.5 border border-white/5 items-center px-1.5 gap-2"
+          className="hidden md:flex tahoe-control-cluster items-center rounded-xl p-1 px-1.5 gap-2"
         >
-          <button onClick={() => setFontSize(Math.max(80, fontSize - 10))} className="text-[10px] font-bold text-white/60 hover:text-white transition-colors" aria-label="Reducir tamaño de fuente">A</button>
-          <button onClick={() => setFontSize(Math.min(150, fontSize + 10))} className="text-[13px] font-bold text-white/80 hover:text-white transition-colors" aria-label="Aumentar tamaño de fuente">A</button>
+          <button onClick={() => setFontSize(Math.max(80, fontSize - 10))} className="tahoe-control-button rounded-md px-1.5 py-0.5 text-[10px] font-bold" aria-label="Reducir tamaño de fuente">A</button>
+          <button onClick={() => setFontSize(Math.min(150, fontSize + 10))} className="tahoe-control-button rounded-md px-1.5 py-0.5 text-[13px] font-bold" aria-label="Aumentar tamaño de fuente">A</button>
         </div>
 
         {/* Share/Tabs Pill */}
         <div
           onPointerDown={(e) => e.stopPropagation()}
-          className="flex bg-white/10 rounded-lg p-0.5 border border-white/5 items-center gap-0.5"
+          className="flex tahoe-control-cluster items-center gap-0.5 rounded-xl p-1"
         >
           <button
             onClick={handleShare}
-            className="hidden sm:block p-1 px-1.5 hover:bg-white/10 rounded-md transition-colors text-white/70 hover:text-white"
+            className="hidden sm:block tahoe-control-button rounded-lg px-2 py-1"
             aria-label="Compartir"
           >
             <Share size={16} />
           </button>
           <button
             onClick={createNewTab}
-            className="p-1 px-1.5 hover:bg-white/10 rounded-md transition-colors text-white/70 hover:text-white"
+            className="tahoe-control-button rounded-lg px-2 py-1"
             aria-label="Nueva pestaña"
           >
             <Plus size={16} />
           </button>
           <button
             onClick={() => setShowTabOverview(!showTabOverview)}
-            className={`p-1 px-1.5 rounded-md transition-colors flex items-center gap-0.5 ${showTabOverview ? 'bg-white/20 text-white' : 'text-white/70 hover:text-white hover:bg-white/10'}`}
+            data-active={showTabOverview}
+            className="tahoe-control-button flex items-center gap-0.5 rounded-lg px-2 py-1"
             aria-label="Vista de pestañas"
           >
             <Copy size={16} className="rotate-90 scale-x-[-1]" />
@@ -721,21 +731,25 @@ const BrowserApp = React.memo(() => {
             >
               {/* Tab Background (Pill Style) */}
               <div className={`absolute inset-0 rounded-lg transition-all duration-200 ${activeTabId === tab.id
-                ? 'bg-white/15 border border-white/10 shadow-[0_1px_3px_rgba(0,0,0,0.2)]'
+                ? 'tahoe-content-card shadow-[0_1px_3px_rgba(0,0,0,0.18)]'
                 : 'hover:bg-white/5'
                 }`} />
 
               <div className="relative flex items-center w-full min-w-0">
                 <span className="text-[14px] mr-2 shrink-0">{tab.icon}</span>
-                <span className={`text-[11px] font-medium truncate flex-1 text-center ${activeTabId === tab.id ? 'text-white' : 'text-white/40 group-hover:text-white/70'}`}>
+                <span
+                  className="text-[11px] font-medium truncate flex-1 text-center"
+                  style={{ color: activeTabId === tab.id ? 'var(--tahoe-text-primary)' : 'var(--tahoe-text-secondary)' }}
+                >
                   {tab.title}
                 </span>
                 <button
                   onClick={(e) => closeTab(e, tab.id)}
-                  className={`ml-2 w-4 h-4 rounded-md flex items-center justify-center hover:bg-white/20 transition-all ${activeTabId === tab.id
-                    ? 'opacity-40 hover:opacity-100 text-white'
-                    : 'opacity-0 group-hover:opacity-40 hover:opacity-100 text-white'
+                  className={`ml-2 w-4 h-4 rounded-md flex items-center justify-center transition-all ${activeTabId === tab.id
+                    ? 'opacity-40 hover:opacity-100'
+                    : 'opacity-0 group-hover:opacity-40 hover:opacity-100'
                     }`}
+                  style={{ color: 'var(--tahoe-text-primary)' }}
                 >
                   <Plus size={12} className="rotate-45" />
                 </button>
@@ -752,10 +766,10 @@ const BrowserApp = React.memo(() => {
           <div className="tahoe-app-overlay absolute inset-0 z-50 overflow-auto p-10">
             <div className="max-w-6xl mx-auto">
               <div className="flex items-center justify-between mb-10">
-                <h2 className="text-3xl font-bold">Pestañas</h2>
+                <h2 className="text-3xl font-bold" style={{ color: 'var(--tahoe-text-primary)' }}>Pestañas</h2>
                 <button
                   onClick={createNewTab}
-                  className="bg-white/10 hover:bg-white/20 p-2 px-4 rounded-xl flex items-center gap-2 transition-colors border border-white/5"
+                  className="tahoe-control-cluster flex items-center gap-2 rounded-xl px-4 py-2"
                 >
                   <Plus size={20} />
                   <span>Nueva pestaña</span>
@@ -771,13 +785,13 @@ const BrowserApp = React.memo(() => {
                     {/* Close button */}
                     <button
                       onClick={(e) => closeTab(e, tab.id)}
-                      className="absolute top-2 right-2 z-10 w-6 h-6 bg-black/40 backdrop-blur-md rounded-full flex items-center justify-center text-white/60 hover:text-white hover:bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity"
+                      className="absolute top-2 right-2 z-10 w-6 h-6 tahoe-control-cluster backdrop-blur-md rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
                     >
                       <Plus className="rotate-45" size={14} />
                     </button>
 
                     {/* Preview Content */}
-                    <div className="w-full h-full bg-[#2c2c2e] flex flex-col">
+                    <div className="tahoe-content-card w-full h-full flex flex-col rounded-2xl overflow-hidden">
                       <div className="flex-1 flex items-center justify-center p-4">
                         {tab.view === 'browser' || tab.view === 'blocked' ? (
                           tab.blockedScreenshot ? (
@@ -788,12 +802,12 @@ const BrowserApp = React.memo(() => {
                         ) : (
                           <div className="flex flex-col items-center gap-2">
                             <div className="text-5xl">{tab.icon}</div>
-                            <span className="text-xs font-medium text-white/40">{tab.view === 'projects' ? 'Proyectos' : 'Experiencia'}</span>
+                            <span className="text-xs font-medium" style={{ color: 'var(--tahoe-text-secondary)' }}>{tab.view === 'projects' ? 'Proyectos' : 'Experiencia'}</span>
                           </div>
                         )}
                       </div>
-                      <div className="h-10 bg-white/5 flex items-center px-3 gap-2 border-t border-white/5">
-                        <span className="text-xs truncate font-medium text-white/80">{tab.title}</span>
+                      <div className="h-10 flex items-center px-3 gap-2 border-t" style={{ borderColor: 'var(--tahoe-hairline)' }}>
+                        <span className="text-xs truncate font-medium" style={{ color: 'var(--tahoe-text-secondary)' }}>{tab.title}</span>
                       </div>
                     </div>
                   </div>
@@ -804,19 +818,20 @@ const BrowserApp = React.memo(() => {
         )}
 
         {/* Sidebar */}
-        <div className={`tahoe-app-sidebar overflow-hidden border-r border-white/5 transition-all duration-300 ease-in-out ${isSidebarOpen ? 'w-[200px]' : 'w-0'}`}>
+        <div className={`tahoe-app-sidebar overflow-hidden border-r transition-all duration-300 ease-in-out ${isSidebarOpen ? 'w-[200px]' : 'w-0'}`} style={{ borderColor: 'var(--tahoe-hairline)' }}>
           <div className="p-4 w-[200px]">
-            <h3 className="text-xs font-semibold text-white/40 uppercase tracking-wider mb-4">Favoritos</h3>
+            <h3 className="tahoe-sidebar-section-title text-xs font-semibold mb-4">Favoritos</h3>
             <div className="flex flex-col gap-2">
               <button
                 onClick={() => navigateTo("", false)}
-                className="flex items-center gap-2 text-sm text-white/70 hover:text-white transition-colors p-1 rounded-md hover:bg-white/5 w-full text-left"
+                data-active={activeTab.view === 'experience' || activeTab.view === 'projects'}
+                className="tahoe-sidebar-row flex items-center gap-2 text-sm p-1 rounded-md w-full text-left"
               >
                 <span>📂</span> Portafolio
               </button>
               <button
                 onClick={() => window.open("https://github.com/bryanvrgsc", "_blank")}
-                className="flex items-center gap-2 text-sm text-white/70 hover:text-white transition-colors p-1 rounded-md hover:bg-white/5 w-full text-left"
+                className="tahoe-sidebar-row flex items-center gap-2 text-sm p-1 rounded-md w-full text-left"
               >
                 <span>🐙</span> GitHub
               </button>
@@ -826,7 +841,7 @@ const BrowserApp = React.memo(() => {
 
         {/* Main Content */}
         <div className="flex-1 overflow-hidden">
-          <div style={{ fontSize: `${fontSize}%` }} className={`h-full ${isReaderMode ? 'bg-[#f5f5f7] text-black transition-colors duration-500' : ''}`}>
+          <div style={{ fontSize: `${fontSize}%` }} className={`h-full ${isReaderMode ? 'tahoe-content-card transition-colors duration-500' : ''}`}>
             {activeTab.view === 'profile' && (
               <div className="h-full relative overflow-hidden bg-[#0a0c10] text-white font-sans selection:bg-orange-500/30">
                 {/* Background Wireframe Mesh - Desktop Only */}
@@ -1228,22 +1243,22 @@ const BrowserApp = React.memo(() => {
             )}
 
             {activeTab.view === 'browser' && (
-              <div className="w-full h-full flex flex-col bg-[#1e1e1e]">
+              <div className="tahoe-app-panel w-full h-full flex flex-col">
                 {/* Iframe del sitio */}
                 <div className="flex-1 relative overflow-hidden">
                   {iframeLoading && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-[#1e1e1e] z-10">
+                    <div className="absolute inset-0 flex items-center justify-center tahoe-app-panel z-10">
                       <div className="animate-spin w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full" />
                     </div>
                   )}
                   {iframeError ? (
-                    <div className="w-full h-full flex items-center justify-center bg-[#1e1e1e]">
+                    <div className="w-full h-full flex items-center justify-center tahoe-app-panel">
                       <div className="text-center">
                         <div className="w-16 h-16 bg-red-500/10 rounded-2xl flex items-center justify-center text-3xl mx-auto mb-4 border border-red-500/20">
                           ⚠️
                         </div>
-                        <h3 className="text-white font-semibold mb-2">Error al cargar</h3>
-                        <p className="text-white/40 text-sm">No se pudo cargar el contenido</p>
+                        <h3 className="font-semibold mb-2" style={tahoeTextPrimaryStyle}>Error al cargar</h3>
+                        <p className="text-sm" style={tahoeTextSecondaryStyle}>No se pudo cargar el contenido</p>
                       </div>
                     </div>
                   ) : (
@@ -1259,10 +1274,10 @@ const BrowserApp = React.memo(() => {
                 </div>
                 {/* Barra inferior con botón */}
                 {!isReaderMode && (
-                  <div className="p-3 md:p-4 bg-[#2c2c2e] border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
+                  <div className="tahoe-content-card p-3 md:p-4 border-t flex flex-col sm:flex-row items-center justify-between gap-4" style={{ borderColor: 'var(--tahoe-hairline)' }}>
                     <div className="text-center sm:text-left">
-                      <h3 className="text-white font-semibold">{activeTab.url.split('/')[0]}</h3>
-                      <p className="text-white/40 text-xs md:text-sm truncate max-w-[200px] sm:max-w-none">{activeTab.iframeSrc}</p>
+                      <h3 className="font-semibold" style={tahoeTextPrimaryStyle}>{activeTab.url.split('/')[0]}</h3>
+                      <p className="text-xs md:text-sm truncate max-w-[200px] sm:max-w-none" style={tahoeTextSecondaryStyle}>{activeTab.iframeSrc}</p>
                     </div>
                     <button
                       onClick={openInNewTab}
@@ -1277,7 +1292,7 @@ const BrowserApp = React.memo(() => {
             )}
 
             {activeTab.view === 'blocked' && (
-              <div className="w-full h-full flex flex-col bg-[#1e1e1e]">
+              <div className="tahoe-app-panel w-full h-full flex flex-col">
                 {/* Screenshot del sitio */}
                 <div className="flex-1 relative overflow-hidden">
                   {activeTab.blockedScreenshot ? (
@@ -1289,23 +1304,23 @@ const BrowserApp = React.memo(() => {
                       priority
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-b from-[#1e1e1e] to-[#2c2c2e]">
+                    <div className="w-full h-full flex items-center justify-center tahoe-app-panel">
                       <div className="text-center">
                         <div className="w-24 h-24 bg-white/5 rounded-3xl flex items-center justify-center text-5xl mx-auto mb-6">
                           🔒
                         </div>
-                        <h2 className="text-2xl font-bold text-white mb-2">{activeTab.blockedCompany}</h2>
-                        <p className="text-white/60">Vista previa no disponible</p>
+                        <h2 className="text-2xl font-bold mb-2" style={tahoeTextPrimaryStyle}>{activeTab.blockedCompany}</h2>
+                        <p style={tahoeTextSecondaryStyle}>Vista previa no disponible</p>
                       </div>
                     </div>
                   )}
                 </div>
                 {/* Barra inferior con botón */}
                 {!isReaderMode && (
-                  <div className="p-3 md:p-4 bg-[#2c2c2e] border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
+                  <div className="tahoe-content-card p-3 md:p-4 border-t flex flex-col sm:flex-row items-center justify-between gap-4" style={{ borderColor: 'var(--tahoe-hairline)' }}>
                     <div className="text-center sm:text-left">
-                      <h3 className="text-white font-semibold">{activeTab.blockedCompany}</h3>
-                      <p className="text-white/40 text-xs md:text-sm truncate max-w-[200px] sm:max-w-none">{activeTab.blockedUrl}</p>
+                      <h3 className="font-semibold" style={tahoeTextPrimaryStyle}>{activeTab.blockedCompany}</h3>
+                      <p className="text-xs md:text-sm truncate max-w-[200px] sm:max-w-none" style={tahoeTextSecondaryStyle}>{activeTab.blockedUrl}</p>
                     </div>
                     <button
                       onClick={openInNewTab}
