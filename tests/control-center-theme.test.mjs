@@ -384,8 +384,8 @@ test('notes consumes Tahoe chrome utilities and tokenized copy colors', () => {
 
   assert.match(notes, /tahoe-control-cluster/);
   assert.match(notes, /tahoe-content-card/);
-  assert.match(notes, /var\\(--tahoe-text-secondary\\)/);
-  assert.match(notes, /var\\(--tahoe-text-tertiary\\)/);
+  assert.match(notes, /var\(--tahoe-text-secondary\)/);
+  assert.match(notes, /var\(--tahoe-text-tertiary\)/);
 });
 
 test('terminal consumes Tahoe terminal shell utilities and tokenized input colors', () => {
@@ -394,7 +394,7 @@ test('terminal consumes Tahoe terminal shell utilities and tokenized input color
   assert.match(terminal, /tahoe-terminal-shell/);
   assert.match(terminal, /tahoe-terminal-input/);
   assert.match(terminal, /tahoe-terminal-badge/);
-  assert.match(terminal, /var\\(--tahoe-text-primary\\)/);
+  assert.match(terminal, /var\(--tahoe-text-primary\)/);
 });
 
 test('globals define adaptive app chrome surface classes for light-mode window content', () => {
