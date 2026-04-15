@@ -309,7 +309,7 @@ const FinderApp = React.memo(({ initialPath, onOpenFile }: FinderProps) => {
   );
 
   return (
-    <div className="flex flex-col h-full bg-[#1c1c1e] text-white overflow-hidden select-none" onClick={() => setContextMenu(null)}>
+    <div className="tahoe-app-surface flex h-full flex-col overflow-hidden select-none" onClick={() => setContextMenu(null)}>
       <AnimatePresence>
         {contextMenu && (
           <ContextMenu
@@ -323,7 +323,7 @@ const FinderApp = React.memo(({ initialPath, onOpenFile }: FinderProps) => {
 
       {/* Integrated Title Bar Area */}
       <div
-        className="h-12 flex items-center justify-between px-4 shrink-0 cursor-grab active:cursor-grabbing"
+        className="tahoe-app-toolbar flex h-12 shrink-0 items-center justify-between px-4 cursor-grab active:cursor-grabbing"
         onPointerDown={(e) => dragControls?.start(e)}
       >
         <div className="flex items-center gap-4 md:gap-20 ml-2">
@@ -361,7 +361,7 @@ const FinderApp = React.memo(({ initialPath, onOpenFile }: FinderProps) => {
       </div>
 
       {/* Secondary Tab Bar (Pill) */}
-      <div className="h-10 px-4 flex items-center shrink-0">
+      <div className="tahoe-app-toolbar flex h-10 shrink-0 items-center px-4">
         <div className="flex-1 bg-black/30 rounded-lg border border-white/[0.08] h-7 flex items-center justify-center relative group">
           <span className="text-[11px] font-medium text-white/70">{currentFolder.name}</span>
           <button
@@ -376,7 +376,7 @@ const FinderApp = React.memo(({ initialPath, onOpenFile }: FinderProps) => {
 
       <div className="flex flex-1 overflow-hidden">
         {/* Sidebar */}
-        <div className="hidden md:flex w-[220px] bg-white/[0.03] backdrop-blur-3xl border-r border-black/20 p-3 pt-4 flex-col gap-4 overflow-y-auto shrink-0 text-[13px]">
+        <div className="tahoe-app-sidebar hidden w-[220px] shrink-0 flex-col gap-4 overflow-y-auto border-r border-black/20 p-3 pt-4 text-[13px] md:flex">
           {sidebarSections.map((section, idx) => (
             <div key={idx} className="flex flex-col">
               {!section.hideTitle && (
@@ -413,7 +413,7 @@ const FinderApp = React.memo(({ initialPath, onOpenFile }: FinderProps) => {
 
         {/* Workspace */}
         <div
-          className="flex-1 flex flex-col bg-[#1c1c1c]/95 relative"
+          className="tahoe-app-panel relative flex flex-1 flex-col"
           onClick={() => setSelectedIds([])}
           onContextMenu={(e) => handleContextMenu(e)}
         >
@@ -483,7 +483,7 @@ const FinderApp = React.memo(({ initialPath, onOpenFile }: FinderProps) => {
           </div>
 
           {/* Bottom Breadcrumbs */}
-          <div className="h-7 border-t border-white/[0.08] flex items-center px-4 gap-2 text-[10px] text-white/40 bg-[#252528] shrink-0 font-medium overflow-hidden">
+          <div className="tahoe-app-statusbar flex h-7 shrink-0 items-center gap-2 overflow-hidden border-t border-white/[0.08] px-4 text-[10px] font-medium text-white/40">
             <div className="hidden sm:flex items-center gap-1.5 opacity-60 hover:opacity-100 transition-opacity cursor-default">
               <span className="text-[12px]">💾</span> Macintosh HD
             </div>
@@ -514,7 +514,7 @@ const FinderApp = React.memo(({ initialPath, onOpenFile }: FinderProps) => {
           </div>
 
           {/* Status Bar */}
-          <div className="h-9 border-t border-black/40 flex items-center justify-center px-4 relative bg-[#252528] shrink-0">
+          <div className="tahoe-app-statusbar relative flex h-9 shrink-0 items-center justify-center border-t border-black/40 px-4">
             <span className="text-[11.5px] text-white/50 font-medium tracking-tight truncate px-2">{currentFiles.length} elementos, 34.49 GB disponible(s)</span>
             <div className="hidden sm:flex absolute right-5 items-center gap-4 group">
               <div className="relative w-28 h-5 flex items-center">

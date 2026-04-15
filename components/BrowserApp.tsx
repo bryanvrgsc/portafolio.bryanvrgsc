@@ -540,11 +540,11 @@ const BrowserApp = React.memo(() => {
   };
 
   return (
-    <div className="flex flex-col h-full bg-[#1c1c1e] text-white">
+    <div className="tahoe-app-surface flex h-full flex-col">
       {/* Safari Modern Unified Header - Pixel Perfect Refinement */}
       <div
         onPointerDown={(e) => dragControls?.start(e)}
-        className="h-[52px] shrink-0 bg-[#1c1c1e]/60 backdrop-blur-xl border-b border-white/5 flex items-center px-3 gap-2 cursor-default"
+        className="tahoe-app-toolbar flex h-[52px] shrink-0 items-center gap-2 px-3 cursor-default"
       >
         {/* Left Side: Traffic Lights Space + Sidebar Pill */}
         <div className="flex items-center gap-2">
@@ -711,7 +711,7 @@ const BrowserApp = React.memo(() => {
       {tabs.length > 1 && !showTabOverview && (
         <div
           onPointerDown={(e) => e.stopPropagation()}
-          className="h-[38px] bg-[#1c1c1e]/60 backdrop-blur-xl border-b border-white/5 flex items-center px-2 gap-1 overflow-x-auto no-scrollbar select-none"
+          className="tahoe-app-toolbar flex h-[38px] items-center gap-1 overflow-x-auto px-2 no-scrollbar select-none"
         >
           {tabs.map((tab) => (
             <div
@@ -746,10 +746,10 @@ const BrowserApp = React.memo(() => {
       )}
 
       {/* Content Area with Sidebar */}
-      <div className="flex-1 flex relative bg-[#1e1e1e] overflow-hidden">
+      <div className="tahoe-app-panel relative flex flex-1 overflow-hidden">
         {/* Tab Overview Overlay */}
         {showTabOverview && (
-          <div className="absolute inset-0 z-50 bg-[#1c1c1e]/95 backdrop-blur-2xl p-10 overflow-auto">
+          <div className="tahoe-app-overlay absolute inset-0 z-50 overflow-auto p-10">
             <div className="max-w-6xl mx-auto">
               <div className="flex items-center justify-between mb-10">
                 <h2 className="text-3xl font-bold">Pestañas</h2>
@@ -804,7 +804,7 @@ const BrowserApp = React.memo(() => {
         )}
 
         {/* Sidebar */}
-        <div className={`transition-all duration-300 ease-in-out border-r border-white/5 bg-[#1c1c1e] overflow-hidden ${isSidebarOpen ? 'w-[200px]' : 'w-0'}`}>
+        <div className={`tahoe-app-sidebar overflow-hidden border-r border-white/5 transition-all duration-300 ease-in-out ${isSidebarOpen ? 'w-[200px]' : 'w-0'}`}>
           <div className="p-4 w-[200px]">
             <h3 className="text-xs font-semibold text-white/40 uppercase tracking-wider mb-4">Favoritos</h3>
             <div className="flex flex-col gap-2">

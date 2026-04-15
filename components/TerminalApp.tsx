@@ -278,7 +278,7 @@ const TerminalApp = React.memo(({ onOpenFile, onOpenFolder }: TerminalAppProps) 
 
   return (
     <div
-      className="h-full bg-[#1c1c1e] text-white font-mono text-[13px] p-2 overflow-auto leading-normal selection:bg-white/20"
+      className="tahoe-app-surface h-full overflow-auto p-2 font-mono text-[13px] leading-normal selection:bg-white/20"
       style={{ fontFamily: "MesloLGS NF, Menlo, Monaco, 'Courier New', monospace" }}
       onClick={() => document.getElementById('term-input')?.focus()}
     >

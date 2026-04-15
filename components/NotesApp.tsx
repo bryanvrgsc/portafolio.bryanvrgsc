@@ -24,10 +24,10 @@ const NotesApp = React.memo(() => {
     });
 
     return (
-        <div className="flex flex-col h-full bg-[#1c1c1e] text-white overflow-hidden select-none">
+        <div className="tahoe-app-surface flex h-full flex-col overflow-hidden select-none">
             {/* Header - Matches Screenshot Layout */}
             <div
-                className="h-[52px] flex items-center justify-between px-4 shrink-0 cursor-grab active:cursor-grabbing border-b border-white/[0.05]"
+                className="tahoe-app-toolbar flex h-[52px] shrink-0 items-center justify-between px-4 cursor-grab active:cursor-grabbing"
                 onPointerDown={(e) => dragControls?.start(e)}
             >
                 {/* Left segment: Traffic light space + Title */}
@@ -38,7 +38,11 @@ const NotesApp = React.memo(() => {
                 {/* Right segment: Tools + Expand */}
                 <div className="flex items-center gap-3">
                     {/* Toolbar Pill */}
-                    <div className="flex items-center bg-[#2d2d2e] border border-white/[0.08] rounded-[10px] p-[2px] pointer-events-auto shadow-sm" onPointerDown={(e) => e.stopPropagation()}>
+                    <div
+                        className="pointer-events-auto flex items-center rounded-[10px] border p-[2px] shadow-sm"
+                        style={{ background: 'var(--tahoe-app-toolbar-surface)', borderColor: 'var(--tahoe-stroke-soft)' }}
+                        onPointerDown={(e) => e.stopPropagation()}
+                    >
                         <button className="px-3 py-1 hover:bg-white/[0.08] rounded-[8px] transition-colors text-[14px] font-semibold text-white/90" aria-label="Opciones de formato">
                             Aa
                         </button>
